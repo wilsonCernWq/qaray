@@ -21,7 +21,7 @@
 FIND_PACKAGE(OpenGL REQUIRED)
 
 IF (APPLE)
-  FIND_PACKAGE(GLUT REQUIRED)
+  FIND_PACKAGE(GLUT)
   IF (NOT GLUT_FOUND)
     # These values for Apple could probably do with improvement.
     FIND_PATH(GLUT_INCLUDE_DIR glut.h
@@ -31,16 +31,19 @@ IF (APPLE)
     SET(GLUT_cocoa_LIBRARY "-framework Cocoa" CACHE STRING "Cocoa framework for OSX")
   ENDIF ()
 ELSEIF (WIN32)
-  # Clean Cache !!! ...
-  FIND_PATH(GLUT_INCLUDE_DIR NAMES GL/glut.h
-    PATHS  ${GLUT_ROOT_PATH}/include)
-  FIND_LIBRARY(GLUT_glut_LIBRARY NAMES glut glut32 freeglut
-    PATHS
-    ${OPENGL_LIBRARY_DIR}
-    ${GLUT_ROOT_PATH}/lib${WIN_ARCH}
-    ${GLUT_ROOT_PATH}/Release)
-  SET(GLUT_LIBRARIES ${GLUT_glut_LIBRARY})
-  MARK_AS_ADVANCED(GLUT_INCLUDE_DIR GLUT_glut_LIBRARY)
+  FIND_PACKAGE(GLUT)
+  IF (NOT GLUT_FOUND)
+    # Clean Cache !!! ...
+    FIND_PATH(GLUT_INCLUDE_DIR NAMES GL/glut.h
+      PATHS  ${GLUT_ROOT_PATH}/include)
+    FIND_LIBRARY(GLUT_glut_LIBRARY NAMES glut glut32 freeglut
+      PATHS
+      ${OPENGL_LIBRARY_DIR}
+      ${GLUT_ROOT_PATH}/lib${WIN_ARCH}
+      ${GLUT_ROOT_PATH}/Release)
+    SET(GLUT_LIBRARIES ${GLUT_glut_LIBRARY})
+    MARK_AS_ADVANCED(GLUT_INCLUDE_DIR GLUT_glut_LIBRARY)
+  ENDIF()
 ELSE()
   FIND_PACKAGE(GLUT)
   IF (GLUT_FOUND)
@@ -96,16 +99,16 @@ ELSE()
         GLUT_Xmu_LIBRARY
         GLUT_Xi_LIBRARY
         GLUT_cocoa_LIBRARY)
-      set(GLUT_FOUND "YES")
-      set(GLUT_LIBRARY ${GLUT_LIBRARIES})
-      set(GLUT_INCLUDE_PATH ${GLUT_INCLUDE_DIR})
+      SET(GLUT_FOUND "YES")
+      SET(GLUT_LIBRARY ${GLUT_LIBRARIES})
+      SET(GLUT_INCLUDE_PATH ${GLUT_INCLUDE_DIR})
     endif()
   ENDIF()
 ENDIF()
 
 # Produce output
 INCLUDE(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GLUT DEFAULT_MSG
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(GLUT DEFAULT_MSG
     GLUT_INCLUDE_DIR
     GLUT_LIBRARIES
 )
