@@ -24,11 +24,11 @@ IF (APPLE)
   FIND_PACKAGE(GLUT REQUIRED)
   IF (NOT GLUT_FOUND)
     # These values for Apple could probably do with improvement.
-    find_path(GLUT_INCLUDE_DIR glut.h
+    FIND_PATH(GLUT_INCLUDE_DIR glut.h
       /System/Library/Frameworks/GLUT.framework/Versions/A/Headers
       ${OPENGL_LIBRARY_DIR})
-    set(GLUT_glut_LIBRARY "-framework Glut" CACHE STRING "GLUT library for OSX")
-    set(GLUT_cocoa_LIBRARY "-framework Cocoa" CACHE STRING "Cocoa framework for OSX")
+    SET(GLUT_glut_LIBRARY "-framework Glut" CACHE STRING "GLUT library for OSX")
+    SET(GLUT_cocoa_LIBRARY "-framework Cocoa" CACHE STRING "Cocoa framework for OSX")
   ENDIF ()
 ELSEIF (WIN32)
   # Clean Cache !!! ...
@@ -46,11 +46,11 @@ ELSE()
   IF (GLUT_FOUND)
     SET(GLUT_LIBRARIES glut GLU m)
   ELSE()
-    # try again with method from
+    # Try again with method from
     #    https://github.com/tlorach/OpenGLText/blob/master/cmake/FindGLUT.cmake
     MESSAGE(STATUS "Automatic searching for GLUT failed, try again ...")
-    FIND_PATH( GLUT_INCLUDE_DIR GL/glut.h
-        ${GLUT_LOCATION}/include
+    FIND_PATH(GLUT_INCLUDE_DIR GL/glut.h
+        ${GLUT_LOCATION}/include # Hinted location
         $ENV{GLUT_LOCATION}/include
         /usr/include
         /usr/include/GL
@@ -60,47 +60,42 @@ ELSE()
         /usr/X11R6/include
         /usr/include/X11
         /opt/graphics/OpenGL/include
-        /opt/graphics/OpenGL/contrib/libglut
-    )
-    FIND_LIBRARY( GLUT_glut_LIBRARY glut
+        /opt/graphics/OpenGL/contrib/libglut)
+    FIND_LIBRARY(GLUT_glut_LIBRARY glut
+        ${GLUT_LOCATION}/lib # Hinted location
+        $ENV{GLUT_LOCATION}/lib
+        /usr/lib
+        /usr/local/lib
+        /usr/openwin/lib
+        /usr/X11R6/lib)
+    FIND_LIBRARY(GLUT_Xi_LIBRARY Xi
         ${GLUT_LOCATION}/lib
         $ENV{GLUT_LOCATION}/lib
         /usr/lib
         /usr/local/lib
         /usr/openwin/lib
-        /usr/X11R6/lib
-    )
-    FIND_LIBRARY( GLUT_Xi_LIBRARY Xi
+        /usr/X11R6/lib)
+    FIND_LIBRARY(GLUT_Xmu_LIBRARY Xmu
         ${GLUT_LOCATION}/lib
         $ENV{GLUT_LOCATION}/lib
         /usr/lib
         /usr/local/lib
         /usr/openwin/lib
-        /usr/X11R6/lib
-    )
-    FIND_LIBRARY( GLUT_Xmu_LIBRARY Xmu
-        ${GLUT_LOCATION}/lib
-        $ENV{GLUT_LOCATION}/lib
-        /usr/lib
-        /usr/local/lib
-        /usr/openwin/lib
-        /usr/X11R6/lib
-    )
+        /usr/X11R6/lib)
     if(GLUT_INCLUDE_DIR AND GLUT_glut_LIBRARY)
       # Is -lXi and -lXmu required on all platforms that have it?
       # If not, we need some way to figure out what platform we are on.
-      set( GLUT_LIBRARIES
+      set(GLUT_LIBRARIES
         ${GLUT_glut_LIBRARY}
         ${GLUT_Xmu_LIBRARY}
         ${GLUT_Xi_LIBRARY}
-        ${GLUT_cocoa_LIBRARY}
-      )
-      MARK_AS_ADVANCED(GLUT_INCLUDE_DIR
+        ${GLUT_cocoa_LIBRARY})
+      MARK_AS_ADVANCED(
+	GLUT_INCLUDE_DIR
         GLUT_glut_LIBRARY
         GLUT_Xmu_LIBRARY
         GLUT_Xi_LIBRARY
-        GLUT_cocoa_LIBRARY
-      )
+        GLUT_cocoa_LIBRARY)
       set(GLUT_FOUND "YES")
       set(GLUT_LIBRARY ${GLUT_LIBRARIES})
       set(GLUT_INCLUDE_PATH ${GLUT_INCLUDE_DIR})
@@ -108,7 +103,7 @@ ELSE()
   ENDIF()
 ENDIF()
 
-# produce output
+# Produce output
 INCLUDE(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(GLUT DEFAULT_MSG
     GLUT_INCLUDE_DIR
