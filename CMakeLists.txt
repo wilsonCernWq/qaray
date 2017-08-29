@@ -17,7 +17,7 @@ if (NOT CONFIGFOUND)
 endif()
 #
 # load required libraries
-include(cmake/common.cmake)
+INCLUDE(cmake/common.cmake)
 #
 # load projects
 SET(projdir ${CMAKE_CURRENT_LIST_DIR}/projects)
