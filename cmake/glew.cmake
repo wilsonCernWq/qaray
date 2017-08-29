@@ -3,11 +3,10 @@
 # ------------------------------------------------
 #
 # try default search
-MESSAGE(STATUS "try automatic search.")
 FIND_PACKAGE(GLEW)
 # if it doesn't work, use my standalone library
 IF (NOT GLEW_FOUND)
-  MESSAGE(STATUS "automatic search failed, try standalone version.")
+  MESSAGE(STATUS "Automatic search failed, try standalone version.")
   FIND_PATH(GLEW_INCLUDE_DIR GL/glew.h
     ${GLEW_ROOT_PATH}/include # Hinted location
     $ENV{GLEWDIR}/include
