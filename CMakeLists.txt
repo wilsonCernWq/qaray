@@ -9,7 +9,6 @@ if (NOT CONFIGFOUND)
   message(STATUS "failed to load the configuration file")
   message(STATUS "helper message:
     To build the program sucessfully, you might need to provide following paths to your cmake
-    *) path to the TBBConfig.cmake of your standalone TBB library as '-DTBB_DIR=<..>'
     *) path to the root directory of your standalone TBB library as '-DTBB_ROOT=<..>'
   ")
 endif()
