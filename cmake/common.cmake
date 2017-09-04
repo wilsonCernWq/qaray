@@ -27,7 +27,7 @@ MACRO(DeployRepo SRC DEST)
 ENDMACRO(DeployRepo)
 #
 #
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 #
 # Setting up compiler
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/configcxx.cmake)
@@ -46,6 +46,7 @@ IF(WIN32)
 ENDIF()
 #
 #--- OPENGL
+#
 FIND_PACKAGE(OpenGL REQUIRED)
 IF(OPENGL_FOUND)
   MESSAGE(STATUS " OPENGL found!  ${OPENGL_LIBRARIES}")
@@ -61,6 +62,7 @@ ELSE()
 ENDIF()
 #
 #--- CMake extension to load GLUT
+#
 SET(GLUT_ROOT_PATH "${PROJECT_SOURCE_DIR}/external/freeglut")
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/glut.cmake)
 IF(GLUT_FOUND)
@@ -75,6 +77,7 @@ ELSE()
 ENDIF()
 #
 #--- GLEW
+#
 SET(GLEW_ROOT_PATH "${PROJECT_SOURCE_DIR}/external/glew")
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/glew.cmake)
 IF(GLUT_FOUND)
@@ -85,7 +88,7 @@ ELSE()
     MESSAGE(FATAL_ERROR " GLEW not found!")
 ENDIF()
 #
-#--- add cyCodeBase (submodule)
+#--- cyCodeBase
 #   https://github.com/cemyuksel/cyCodeBase.git
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/cyCodeBase)
 #
@@ -107,4 +110,15 @@ FIND_PACKAGE(OpenMP)
 IF (OPENMP_FOUND)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+ENDIF()
+#
+#--- TBB
+#
+FIND_PACKAGE(TBB)
+IF(GLUT_FOUND)
+    INCLUDE_DIRECTORIES(${TBB_INCLUDE_DIR})
+    LIST(APPEND COMMON_LIBS ${TBB_LIBRARY})
+    ADD_DEFINITIONS(-DUSE_TBB)    
+ELSE()
+    MESSAGE(FATAL_ERROR " TBB not found!")
 ENDIF()

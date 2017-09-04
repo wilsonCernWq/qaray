@@ -7,13 +7,11 @@ message(STATUS "trying to include ${SYSNAME}.cmake configuration file")
 include(cmake/config-site/${SYSNAME}.cmake OPTIONAL RESULT_VARIABLE CONFIGFOUND)
 if (NOT CONFIGFOUND)
   message(STATUS "failed to load the configuration file")
-  # message(STATUS "helper message:
-  #   To build the program sucessfully, you might need to provide following paths to your cmake
-  #   *) path to your osprayConfig.cmake included in the OSPRay releases to CMake as '-Dospray_DIR=<..>'
-  #   *) path to the embreeConfig.cmake from the Embree releases similarly as '-Dembree_DIR=<..>'
-  #   *) path to the root directory of your standalone TBB library as '-DTBB_ROOT=<..>'
-  #   *) path to the root directory of your standalone ISPC executable as '-DISPC_EXECUTABLE=<..>'
-  # ")
+  message(STATUS "helper message:
+    To build the program sucessfully, you might need to provide following paths to your cmake
+    *) path to the TBBConfig.cmake of your standalone TBB library as '-DTBB_DIR=<..>'
+    *) path to the root directory of your standalone TBB library as '-DTBB_ROOT=<..>'
+  ")
 endif()
 #
 # load required libraries
