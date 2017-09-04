@@ -122,10 +122,7 @@ ENDIF()
 
 SET(TBB_ROOT_LAST ${TBB_ROOT} CACHE INTERNAL "Last value of TBB_ROOT to detect changes")
 
-SET(TBB_ERROR_MESSAGE
-  "Threading Building Blocks (TBB) with minimum version ${TBB_VERSION_REQUIRED} not found.
-OSPRay uses TBB as default tasking system. Please make sure you have the TBB headers installed as well (the package is typically named 'libtbb-dev' or 'tbb-devel') and/or hint the location of TBB in TBB_ROOT.
-Alternatively, you can try to use OpenMP as tasking system by setting OSPRAY_TASKING_SYSTEM=OpenMP")
+SET(TBB_ERROR_MESSAGE "Threading Building Blocks (TBB) with minimum version ${TBB_VERSION_REQUIRED} not found")
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(TBB

@@ -1,7 +1,7 @@
 #
 #--- Configures compiler for C++11
 #
-ADD_DEFINITIONS(-std=c++11)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 IF(UNIX)
   IF(NOT APPLE)
     MESSAGE(STATUS "Using GCC Compiler.")
