@@ -19,6 +19,7 @@
 MESSAGE(STATUS "Interactive Computer Graphics - Loading Common Configuration")
 #
 # define macro
+#
 MACRO(DeployRepo SRC DEST)
   message(STATUS " -- Deploying: ${SRC} to ${DEST}")
   FOREACH(f ${SRC})
@@ -26,18 +27,22 @@ MACRO(DeployRepo SRC DEST)
   ENDFOREACH()
 ENDMACRO(DeployRepo)
 #
+# General Settings
 #
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-#
-# Setting up compiler
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/configcxx.cmake)
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  SET(CMAKE_MACOSX_RPATH 1)
+ENDIF()
 #
 # Initialize library pathes and dll path
+#
 SET(COMMON_LIBS "") # those will be link for each project
 SET(COMMON_DLLS "") # those files will be copyed to the executable folder
 SET(COMMON_DEFINITIONS "")
 #
 # check win arch
+#
 SET(WIN_ARCH "")
 IF(WIN32)
   IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -110,6 +115,9 @@ FIND_PACKAGE(TBB)
 IF(TBB_FOUND)
   INCLUDE_DIRECTORIES(${TBB_INCLUDE_DIR})
   LIST(APPEND COMMON_LIBS ${TBB_LIBRARY})
+  IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+  ENDIF()
   ADD_DEFINITIONS(-DUSE_TBB)
 ENDIF()
 #
