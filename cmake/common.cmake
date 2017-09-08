@@ -21,7 +21,7 @@ MESSAGE(STATUS "Interactive Computer Graphics - Loading Common Configuration")
 # define macro
 #
 MACRO(DeployRepo SRC DEST)
-  message(STATUS " -- Deploying: ${SRC} to ${DEST}")
+  MESSAGE(STATUS "-- Deploying: ${SRC} to ${DEST}")
   FOREACH(f ${SRC})
     FILE(COPY ${f} DESTINATION ${DEST})
   ENDFOREACH()
@@ -39,16 +39,6 @@ ENDIF()
 #
 SET(COMMON_LIBS "") # those will be link for each project
 SET(COMMON_DLLS "") # those files will be copyed to the executable folder
-SET(COMMON_DEFINITIONS "")
-#
-# check win arch
-#
-SET(WIN_ARCH "")
-IF(WIN32)
-  IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    SET(WIN_ARCH /x64)
-  ENDIF()
-ENDIF()
 #
 #--- OPENGL
 #
@@ -60,42 +50,54 @@ IF(OPENGL_FOUND)
   IF(OPENGL_GLU_FOUND)
     MESSAGE(STATUS " GLU found!")
   ELSE()
-    MESSAGE(ERROR " GLU not found!")
+    MESSAGE(FATAL_ERROR " GLU not found!")
   ENDIF()
 ELSE()
-  MESSAGE(ERROR " OPENGL not found!")
-ENDIF()
-#
-#--- CMake extension to load GLUT
-#
-SET(GLUT_ROOT_PATH "${PROJECT_SOURCE_DIR}/external/freeglut")
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/glut.cmake)
-IF(GLUT_FOUND)
-    INCLUDE_DIRECTORIES(${GLUT_INCLUDE_DIR})
-    LIST(APPEND COMMON_LIBS ${GLUT_LIBRARIES})
-    LIST(APPEND COMMON_DLLS ${GLUT_DLL})
-    IF(APPLE)
-        ADD_DEFINITIONS(-DUSE_GLUT)
-    ENDIF()
-ELSE()
-    MESSAGE(FATAL_ERROR " GLUT not found!")
+  MESSAGE(FATAL_ERROR " OPENGL not found!")
 ENDIF()
 #
 #--- GLEW
 #
-SET(GLEW_ROOT_PATH "${PROJECT_SOURCE_DIR}/external/glew")
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/glew.cmake)
-IF(GLUT_FOUND)
-    INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIR})
-    LIST(APPEND COMMON_LIBS ${GLEW_LIBRARIES})
-    LIST(APPEND COMMON_DLLS ${GLEW_DLL})
+FIND_PACKAGE(GLEW REQUIRED)
+IF(GLEW_FOUND)
+  MESSAGE(STATUS " GLEW found!  ${GLEW_LIBRARIES}")
+  INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIR})
+  LIST(APPEND COMMON_LIBS ${GLEW_LIBRARIES})
 ELSE()
-    MESSAGE(FATAL_ERROR " GLEW not found!")
+  MESSAGE(FATAL_ERROR " GLEW not found!")
 ENDIF()
+#
+#--- CMake extension to load GLUT
+#
+FIND_PACKAGE(GLUT REQUIRED)
+IF(GLUT_FOUND)
+  MESSAGE(STATUS " GLUT found!  ${GLUT_LIBRARIES}")
+  INCLUDE_DIRECTORIES(${GLUT_INCLUDE_DIR})
+  LIST(APPEND COMMON_LIBS ${GLUT_LIBRARIES})
+  IF(APPLE)
+    ADD_DEFINITIONS(-DUSE_GLUT)
+  ENDIF()
+ELSE()
+  MESSAGE(FATAL_ERROR " GLUT not found!")
+ENDIF()
+#
+#--- GLFW
+#
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/glfw)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glfw/include)
+LIST(APPEND COMMON_LIBS glfw)
+#
+#----------------------------------------------------------------------------
+#
+#--- glm
+#
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/external/glm")
 #
 #--- cyCodeBase
 #   https://github.com/cemyuksel/cyCodeBase.git
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/cyCodeBase)
+#
+#----------------------------------------------------------------------------
 #
 #--- lodePNG
 #   http://lodev.org/lodepng/
@@ -108,6 +110,8 @@ LIST(APPEND COMMON_LIBS ${LodePNG_LIBRARIES})
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/tinyxml)
 INCLUDE_DIRECTORIES(${TinyXML_INCLUDE_DIR})
 LIST(APPEND COMMON_LIBS ${TinyXML_LIBRARIES})
+#
+#----------------------------------------------------------------------------
 #
 #--- TBB
 #
