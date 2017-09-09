@@ -13,3 +13,13 @@ zip -r prj${N}.zip \
     external/lodepng \
     external/tinyxml \
     projects/Prj${N}
+
+echo "Now Testing"
+echo "A" | unzip prj${N}.zip -d test
+cd test
+mkdir -p build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j || exit
+cd ../..
+rm -fr test/
