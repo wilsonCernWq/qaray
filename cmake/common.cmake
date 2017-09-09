@@ -83,15 +83,21 @@ ENDIF()
 #
 #--- GLFW
 #
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/glfw)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glfw/include)
-LIST(APPEND COMMON_LIBS glfw)
+IF(EXISTS ${PROJECT_SOURCE_DIR}/external/glfw)
+  ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/glfw)
+  INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glfw/include)
+  LIST(APPEND COMMON_LIBS glfw)
+  ADD_DEFINITIONS(-DUSE_GLFW)
+ENDIF()
 #
 #----------------------------------------------------------------------------
 #
 #--- glm
 #
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/external/glm")
+IF(EXISTS ${PROJECT_SOURCE_DIR}/external/glm)
+  INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glm)
+  ADD_DEFINITIONS(-DUSE_GLM)
+ENDIF()
 #
 #--- cyCodeBase
 #   https://github.com/cemyuksel/cyCodeBase.git
@@ -131,9 +137,13 @@ FIND_PACKAGE(OpenMP)
 IF (OPENMP_FOUND)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")  
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  ADD_DEFINITIONS(-DUSE_OPENMP)
 ENDIF()
 #
 #--- libsimdpp
 #
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
+IF(EXISTS ${PROJECT_SOURCE_DIR}/external/libsimdpp)
+  ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
+  INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
+  ADD_DEFINITIONS(-DUSE_LIBSIMDPP)
+ENDIF()
