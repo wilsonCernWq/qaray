@@ -2,7 +2,7 @@
 # build TinyXML
 #
 
-ADD_LIBRARY(TinyXML SHARED
+ADD_LIBRARY(TinyXML
   tinyxml.cpp 
   tinyxmlparser.cpp 
   tinyxmlerror.cpp 
