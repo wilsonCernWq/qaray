@@ -54,11 +54,29 @@ inline Arch this_compile_arch()
 #if SIMDPP_USE_AVX512F
     res |= Arch::X86_AVX512F;
 #endif
+#if SIMDPP_USE_AVX512BW
+    res |= Arch::X86_AVX512BW;
+#endif
+#if SIMDPP_USE_AVX512DQ
+    res |= Arch::X86_AVX512DQ;
+#endif
 #if SIMDPP_USE_NEON
     res |= Arch::ARM_NEON;
 #endif
 #if SIMDPP_USE_NEON_FLT_SP
     res |= Arch::ARM_NEON_FLT_SP;
+#endif
+#if SIMDPP_USE_ALTIVEC
+    res |= Arch::POWER_ALTIVEC;
+#endif
+#if SIMDPP_USE_VSX_206
+    res |= Arch::POWER_VSX_206;
+#endif
+#if SIMDPP_USE_VSX_207
+    res |= Arch::POWER_VSX_207;
+#endif
+#if SIMDPP_USE_MSA
+    res |= Arch::MIPS_MSA;
 #endif
     return res;
 }

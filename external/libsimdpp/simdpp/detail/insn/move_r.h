@@ -35,8 +35,10 @@ uint8x16 i_move16_r(const uint8x16& a)
     return vextq_u8(z, a, 16-shift);
 #elif SIMDPP_USE_ALTIVEC
     // return align<16-shift>((uint8x16) make_zero(), a);
-    return vec_sld((__vector uint8_t)(uint8x16) make_zero(),
-                   (__vector uint8_t)a, 16-shift);
+    return vec_sld_biendian<16-shift>((uint8<16>)make_zero(), a);
+#elif SIMDPP_USE_MSA
+    uint8x16 zero = make_zero();
+    return (v16u8) __msa_sldi_b((v16i8)(v16u8)a, (v16i8)(v16u8)zero, 16-shift);
 #endif
 }
 
@@ -46,6 +48,15 @@ uint8x32 i_move16_r(const uint8x32& a)
 {
     static_assert(shift <= 16, "Selector out of range");
     return _mm256_slli_si256(a, shift);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned shift> SIMDPP_INL
+uint8<64> i_move16_r(const uint8<64>& a)
+{
+    static_assert(shift <= 16, "Selector out of range");
+    return _mm512_bslli_epi128(a, shift);
 }
 #endif
 
@@ -74,6 +85,15 @@ uint16<16> i_move8_r(const uint16<16>& a)
 {
     static_assert(shift <= 8, "Selector out of range");
     return _mm256_slli_si256(a, shift*2);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned shift> SIMDPP_INL
+uint16<32> i_move8_r(const uint16<32>& a)
+{
+    static_assert(shift <= 8, "Selector out of range");
+    return _mm512_bslli_epi128(a, shift*2);
 }
 #endif
 
@@ -130,7 +150,7 @@ uint32<N> i_move4_r(const uint32<N>& a)
 template<unsigned shift> SIMDPP_INL
 uint64<2> i_move2_r(const uint64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_NULL || (SIMDPP_USE_ALTIVEC && !SIMDPP_USE_VSX_207)
     return detail::null::move_n_r<shift>(a);
 #else
     return (uint64<2>) i_move16_r<shift*8>(uint8<16>(a));
@@ -208,10 +228,10 @@ float32<N> i_move4_r(const float32<N>& a)
 template<unsigned shift> SIMDPP_INL
 float64<2> i_move2_r(const float64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::move_n_r<shift>(a);
-#else
+#if SIMDPP_USE_SSE2 || SIMDPP_USE_NEON64 || SIMDPP_USE_VSX_206 || SIMDPP_USE_MSA
     return (float64<2>) i_move16_r<shift*8>(uint8<16>(a));
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+    return detail::null::move_n_r<shift>(a);
 #endif
 }
 

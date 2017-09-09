@@ -73,6 +73,10 @@ SIMDPP_INL uint8x16 i_shuffle_bytes16(const uint8x16& a, const uint8x16& b, cons
 #elif SIMDPP_USE_ALTIVEC
     return vec_perm((__vector uint8_t)a, (__vector uint8_t)b,
                     (__vector uint8_t)mask);
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_vshf_b((v16i8)(v16u8)mask,
+                                (v16i8)(v16u8)b,
+                                (v16i8)(v16u8)a);
 #else
     return SIMDPP_NOT_IMPLEMENTED3(a, b, mask);
 #endif
@@ -89,6 +93,20 @@ SIMDPP_INL uint8x32 i_shuffle_bytes16(const uint8x32& a, const uint8x32& b, cons
     bi = _mm256_shuffle_epi8(b, mask);
     r = _mm256_blendv_epi8(ai, bi, sel);
     return (uint8<32>) r;
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint8<64> i_shuffle_bytes16(const uint8<64>& a, const uint8<64>& b, const uint8<64>& mask)
+{
+    uint8<64> sel_mask, ai, bi, r;
+    sel_mask = make_uint(0x10);
+    __mmask64 sel = _mm512_test_epi8_mask(mask, sel_mask);
+
+    ai = _mm512_shuffle_epi8(a, mask);
+    bi = _mm512_shuffle_epi8(b, mask);
+    r = _mm512_mask_blend_epi8(sel, ai, bi);
+    return r;
 }
 #endif
 

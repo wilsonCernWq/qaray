@@ -15,8 +15,10 @@
 #include <simdpp/types.h>
 #include <simdpp/detail/mem_block.h>
 #include <simdpp/detail/not_implemented.h>
-#include <simdpp/core/detail/vec_insert.h>
+#include <simdpp/core/detail/subvec_insert.h>
+#include <simdpp/core/to_int32.h>
 #include <simdpp/core/to_int64.h>
+#include <simdpp/core/i_mul.h>
 #include <simdpp/core/combine.h>
 #include <simdpp/core/zip_hi.h>
 #include <simdpp/core/zip_lo.h>
@@ -31,10 +33,10 @@ namespace detail {
     selected for multiplication. Trying to abstract this incurs definite
     overhead.
 
-     - SSE2-SSE4.1 and AVX2 provide only instructions with interfaces similar
-        to mul_lo and mul_hi. The result vectors must be interleaved to obtain
-        contiguous result values. Multiplying 2 vectors always incurs
-        overhead of at least two interleaving instructions.
+     - SSE2-SSE4.1, AVX2, ALTIVEC and VSX provide only instructions with
+        interfaces similar to mul_lo and mul_hi. The result vectors must be
+        interleaved to obtain contiguous result values. Multiplying 2 vectors
+        always incurs overhead of at least two interleaving instructions.
 
      - AVX512 only provides 32-bit integer support. Widening multiplication
         can be done only by using PMULDQ, which takes odd elements and produces
@@ -45,9 +47,6 @@ namespace detail {
      - NEON, NEONv2 provide instructions that take elements of either the lower
         or higher halves of two 128-bit vectors and multiply them. No
         additional overhead is incurred to obtain contiguous result values.
-
-     - ALTIVEC hav multiply odd and multiply even instructions. No additional
-        overhead is incurred to obtain contiguous result values.
 
     The abstraction below uses the NEON model. No additional overhead is
     incurred on SSE/AVX and NEON. On ALTIVEC, a single additional permute
@@ -78,6 +77,12 @@ int32<8> expr_eval(const expr_mull<int16<8,E1>,
     int32x4 lo = vec_mule((__vector int16_t)a, (__vector int16_t)b);
     int32x4 hi = vec_mulo((__vector int16_t)a, (__vector int16_t)b);
     return combine(zip4_lo(lo, hi), zip4_hi(lo, hi));
+#elif SIMDPP_USE_MSA
+    int32<8> a32 = to_int32(a);
+    int32<8> b32 = to_int32(b);
+    a32.vec(0) = __msa_mulv_w(a32.vec(0), b32.vec(0));
+    a32.vec(1) = __msa_mulv_w(a32.vec(1), b32.vec(1));
+    return a32;
 #endif
 }
 
@@ -96,6 +101,22 @@ int32<16> expr_eval(const expr_mull<int16<16,E1>,
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+template<class R, class E1, class E2> SIMDPP_INL
+int32<32> expr_eval(const expr_mull<int16<32,E1>,
+                                    int16<32,E2>>& q)
+{
+    int16<32> a = q.a.eval();
+    int16<32> b = q.b.eval();
+    int64<8> idx = make_uint(0, 4, 1, 5, 2, 6, 3, 7);
+    a = _mm512_permutexvar_epi64(idx, a);
+    b = _mm512_permutexvar_epi64(idx, b);
+    int16<32> lo = _mm512_mullo_epi16(a, b);
+    int16<32> hi = _mm512_mulhi_epi16(a, b);
+    return (int32<32>) combine(zip8_lo(lo, hi), zip8_hi(lo, hi));
+}
+#endif
+
 template<class R, unsigned N, class E1, class E2> SIMDPP_INL
 int32<N> expr_eval(const expr_mull<int16<N,E1>,
                                    int16<N,E2>>& q)
@@ -104,7 +125,7 @@ int32<N> expr_eval(const expr_mull<int16<N,E1>,
     int16<N> b = q.b.eval();
     int32<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
+        detail::subvec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
     }
     return r;
 }
@@ -135,6 +156,12 @@ uint32<8> expr_eval(const expr_mull<uint16<8,E1>,
     uint32x4 lo = vec_mule((__vector uint16_t)a, (__vector uint16_t)b);
     uint32x4 hi = vec_mulo((__vector uint16_t)a, (__vector uint16_t)b);
     return combine(zip4_lo(lo, hi), zip4_hi(lo, hi));
+#elif SIMDPP_USE_MSA
+    int32<8> a32 = (int32<8>) to_uint32(a);
+    int32<8> b32 = (int32<8>) to_uint32(b);
+    a32.vec(0) = __msa_mulv_w(a32.vec(0), b32.vec(0));
+    a32.vec(1) = __msa_mulv_w(a32.vec(1), b32.vec(1));
+    return uint32<8>(a32);
 #endif
 }
 
@@ -153,6 +180,22 @@ uint32<16> expr_eval(const expr_mull<uint16<16,E1>,
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+template<class R, class E1, class E2> SIMDPP_INL
+uint32<32> expr_eval(const expr_mull<uint16<32,E1>,
+                                     uint16<32,E2>>& q)
+{
+    uint16<32> a = q.a.eval();
+    uint16<32> b = q.b.eval();
+    uint64<8> idx = make_uint(0, 4, 1, 5, 2, 6, 3, 7);
+    a = _mm512_permutexvar_epi64(idx, a);
+    b = _mm512_permutexvar_epi64(idx, b);
+    uint16<32> lo = _mm512_mullo_epi16(a, b);
+    uint16<32> hi = _mm512_mulhi_epu16(a, b);
+    return (uint32<32>) combine(zip8_lo(lo, hi), zip8_hi(lo, hi));
+}
+#endif
+
 template<class R, unsigned N, class E1, class E2> SIMDPP_INL
 uint32<N> expr_eval(const expr_mull<uint16<N,E1>,
                                     uint16<N,E2>>& q)
@@ -161,7 +204,7 @@ uint32<N> expr_eval(const expr_mull<uint16<N,E1>,
     uint16<N> b = q.b.eval();
     uint32<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
+        detail::subvec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
     }
     return r;
 }
@@ -195,6 +238,21 @@ int64<4> expr_eval(const expr_mull<int32<4,E1>,
     int64x2 lo = vmull_s32(vget_low_s32(a), vget_low_s32(b));
     int64x2 hi = vmull_s32(vget_high_s32(a), vget_high_s32(b));
     return combine(lo, hi);
+#elif SIMDPP_USE_VSX_207
+#if defined(__GNUC__) && (__GNUC__ < 8)
+    // BUG: GCC 7 and earlied don't implement 32-bit integer multiplication
+    SIMDPP_NOT_IMPLEMENTED2(a, b);
+#else
+    int64x2 lo = vec_vmulesw((__vector int32_t)a, (__vector int32_t)b);
+    int64x2 hi = vec_vmulosw((__vector int32_t)a, (__vector int32_t)b);
+    return combine(zip2_lo(lo, hi), zip2_hi(lo, hi));
+#endif
+#elif SIMDPP_USE_MSA
+    int64<4> a64 = to_int64(a);
+    int64<4> b64 = to_int64(b);
+    a64.vec(0) = __msa_mulv_d(a64.vec(0), b64.vec(0));
+    a64.vec(1) = __msa_mulv_d(a64.vec(1), b64.vec(1));
+    return a64;
 #else
     return SIMDPP_NOT_IMPLEMENTED_TEMPLATE2(R, a, b);
 #endif
@@ -226,7 +284,7 @@ int64<N> expr_eval(const expr_mull<int32<N,E1>,
     int32<N> b = q.b.eval();
     int64<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
+        detail::subvec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
     }
     return r;
 }
@@ -260,6 +318,15 @@ uint64<4> expr_eval(const expr_mull<uint32<4,E1>,
     uint64x2 lo = vmull_u32(vget_low_u32(a), vget_low_u32(b));
     uint64x2 hi = vmull_u32(vget_high_u32(a), vget_high_u32(b));
     return combine(lo, hi);
+#elif SIMDPP_USE_VSX_207
+#if defined(__GNUC__) && (__GNUC__ < 8)
+    // BUG: GCC 7 and earlied don't implement 32-bit integer multiplication
+    SIMDPP_NOT_IMPLEMENTED2(a, b);
+#else
+    uint64x2 lo = vec_vmuleuw((__vector uint32_t)a, (__vector uint32_t)b);
+    uint64x2 hi = vec_vmulouw((__vector uint32_t)a, (__vector uint32_t)b);
+    return combine(zip2_lo(lo, hi), zip2_hi(lo, hi));
+#endif
 #elif SIMDPP_USE_ALTIVEC
     mem_block<uint32<4>> ba = a;
     mem_block<uint32<4>> bb = b;
@@ -269,6 +336,12 @@ uint64<4> expr_eval(const expr_mull<uint32<4,E1>,
     r.vec(1).el(0) = (uint64_t) ba[2] * bb[2];
     r.vec(1).el(1) = (uint64_t) ba[3] * bb[3];
     return r;
+#elif SIMDPP_USE_MSA
+    int64<4> a64 = (int64<4>) to_uint64(a);
+    int64<4> b64 = (int64<4>) to_uint64(b);
+    a64.vec(0) = __msa_mulv_d(a64.vec(0), b64.vec(0));
+    a64.vec(1) = __msa_mulv_d(a64.vec(1), b64.vec(1));
+    return (uint64<4>) a64;
 #endif
 }
 
@@ -320,7 +393,7 @@ uint64<N> expr_eval(const expr_mull<uint32<N,E1>,
     uint32<N> b = q.b.eval();
     uint64<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
+        detail::subvec_insert(r, mull(a.vec(i), b.vec(i)).eval(), i);
     }
     return r;
 }

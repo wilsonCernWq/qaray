@@ -19,6 +19,7 @@
 #include <simdpp/detail/shuffle/neon_int16x8.h>
 #include <simdpp/detail/shuffle/neon_int32x4.h>
 #include <simdpp/detail/shuffle/neon_int64x2.h>
+#include <simdpp/detail/shuffle/shuffle_mask.h>
 
 namespace simdpp {
 namespace SIMDPP_ARCH_NAMESPACE {
@@ -54,12 +55,15 @@ template<unsigned s0, unsigned s1> SIMDPP_INL
 uint64x2 i_permute2(const uint64x2& a)
 {
     static_assert(s0 < 2 && s1 < 2, "Selector out of range");
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::permute<s0,s1>(a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2 || SIMDPP_USE_MSA
     return (uint64x2) i_permute4<s0*2, s0*2+1, s1*2, s1*2+1>(int32x4(a));
 #elif SIMDPP_USE_NEON
     return detail::neon_shuffle_int64x2::permute2<s0,s1>(a);
+#elif SIMDPP_USE_VSX_207
+    return vec_xxpermdi((__vector uint64_t) a, (__vector uint64_t) a,
+                        SIMDPP_VSX_SHUFFLE_MASK_2x2(s0, s1));
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::permute<s0,s1>(a);
 #endif
 }
 
@@ -94,12 +98,15 @@ template<unsigned s0, unsigned s1> SIMDPP_INL
 float64x2 i_permute2(const float64x2& a)
 {
     static_assert(s0 < 2 && s1 < 2, "Selector out of range");
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::permute<s0,s1>(a);
-#elif SIMDPP_USE_SSE2
-    return _mm_shuffle_pd(a, a, _MM_SHUFFLE2(s1, s0));
-#else
+#if SIMDPP_USE_SSE2
+    return _mm_shuffle_pd(a, a, SIMDPP_SHUFFLE_MASK_2x2(s0, s1));
+#elif SIMDPP_USE_VSX_206
+    return vec_xxpermdi((__vector double) a, (__vector double) a,
+                        SIMDPP_VSX_SHUFFLE_MASK_2x2(s0, s1));
+#elif SIMDPP_USE_NEON64 || SIMDPP_USE_MSA
     return float64x2(i_permute2<s0,s1>(int64x2(a)));
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+    return detail::null::permute<s0,s1>(a);
 #endif
 }
 

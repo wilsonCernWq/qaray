@@ -44,6 +44,9 @@ uint8<16> expr_eval(const expr_abs<int8<16,E>>& q)
 #elif SIMDPP_USE_ALTIVEC
     // expands to 3 instructions
     return (__vector uint8_t) vec_abs((__vector int8_t)a);
+#elif SIMDPP_USE_MSA
+    int8<16> zero = make_zero();
+    return (v16u8) __msa_add_a_b(a, zero);
 #endif
 }
 
@@ -53,6 +56,15 @@ uint8<32> expr_eval(const expr_abs<int8<32,E>>& q)
 {
     int8<32> a = q.a.eval();
     return _mm256_abs_epi8(a);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<class R, class E> SIMDPP_INL
+uint8<64> expr_eval(const expr_abs<int8<64,E>>& q)
+{
+    int8<64> a = q.a.eval();
+    return _mm512_abs_epi8(a);
 }
 #endif
 
@@ -84,6 +96,9 @@ uint16<8> expr_eval(const expr_abs<int16<8,E>>& q)
 #elif SIMDPP_USE_ALTIVEC
     // expands to 3 instructions
     return (__vector uint16_t) vec_abs((__vector int16_t)a);
+#elif SIMDPP_USE_MSA
+    int16<8> zero = make_zero();
+    return (v8u16) __msa_add_a_h(a, zero);
 #endif
 }
 
@@ -93,6 +108,15 @@ uint16<16> expr_eval(const expr_abs<int16<16,E>>& q)
 {
     int16<16> a = q.a.eval();
     return _mm256_abs_epi16(a);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<class R, class E> SIMDPP_INL
+uint16<32> expr_eval(const expr_abs<int16<32,E>>& q)
+{
+    int16<32> a = q.a.eval();
+    return _mm512_abs_epi16(a);
 }
 #endif
 
@@ -124,6 +148,9 @@ uint32<4> expr_eval(const expr_abs<int32<4,E>>& q)
 #elif SIMDPP_USE_ALTIVEC
     // expands to 3 instructions
     return (__vector uint32_t) vec_abs((__vector int32_t)a);
+#elif SIMDPP_USE_MSA
+    int32<4> zero = make_zero();
+    return (v4u32) __msa_add_a_w(a, zero);
 #endif
 }
 
@@ -158,9 +185,7 @@ template<class R, class E> SIMDPP_INL
 uint64<2> expr_eval(const expr_abs<int64<2,E>>& q)
 {
     int64<2> a = q.a.eval();
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::abs(a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     uint32x4 ta;
     int64x2 t;
     ta = (uint32x4) bit_and(a, 0x8000000000000000);
@@ -180,6 +205,14 @@ uint64<2> expr_eval(const expr_abs<int64<2,E>>& q)
     a = bit_xor(a, t);
     a = sub(a, t);
     return a;
+#elif SIMDPP_USE_VSX_207
+    // expands to 3 instructions
+    return (__vector uint64_t) vec_abs((__vector int64_t)a);
+#elif SIMDPP_USE_MSA
+    int64<2> zero = make_zero();
+    return (v2u64) __msa_add_a_d(a, zero);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::abs(a);
 #endif
 }
 

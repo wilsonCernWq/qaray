@@ -20,6 +20,7 @@
 #include <simdpp/core/zip_lo.h>
 #include <simdpp/core/zip_hi.h>
 #include <simdpp/detail/null/shuffle.h>
+#include <simdpp/detail/shuffle/shuffle_mask.h>
 
 namespace simdpp {
 namespace SIMDPP_ARCH_NAMESPACE {
@@ -32,6 +33,10 @@ uint16x8 i_splat8(const uint16x8& a);
 #if SIMDPP_USE_AVX2
 template<unsigned s> SIMDPP_INL
 uint16x16 i_splat8(const uint16x16& a);
+#endif
+#if SIMDPP_USE_AVX512BW
+template<unsigned s> SIMDPP_INL
+uint16<32> i_splat8(const uint16<32>& a);
 #endif
 
 // -----------------------------------------------------------------------------
@@ -72,6 +77,8 @@ uint8x16 i_splat16(const uint8x16& ca)
     }
 #elif SIMDPP_USE_ALTIVEC
     return vec_splat((__vector uint8_t)a, s);
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_splat_b((v16i8)(v16u8) a, s);
 #endif
 }
 
@@ -82,6 +89,17 @@ uint8x32 i_splat16(const uint8x32& a)
     static_assert(s < 16, "Access out of bounds");
     uint16x16 b; b = s < 8 ? zip16_lo(a, a) : zip16_hi(a, a);
     return (uint8x32) i_splat8<s%8>(b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned s> SIMDPP_INL
+uint8<64> i_splat16(const uint8<64>& a)
+{
+    static_assert(s < 16, "Access out of bounds");
+    uint16<32> b;
+    b = s < 8 ? zip16_lo(a, a) : zip16_hi(a, a);
+    return (uint8<64>) i_splat8<s%8>(b);
 }
 #endif
 
@@ -128,6 +146,8 @@ uint16x8 i_splat8(const uint16x8& a)
     }
 #elif SIMDPP_USE_ALTIVEC
     return vec_splat((__vector uint16_t)a, s);
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_splat_h((v8i16)(v8u16) a, s);
 #endif
 }
 
@@ -147,6 +167,25 @@ uint16x16 i_splat8(const uint16x16& a)
         h = permute2<1,1>(h);
         return uint16x16(h);
     }
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned s> SIMDPP_INL
+uint16<32> i_splat8(const uint16<32>& a)
+{
+    static_assert(s < 8, "Access out of bounds");
+    uint64<8> r;
+    if (s < 4) {
+        const unsigned q = (s < 4) ? s : 0;
+        r = _mm512_shufflelo_epi16(a, SIMDPP_SHUFFLE_MASK_4x4(q, q, q, q));
+        r = permute2<0,0>(r);
+    } else {
+        const unsigned q = (s < 4) ? 0 : s - 4;
+        r = _mm512_shufflehi_epi16(a, SIMDPP_SHUFFLE_MASK_4x4(q, q, q, q));
+        r = permute2<1,1>(r);
+    }
+    return uint16<32>(r);
 }
 #endif
 
@@ -179,6 +218,8 @@ uint32x4 i_splat4(const uint32x4& a)
     }
 #elif SIMDPP_USE_ALTIVEC
     return vec_splat((__vector uint32_t)a, s);
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_splat_w((v4i32)(v4u32) a, s);
 #endif
 }
 
@@ -213,9 +254,7 @@ template<unsigned s> SIMDPP_INL
 uint64x2 i_splat2(const uint64x2& a)
 {
     static_assert(s < 2, "Access out of bounds");
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::splat<s>(a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     if (s == 0) {
         return permute2<0,0>(a);
     } else {
@@ -229,6 +268,12 @@ uint64x2 i_splat2(const uint64x2& a)
         z = vget_high_u64(a);
     }
     return (uint64x2_t) vdupq_lane_u64(z, 0);
+#elif SIMDPP_USE_VSX_207
+    return vec_splat((__vector uint64_t)a, s);
+#elif SIMDPP_USE_MSA
+    return (v2u64) __msa_splat_d((v2i64)(v2u64) a, s);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::splat<s>(a);
 #endif
 }
 
@@ -277,6 +322,8 @@ float32x4 i_splat4(const float32x4& a)
         float32x2_t z = vget_high_f32(a);
         return (float32x4_t) vdupq_lane_f32(z, (s < 2 ? 0 : s-2) );
     }
+#elif SIMDPP_USE_MSA
+    return (v4f32) __msa_splat_w((v4i32)(v4f32) a, s);
 #elif SIMDPP_USE_ALTIVEC
     return vec_splat((__vector float)a, s);
 #endif
@@ -313,10 +360,14 @@ template<unsigned s> SIMDPP_INL
 float64x2 i_splat2(const float64x2& a)
 {
     static_assert(s < 2, "Access out of bounds");
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON32
-    return detail::null::splat<s>(a);
-#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON64
+#if SIMDPP_USE_SSE2 || SIMDPP_USE_NEON64
     return permute2<s,s>(a);
+#elif SIMDPP_USE_VSX_206
+    return vec_splat((__vector double)a, s);
+#elif SIMDPP_USE_MSA
+    return (v2f64) __msa_splat_d((v2i64)(v2f64) a, s);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON
+    return detail::null::splat<s>(a);
 #endif
 }
 

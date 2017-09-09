@@ -40,6 +40,8 @@ uint16<8> expr_eval(const expr_mul_lo<uint16<8,E1>,
 #elif SIMDPP_USE_ALTIVEC
     return vec_mladd((__vector uint16_t)a, (__vector uint16_t)b,
                      (__vector uint16_t)(uint16x8) make_zero());
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_mulv_h((v8i16)(v8u16) a, (v8i16)(v8u16) b);
 #endif
 }
 
@@ -51,6 +53,17 @@ uint16<16> expr_eval(const expr_mul_lo<uint16<16,E1>,
     uint16<16> a = q.a.eval();
     uint16<16> b = q.b.eval();
     return _mm256_mullo_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<class R, class E1, class E2> SIMDPP_INL
+uint16<32> expr_eval(const expr_mul_lo<uint16<32,E1>,
+                                       uint16<32,E2>>& q)
+{
+    uint16<32> a = q.a.eval();
+    uint16<32> b = q.b.eval();
+    return _mm512_mullo_epi16(a, b);
 }
 #endif
 
@@ -83,10 +96,16 @@ int16<8> expr_eval(const expr_mul_hi<int16<8,E1>,
     int32x4 lo = vmull_s16(vget_low_s16(a), vget_low_s16(b));
     int32x4 hi = vmull_s16(vget_high_s16(a), vget_high_s16(b));
     return unzip8_hi(int16x8(lo), int16x8(hi));
-#elif SIMDPP_USE_ALTIVEC
+#elif SIMDPP_USE_ALTIVEC || SIMDPP_USE_MSA
+#if SIMDPP_BIG_ENDIAN
     int16<16> ab;
     ab = mull(a, b);
     return unzip8_lo(ab.vec(0), ab.vec(1));
+#else
+    int16<16> ab;
+    ab = mull(a, b);
+    return unzip8_hi(ab.vec(0), ab.vec(1));
+#endif
 #endif
 }
 
@@ -98,6 +117,17 @@ int16<16> expr_eval(const expr_mul_hi<int16<16,E1>,
     int16<16> a = q.a.eval();
     int16<16> b = q.b.eval();
     return _mm256_mulhi_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<class R, class E1, class E2> SIMDPP_INL
+int16<32> expr_eval(const expr_mul_hi<int16<32,E1>,
+                                      int16<32,E2>>& q)
+{
+    int16<32> a = q.a.eval();
+    int16<32> b = q.b.eval();
+    return _mm512_mulhi_epi16(a, b);
 }
 #endif
 
@@ -130,10 +160,14 @@ uint16<8> expr_eval(const expr_mul_hi<uint16<8,E1>,
     uint32x4 lo = vmull_u16(vget_low_u16(a), vget_low_u16(b));
     uint32x4 hi = vmull_u16(vget_high_u16(a), vget_high_u16(b));
     return unzip8_hi(uint16x8(lo), uint16x8(hi));
-#elif SIMDPP_USE_ALTIVEC
+#elif SIMDPP_USE_ALTIVEC && SIMDPP_BIG_ENDIAN
     uint16<16> ab;
     ab = mull(a, b);
     return unzip8_lo(ab.vec(0), ab.vec(1));
+#elif (SIMDPP_USE_ALTIVEC && SIMDPP_LITTLE_ENDIAN) || SIMDPP_USE_MSA
+    uint16<16> ab;
+    ab = mull(a, b);
+    return unzip8_hi(ab.vec(0), ab.vec(1));
 #endif
 }
 
@@ -145,6 +179,17 @@ uint16<16> expr_eval(const expr_mul_hi<uint16<16,E1>,
     uint16<16> a = q.a.eval();
     uint16<16> b = q.b.eval();
     return _mm256_mulhi_epu16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<class R, class E1, class E2> SIMDPP_INL
+uint16<32> expr_eval(const expr_mul_hi<uint16<32,E1>,
+                                       uint16<32,E2>>& q)
+{
+    uint16<32> a = q.a.eval();
+    uint16<32> b = q.b.eval();
+    return _mm512_mulhi_epu16(a, b);
 }
 #endif
 
@@ -180,6 +225,13 @@ uint32<4> expr_eval(const expr_mul_lo<uint32<4,E1>,
     return a;
 #elif SIMDPP_USE_NEON
     return vmulq_u32(a, b);
+#elif SIMDPP_USE_VSX_207
+    __vector uint32_t va = a, vb = b;
+    __vector uint32_t vr;
+    // BUG: GCC does not have support for vmuluwm yet
+    // return vec_vmuluwm(a, b);
+    asm("vmuluwm	%0, %1, %2" : "=wa"(vr) : "wa"(va), "wa"(vb));
+    return vr;
 #elif SIMDPP_USE_ALTIVEC
     // implement in terms of 16-bit multiplies
     //   *  ah  al
@@ -200,6 +252,8 @@ uint32<4> expr_eval(const expr_mul_lo<uint32<4,E1>,
     h_ab = shift_l<16>(add(h_ab, h_ba));
     h_ab = add(h_ab, l_ab);
     return h_ab;
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_mulv_w((v4i32)(v4u32) a, (v4i32)(v4u32) b);
 #endif
 }
 

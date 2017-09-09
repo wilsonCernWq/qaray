@@ -34,7 +34,9 @@ SIMDPP_INL void i_load(uint8x16& a, const char* p)
 #elif SIMDPP_USE_NEON
     a = vreinterpretq_u8_u64(vld1q_u64(reinterpret_cast<const uint64_t*>(p)));
 #elif SIMDPP_USE_ALTIVEC
-    a = vec_ldl(0, reinterpret_cast<const uint8_t*>(p));
+    a = vec_ld(0, reinterpret_cast<const uint8_t*>(p));
+#elif SIMDPP_USE_MSA
+    a = (v16u8) __msa_ld_b(p, 0);
 #endif
 }
 
@@ -43,7 +45,7 @@ SIMDPP_INL void i_load(uint32x4& a, const char* p) { uint8x16 r; i_load(r, p); a
 
 SIMDPP_INL void i_load(uint64x2& a, const char* p)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_NULL || (SIMDPP_USE_ALTIVEC && !SIMDPP_USE_VSX_207)
     const uint64_t* q = reinterpret_cast<const uint64_t*>(p);
     q = detail::assume_aligned(q, 16);
     detail::null::load(a, q);
@@ -63,7 +65,9 @@ SIMDPP_INL void i_load(float32x4& a, const char* p)
 #elif SIMDPP_USE_NEON
     a = vld1q_f32(q);
 #elif SIMDPP_USE_ALTIVEC
-    a = vec_ldl(0, q);
+    a = vec_ld(0, q);
+#elif SIMDPP_USE_MSA
+    a = (v4f32) __msa_ld_w(q, 0);
 #endif
 }
 
@@ -71,12 +75,16 @@ SIMDPP_INL void i_load(float64x2& a, const char* p)
 {
     const double* q = reinterpret_cast<const double*>(p);
     q = detail::assume_aligned(q, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON32
-    detail::null::load(a, q);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     a = _mm_load_pd(q);
 #elif SIMDPP_USE_NEON64
     a = vld1q_f64(q);
+#elif SIMDPP_USE_VSX_206
+    a = vec_ld(0, reinterpret_cast<const __vector double*>(q));
+#elif SIMDPP_USE_MSA
+    a = (v2f64) __msa_ld_d(q, 0);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON32
+    detail::null::load(a, q);
 #endif
 }
 
@@ -109,6 +117,17 @@ SIMDPP_INL void i_load(float64x4& a, const char* p)
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_load(uint8<64>& a, const char* p)
+{
+    a = _mm512_load_epi32(p);
+}
+SIMDPP_INL void i_load(uint16<32>& a, const char* p)
+{
+    a = _mm512_load_epi32(p);
+}
+#endif
+
 #if SIMDPP_USE_AVX512F
 SIMDPP_INL void i_load(uint32<16>& a,  const char* p)
 {
@@ -120,11 +139,11 @@ SIMDPP_INL void i_load(uint64<8>& a,  const char* p)
 }
 SIMDPP_INL void i_load(float32<16>& a, const char* p)
 {
-    a = _mm512_load_ps(p);
+    a = _mm512_load_ps(reinterpret_cast<const float*>(p));
 }
 SIMDPP_INL void i_load(float64<8>& a, const char* p)
 {
-    a = _mm512_load_pd(p);
+    a = _mm512_load_pd(reinterpret_cast<const double*>(p));
 }
 #endif
 

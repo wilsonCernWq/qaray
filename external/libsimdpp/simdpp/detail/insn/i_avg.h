@@ -42,6 +42,8 @@ SIMDPP_INL uint8x16 i_avg(const uint8x16& a, const uint8x16& b)
     return vrhaddq_u8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector uint8_t)a, (__vector uint8_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_u_b(a, b);
 #endif
 }
 
@@ -49,6 +51,13 @@ SIMDPP_INL uint8x16 i_avg(const uint8x16& a, const uint8x16& b)
 SIMDPP_INL uint8x32 i_avg(const uint8x32& a, const uint8x32& b)
 {
     return _mm256_avg_epu8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint8<64> i_avg(const uint8<64>& a, const uint8<64>& b)
+{
+    return _mm512_avg_epu8(a, b);
 }
 #endif
 
@@ -74,6 +83,8 @@ SIMDPP_INL int8x16 i_avg(const int8x16& a, const int8x16& b)
     return vrhaddq_s8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector int8_t)a, (__vector int8_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_s_b(a, b);
 #endif
 }
 
@@ -81,6 +92,19 @@ SIMDPP_INL int8x16 i_avg(const int8x16& a, const int8x16& b)
 SIMDPP_INL int8x32 i_avg(const int8x32& a, const int8x32& b)
 {
     uint8x32 a2, b2, bias, r;
+    bias = make_uint(0x80);
+    a2 = bit_xor(a, bias); // add
+    b2 = bit_xor(b, bias); // add
+    r = i_avg(a2, b2); // unsigned
+    r = bit_xor(r, bias); // sub
+    return r;
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL int8<64>i_avg(const int8<64>& a, const int8<64>& b)
+{
+    uint8<64> a2, b2, bias, r;
     bias = make_uint(0x80);
     a2 = bit_xor(a, bias); // add
     b2 = bit_xor(b, bias); // add
@@ -106,6 +130,8 @@ SIMDPP_INL uint16x8 i_avg(const uint16x8& a, const uint16x8& b)
     return vrhaddq_u16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector uint16_t)a, (__vector uint16_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_u_h(a, b);
 #endif
 }
 
@@ -113,6 +139,13 @@ SIMDPP_INL uint16x8 i_avg(const uint16x8& a, const uint16x8& b)
 SIMDPP_INL uint16x16 i_avg(const uint16x16& a, const uint16x16& b)
 {
     return _mm256_avg_epu16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint16<32> i_avg(const uint16<32>& a, const uint16<32>& b)
+{
+    return _mm512_avg_epu16(a, b);
 }
 #endif
 
@@ -137,6 +170,8 @@ SIMDPP_INL int16x8 i_avg(const int16x8& a, const int16x8& b)
     return vrhaddq_s16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector int16_t)a, (__vector int16_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_s_h(a, b);
 #endif
 }
 
@@ -144,6 +179,18 @@ SIMDPP_INL int16x8 i_avg(const int16x8& a, const int16x8& b)
 SIMDPP_INL int16x16 i_avg(const int16x16& a, const int16x16& b)
 {
     uint16x16 a2, b2, r;
+    a2 = bit_xor(a, 0x8000); // add
+    b2 = bit_xor(b, 0x8000); // add
+    r = i_avg(a2, b2); // unsigned
+    r = bit_xor(r, 0x8000); // sub
+    return r;
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL int16<32> i_avg(const int16<32>& a, const int16<32>& b)
+{
+    uint16<32> a2, b2, r;
     a2 = bit_xor(a, 0x8000); // add
     b2 = bit_xor(b, 0x8000); // add
     r = i_avg(a2, b2); // unsigned
@@ -168,6 +215,8 @@ SIMDPP_INL uint32x4 i_avg(const uint32x4& a, const uint32x4& b)
     return vrhaddq_u32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector uint32_t)a, (__vector uint32_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_u_w(a, b);
 #endif
 }
 
@@ -202,6 +251,8 @@ SIMDPP_INL int32x4 i_avg(const int32x4& a, const int32x4& b)
     return vrhaddq_s32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_avg((__vector int32_t)a, (__vector int32_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_aver_s_w(a, b);
 #endif
 }
 

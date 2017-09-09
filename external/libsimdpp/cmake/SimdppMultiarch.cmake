@@ -161,7 +161,7 @@ set(SIMDPP_X86_AVX_TEST_CODE
     #if (__clang_major__ == 3) && (__clang_minor__ == 6)
     #error Not supported. See simdpp/detail/workarounds.h
     #endif
-    #if (__GNUC__ == 4) && (__GNUC_MINOR__ == 4)
+    #if (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && !defined(__INTEL_COMPILER) && !defined(__clang__)
     #error Not supported. See simdpp/detail/workarounds.h
     #endif
 
@@ -287,13 +287,18 @@ set(SIMDPP_X86_AVX512F_DEFINE "SIMDPP_ARCH_X86_AVX512F")
 set(SIMDPP_X86_AVX512F_SUFFIX "-x86_avx512f")
 set(SIMDPP_X86_AVX512F_TEST_CODE
     "#include <immintrin.h>
+
+    #if (__clang_major__ == 4) && (__clang_minor__ == 0)
+    #error Not supported. See simdpp/detail/workarounds.h
+    #endif
+
     int main()
     {
         union {
             volatile char data[64];
             __m512 align;
         };
-        __m512 a = _mm512_load_ps((float*)a);
+        __m512 a = _mm512_load_ps((float*)data);
         a = _mm512_add_ps(a, a);
         __m512d d = _mm512_castps_pd(a); // weed out GCC < 5.0
         _mm512_store_ps((float*)data, a);
@@ -302,6 +307,48 @@ set(SIMDPP_X86_AVX512F_TEST_CODE
         __m512i b = _mm512_load_epi32((void*)data);
         b = _mm512_or_epi32(b, b);
         _mm512_store_epi32((void*)data, b);
+    }"
+)
+
+list(APPEND SIMDPP_ARCHS_PRI "X86_AVX512BW")
+if(SIMDPP_CLANG OR SIMDPP_GCC OR SIMDPP_INTEL)
+    set(SIMDPP_X86_AVX512BW_CXX_FLAGS "-mavx512bw")
+    #unsupported on MSVC
+endif()
+set(SIMDPP_X86_AVX512BW_DEFINE "SIMDPP_ARCH_X86_AVX512BW")
+set(SIMDPP_X86_AVX512BW_SUFFIX "-x86_avx512bw")
+set(SIMDPP_X86_AVX512BW_TEST_CODE
+    "#include <immintrin.h>
+    int main()
+    {
+        union {
+            volatile char a[64];
+            __m512i align;
+        };
+        __m512i one = _mm512_load_si512((void*)a);
+        one = _mm512_add_epi16(one, one); // only in AVX-512BW
+        _mm512_store_si512((void*)a, one);
+    }"
+)
+
+list(APPEND SIMDPP_ARCHS_PRI "X86_AVX512DQ")
+if(SIMDPP_CLANG OR SIMDPP_GCC OR SIMDPP_INTEL)
+    set(SIMDPP_X86_AVX512DQ_CXX_FLAGS "-mavx512dq")
+    #unsupported on MSVC
+endif()
+set(SIMDPP_X86_AVX512DQ_DEFINE "SIMDPP_ARCH_X86_AVX512DQ")
+set(SIMDPP_X86_AVX512DQ_SUFFIX "-x86_avx512dq")
+set(SIMDPP_X86_AVX512DQ_TEST_CODE
+    "#include <immintrin.h>
+    int main()
+    {
+        union {
+            volatile char a[64];
+            __m512 align;
+        };
+        __m512 one = _mm512_load_ps((float*)a);
+        one = _mm512_and_ps(one, one); // only in AVX512-DQ
+        _mm512_store_ps((float*)a, one);
     }"
 )
 
@@ -351,12 +398,34 @@ set(SIMDPP_ARM64_NEON_TEST_CODE
     }"
 )
 
+list(APPEND SIMDPP_ARCHS_PRI "MIPS_MSA")
+set(SIMDPP_MIPS_MSA_CXX_FLAGS "-mips64r5 -mmsa -mhard-float -mfp64 -mnan=legacy")
+set(SIMDPP_MIPS_MSA_DEFINE "SIMDPP_ARCH_MIPS_MSA")
+set(SIMDPP_MIPS_MSA_SUFFIX "-mips_msa")
+set(SIMDPP_MIPS_MSA_TEST_CODE
+    "#include <msa.h>
+    int main()
+    {
+        volatile unsigned char a[16];
+        v16i8 v = __msa_ld_b(a, 0);
+        v = __msa_add_a_b(v, v);
+        __msa_st_b(v, a, 0);
+    }"
+)
+
 list(APPEND SIMDPP_ARCHS_PRI "POWER_ALTIVEC")
 set(SIMDPP_POWER_ALTIVEC_CXX_FLAGS "-maltivec")
 set(SIMDPP_POWER_ALTIVEC_DEFINE "SIMDPP_ARCH_POWER_ALTIVEC")
 set(SIMDPP_POWER_ALTIVEC_SUFFIX "-power_altivec")
 set(SIMDPP_POWER_ALTIVEC_TEST_CODE
     "#include <altivec.h>
+
+    #if defined(__GNUC__) && (__GNUC__ < 6) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+    #if !defined(__INTEL_COMPILER) && !defined(__clang__)
+    #error GCC 5.0 and older are not supported on PPC little-endian. See simdpp/detail/workarounds.h
+    #endif
+    #endif
+
     int main()
     {
         volatile unsigned char a[16];
@@ -365,6 +434,64 @@ set(SIMDPP_POWER_ALTIVEC_TEST_CODE
         vec_st(v, 0, a);
     }"
 )
+
+list(APPEND SIMDPP_ARCHS_PRI "POWER_VSX_206")
+set(SIMDPP_POWER_VSX_206_CXX_FLAGS "-mvsx")
+set(SIMDPP_POWER_VSX_206_DEFINE "SIMDPP_ARCH_POWER_VSX_206")
+set(SIMDPP_POWER_VSX_206_SUFFIX "-power_vsx_2.06")
+set(SIMDPP_POWER_VSX_206_TEST_CODE
+    "#include <altivec.h>
+
+    #if defined(__GNUC__) && (__GNUC__ < 6) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    #if !defined(__INTEL_COMPILER) && !defined(__clang__)
+    #error GCC 5.0 and older are not supported on PPC little-endian. See simdpp/detail/workarounds.h
+    #endif
+    #endif
+
+    #if defined(__GNUC__) && (__GNUC__ < 6) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    #if !defined(__INTEL_COMPILER) && !defined(__clang__)
+    // Internal compiler errors or wrong behaviour on various SIMD memory operations
+    #error GCC 5.x and older not supported on VSX big-endian. See simdpp/detail/workarounds.h
+    #endif
+    #endif
+
+    int main()
+    {
+        volatile unsigned char a[16];
+        vector unsigned char v = vec_vsx_ld(0, a);
+        v = vec_add(v, v);
+        vec_vsx_st(v, 0, a);
+    }"
+)
+
+list(APPEND SIMDPP_ARCHS_PRI "POWER_VSX_207")
+set(SIMDPP_POWER_VSX_207_CXX_FLAGS "-mvsx -mcpu=power8")
+set(SIMDPP_POWER_VSX_207_DEFINE "SIMDPP_ARCH_POWER_VSX_207")
+set(SIMDPP_POWER_VSX_207_SUFFIX "-power_vsx_2.07")
+set(SIMDPP_POWER_VSX_207_TEST_CODE
+    "#include <altivec.h>
+
+    #if defined(__GNUC__) && (__GNUC__ < 6) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    #if !defined(__INTEL_COMPILER) && !defined(__clang__)
+    #error GCC 5.0 and older are not supported on PPC little-endian. See simdpp/detail/workarounds.h
+    #endif
+    #endif
+
+    #if defined(__GNUC__) && (__GNUC__ < 6) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    #if !defined(__INTEL_COMPILER) && !defined(__clang__)
+    #error GCC 5.x and older not supported on VSX big-endian. See simdpp/detail/workarounds.h
+    #endif
+    #endif
+
+    int main()
+    {
+        volatile unsigned char a[16];
+        vector unsigned char v = vec_vsx_ld(0, a);
+        v = vec_vpopcnt(v);
+        vec_vsx_st(v, 0, a);
+    }"
+)
+
 set(SIMDPP_ARCHS "${SIMDPP_ARCHS_PRI};${SIMDPP_ARCHS_SEC}")
 
 # ------------------------------------------------------------------------------
@@ -439,8 +566,11 @@ endfunction()
 #   identifiers is supplied.
 #
 #   The following identifiers are currently supported:
-#   X86_SSE2, X86_SSE3, X86_SSSE3, X86_SSE4_1, X86_AVX, X86_AVX2, X86_FMA3,
-#   X86_FMA4, X86_XOP, ARM_NEON, ARM_NEON_FLT_SP, ARM64_NEON
+#   X86_SSE2, X86_SSE3, X86_SSSE3, X86_SSE4_1,
+#   X86_AVX, X86_AVX2, X86_FMA3, X86_FMA4,
+#   X86_AVX512F, X86_AVX512BW, X86_AVX512DQ, X86_XOP,
+#   ARM_NEON, ARM_NEON_FLT_SP, ARM64_NEON,
+#   MIPS_MSA, POWER_ALTIVEC, POWER_VSX_206, POWER_VSX_207
 #
 function(simdpp_multiarch FILE_LIST_VAR SRC_FILE)
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FILE}")
@@ -546,6 +676,12 @@ function(simdpp_get_arch_perm ALL_ARCHS_VAR)
         endif()
         if(DEFINED ARCH_SUPPORTED_X86_AVX512F)
             list(APPEND ALL_ARCHS "X86_AVX512F,X86_FMA3")
+            if(DEFINED ARCH_SUPPORTED_X86_AVX512BW)
+                list(APPEND ALL_ARCHS "X86_AVX512F,X86_FMA3,X86_AVX512BW")
+                if(DEFINED ARCH_SUPPORTED_X86_AVX512DQ)
+                    list(APPEND ALL_ARCHS "X86_AVX512F,X86_FMA3,X86_AVX512BW,X86_AVX512DQ")
+                endif()
+            endif()
         endif()
     endif()
     if(DEFINED ARCH_SUPPORTED_X86_FMA4)
@@ -556,6 +692,12 @@ function(simdpp_get_arch_perm ALL_ARCHS_VAR)
     endif()
     if(DEFINED ARCH_SUPPORTED_X86_AVX512F)
         list(APPEND ALL_ARCHS "X86_AVX512F")
+        if(DEFINED ARCH_SUPPORTED_X86_AVX512BW)
+            list(APPEND ALL_ARCHS "X86_AVX512F,X86_AVX512BW")
+            if(DEFINED ARCH_SUPPORTED_X86_AVX512DQ)
+                list(APPEND ALL_ARCHS "X86_AVX512F,X86_AVX512BW,X86_AVX512DQ")
+            endif()
+        endif()
     endif()
     if(DEFINED ARCH_SUPPORTED_X86_XOP)
         list(APPEND ALL_ARCHS "X86_XOP")
@@ -570,8 +712,17 @@ function(simdpp_get_arch_perm ALL_ARCHS_VAR)
     if(DEFINED ARCH_SUPPORTED_ARM64_NEON)
         list(APPEND ALL_ARCHS "ARM64_NEON")
     endif()
+    if(DEFINED ARCH_SUPPORTED_MIPS_MSA)
+        list(APPEND ALL_ARCHS "MIPS_MSA")
+    endif()
     if(DEFINED ARCH_SUPPORTED_POWER_ALTIVEC)
         list(APPEND ALL_ARCHS "POWER_ALTIVEC")
+    endif()
+    if(DEFINED ARCH_SUPPORTED_POWER_VSX_206)
+        list(APPEND ALL_ARCHS "POWER_VSX_206")
+    endif()
+    if(DEFINED ARCH_SUPPORTED_POWER_VSX_207)
+        list(APPEND ALL_ARCHS "POWER_VSX_207")
     endif()
     set(${ALL_ARCHS_VAR} "${ALL_ARCHS}" PARENT_SCOPE)
 endfunction()

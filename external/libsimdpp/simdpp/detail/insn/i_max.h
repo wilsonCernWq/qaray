@@ -39,6 +39,8 @@ SIMDPP_INL int8x16 i_max(const int8x16& a, const int8x16& b)
     return vmaxq_s8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector int8_t)a, (__vector int8_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_s_b(a, b);
 #endif
 }
 
@@ -46,6 +48,13 @@ SIMDPP_INL int8x16 i_max(const int8x16& a, const int8x16& b)
 SIMDPP_INL int8x32 i_max(const int8x32& a, const int8x32& b)
 {
     return _mm256_max_epi8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL int8<64> i_max(const int8<64>& a, const int8<64>& b)
+{
+    return _mm512_max_epi8(a, b);
 }
 #endif
 
@@ -67,6 +76,8 @@ SIMDPP_INL uint8x16 i_max(const uint8x16& a, const uint8x16& b)
     return vmaxq_u8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector uint8_t)a, (__vector uint8_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_u_b(a, b);
 #endif
 }
 
@@ -74,6 +85,13 @@ SIMDPP_INL uint8x16 i_max(const uint8x16& a, const uint8x16& b)
 SIMDPP_INL uint8x32 i_max(const uint8x32& a, const uint8x32& b)
 {
     return _mm256_max_epu8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint8<64> i_max(const uint8<64>& a, const uint8<64>& b)
+{
+    return _mm512_max_epu8(a, b);
 }
 #endif
 
@@ -95,6 +113,8 @@ SIMDPP_INL int16x8 i_max(const int16x8& a, const int16x8& b)
     return vmaxq_s16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector int16_t)a, (__vector int16_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_s_h(a, b);
 #endif
 }
 
@@ -102,6 +122,13 @@ SIMDPP_INL int16x8 i_max(const int16x8& a, const int16x8& b)
 SIMDPP_INL int16x16 i_max(const int16x16& a, const int16x16& b)
 {
     return _mm256_max_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL int16<32> i_max(const int16<32>& a, const int16<32>& b)
+{
+    return _mm512_max_epi16(a, b);
 }
 #endif
 
@@ -128,6 +155,8 @@ SIMDPP_INL uint16x8 i_max(const uint16x8& a, const uint16x8& b)
     return vmaxq_u16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector uint16_t)a, (__vector uint16_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_u_h(a, b);
 #endif
 }
 
@@ -135,6 +164,13 @@ SIMDPP_INL uint16x8 i_max(const uint16x8& a, const uint16x8& b)
 SIMDPP_INL uint16x16 i_max(const uint16x16& a, const uint16x16& b)
 {
     return _mm256_max_epu16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint16<32> i_max(const uint16<32>& a, const uint16<32>& b)
+{
+    return _mm512_max_epu16(a, b);
 }
 #endif
 
@@ -159,6 +195,8 @@ SIMDPP_INL int32x4 i_max(const int32x4& a, const int32x4& b)
     return vmaxq_s32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector int32_t)a, (__vector int32_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_s_w(a, b);
 #endif
 }
 
@@ -197,6 +235,8 @@ SIMDPP_INL uint32x4 i_max(const uint32x4& a, const uint32x4& b)
     return vmaxq_u32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_max((__vector uint32_t)a, (__vector uint32_t)b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_u_w(a, b);
 #endif
 }
 
@@ -224,11 +264,15 @@ uint32<N> i_max(const uint32<N>& a, const uint32<N>& b)
 
 SIMDPP_INL int64x2 i_max(const int64x2& a, const int64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::max(a, b);
-#elif SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64
+#if SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64
     mask_int64x2 mask = cmp_gt(a, b);
     return blend(a, b, mask);
+#elif SIMDPP_USE_VSX_207
+    return vec_max((__vector int64_t) a, (__vector int64_t) b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_s_d(a, b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::max(a, b);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, b);
 #endif
@@ -259,11 +303,15 @@ int64<N> i_max(const int64<N>& a, const int64<N>& b)
 
 SIMDPP_INL uint64x2 i_max(const uint64x2& a, const uint64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::max(a, b);
-#elif SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64
+#if SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64
     mask_int64x2 mask = cmp_gt(a, b);
     return blend(a, b, mask);
+#elif SIMDPP_USE_VSX_207
+    return vec_max((__vector uint64_t) a, (__vector uint64_t) b);
+#elif SIMDPP_USE_MSA
+    return __msa_max_u_d(a, b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::max(a, b);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, b);
 #endif

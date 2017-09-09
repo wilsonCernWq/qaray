@@ -31,6 +31,8 @@ SIMDPP_INL float32x4 i_min(const float32x4& a, const float32x4& b)
     return vminq_f32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_min((__vector float)a, (__vector float)b);
+#elif SIMDPP_USE_MSA
+    return __msa_fmin_w(a, b);
 #endif
 }
 
@@ -58,12 +60,16 @@ float32<N> i_min(const float32<N>& a, const float32<N>& b)
 
 SIMDPP_INL float64x2 i_min(const float64x2& a, const float64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::min(a, b);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     return _mm_min_pd(a, b);
 #elif SIMDPP_USE_NEON64
     return vminq_f64(a, b);
+#elif SIMDPP_USE_VSX_206
+    return vec_min((__vector double) a, (__vector double) b);
+#elif SIMDPP_USE_MSA
+    return __msa_fmin_d(a, b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    return detail::null::min(a, b);
 #endif
 }
 

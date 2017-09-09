@@ -19,7 +19,7 @@
 #include <simdpp/core/move_l.h>
 #include <simdpp/core/zip_hi.h>
 #include <simdpp/core/zip_lo.h>
-#include <simdpp/core/detail/vec_insert.h>
+#include <simdpp/core/detail/subvec_insert.h>
 
 namespace simdpp {
 namespace SIMDPP_ARCH_NAMESPACE {
@@ -39,7 +39,7 @@ SIMDPP_INL uint16x16 i_to_uint16(const uint8x16& a)
     r1 = _mm_cvtepu8_epi16(a);
     r2 = _mm_cvtepu8_epi16(move16_l<8>(a).eval());
     return combine(r1, r2);
-#elif SIMDPP_USE_SSE2
+#elif SIMDPP_USE_SSE2 || (SIMDPP_USE_ALTIVEC && SIMDPP_LITTLE_ENDIAN) || SIMDPP_USE_MSA
     uint16x8 r1, r2;
     r1 = zip16_lo(a, (uint8x16) make_zero());
     r2 = zip16_hi(a, (uint8x16) make_zero());
@@ -49,7 +49,7 @@ SIMDPP_INL uint16x16 i_to_uint16(const uint8x16& a)
     r.vec(0) = vmovl_u8(vget_low_u8(a));
     r.vec(1) = vmovl_u8(vget_high_u8(a));
     return r;
-#elif SIMDPP_USE_ALTIVEC
+#elif (SIMDPP_USE_ALTIVEC && SIMDPP_BIG_ENDIAN)
     uint16x8 r1, r2;
     r1 = zip16_lo((uint8x16) make_zero(), a);
     r2 = zip16_hi((uint8x16) make_zero(), a);
@@ -60,11 +60,27 @@ SIMDPP_INL uint16x16 i_to_uint16(const uint8x16& a)
 #if SIMDPP_USE_AVX2
 SIMDPP_INL uint16<32> i_to_uint16(const uint8<32>& a)
 {
+#if SIMDPP_USE_AVX512BW
+    return _mm512_cvtepu8_epi16(a);
+#else
     uint16<16> r0, r1;
     uint8<16> a0, a1;
     split(a, a0, a1);
     r0 = _mm256_cvtepu8_epi16(a0);
     r1 = _mm256_cvtepu8_epi16(a1);
+    return combine(r0, r1);
+#endif
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint16<64> i_to_uint16(const uint8<64>& a)
+{
+    uint16<32> r0, r1;
+    uint8<32> a0, a1;
+    split(a, a0, a1);
+    r0 = _mm512_cvtepu8_epi16(a0);
+    r1 = _mm512_cvtepu8_epi16(a1);
     return combine(r0, r1);
 }
 #endif
@@ -74,7 +90,7 @@ uint16<N> i_to_uint16(const uint8<N>& a)
 {
     uint16<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, i_to_uint16(a.vec(i)), i);
+        detail::subvec_insert(r, i_to_uint16(a.vec(i)), i);
     }
     return r;
 }
@@ -97,15 +113,21 @@ SIMDPP_INL int16x16 i_to_int16(const int8x16& a)
 #elif SIMDPP_USE_SSE2
     int16x8 r1, r2;
     r1 = zip16_lo((int8x16) make_zero(), a);
-    r1 = shift_r(r1, 8);
+    r1 = shift_r<8>(r1);
     r2 = zip16_hi((int8x16) make_zero(), a);
-    r2 = shift_r(r2, 8);
+    r2 = shift_r<8>(r2);
     return combine(r1, r2);
 #elif SIMDPP_USE_NEON
     int16x16 r;
     r.vec(0) = vmovl_s8(vget_low_s8(a));
     r.vec(1) = vmovl_s8(vget_high_s8(a));
     return r;
+#elif SIMDPP_USE_MSA
+    int8x16 sign = shift_r<7>(a);
+    int16x8 lo, hi;
+    lo = zip16_lo(a, sign);
+    hi = zip16_hi(a, sign);
+    return combine(lo, hi);
 #elif SIMDPP_USE_ALTIVEC
     int16x16 r;
     r.vec(0) = vec_unpackh((__vector int8_t)a.vec(0));
@@ -117,11 +139,27 @@ SIMDPP_INL int16x16 i_to_int16(const int8x16& a)
 #if SIMDPP_USE_AVX2
 SIMDPP_INL int16<32> i_to_int16(const int8<32>& a)
 {
+#if SIMDPP_USE_AVX512BW
+    return _mm512_cvtepi8_epi16(a);
+#else
     int16<16> r0, r1;
     int8<16> a0, a1;
     split(a, a0, a1);
     r0 = _mm256_cvtepi8_epi16(a0);
     r1 = _mm256_cvtepi8_epi16(a1);
+    return combine(r0, r1);
+#endif
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL int16<64> i_to_int16(const int8<64>& a)
+{
+    int16<32> r0, r1;
+    int8<32> a0, a1;
+    split(a, a0, a1);
+    r0 = _mm512_cvtepi8_epi16(a0);
+    r1 = _mm512_cvtepi8_epi16(a1);
     return combine(r0, r1);
 }
 #endif
@@ -131,7 +169,7 @@ int16<N> i_to_int16(const int8<N>& a)
 {
     int16<N> r;
     for (unsigned i = 0; i < a.vec_length; ++i) {
-        detail::vec_insert(r, i_to_int16(a.vec(i)), i);
+        detail::subvec_insert(r, i_to_int16(a.vec(i)), i);
     }
     return r;
 }

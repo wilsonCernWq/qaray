@@ -22,6 +22,18 @@ namespace SIMDPP_ARCH_NAMESPACE {
 namespace detail {
 namespace insn {
 
+#if SIMDPP_USE_ALTIVEC
+template<unsigned shift> SIMDPP_INL
+uint8<16> vec_sld_biendian(const uint8<16>& lower, const uint8<16>& upper)
+{
+#if SIMDPP_BIG_ENDIAN
+    return vec_sld((__vector uint8_t)lower, (__vector uint8_t)upper, shift);
+#else
+    // by default GCC adjusts vec_sld element order to match endianness of the target
+    return vec_sld((__vector uint8_t)upper, (__vector uint8_t)lower, 16 - shift);
+#endif
+}
+#endif
 
 template<unsigned shift> SIMDPP_INL
 uint8x16 i_move16_l(const uint8x16& a)
@@ -36,7 +48,10 @@ uint8x16 i_move16_l(const uint8x16& a)
     return vextq_u8(a, z, shift);
 #elif SIMDPP_USE_ALTIVEC
     // return align<shift>(a, (uint8x16) make_zero());
-    return vec_sld((__vector uint8_t)a, (__vector uint8_t)(uint8x16) make_zero(), shift);
+    return vec_sld_biendian<shift>((uint8<16>)a, (uint8<16>)make_zero());
+#elif SIMDPP_USE_MSA
+    uint8x16 zero = make_zero();
+    return (v16u8) __msa_sldi_b((v16i8)(v16u8)zero, (v16i8)(v16u8)a, shift);
 #endif
 }
 
@@ -46,6 +61,15 @@ uint8x32 i_move16_l(const uint8x32& a)
 {
     static_assert(shift <= 16, "Selector out of range");
     return _mm256_srli_si256(a, shift);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned shift> SIMDPP_INL
+uint8<64> i_move16_l(const uint8<64>& a)
+{
+    static_assert(shift <= 16, "Selector out of range");
+    return _mm512_bsrli_epi128(a, shift);
 }
 #endif
 
@@ -74,6 +98,15 @@ uint16<16> i_move8_l(const uint16<16>& a)
 {
     static_assert(shift <= 8, "Selector out of range");
     return _mm256_srli_si256(a, shift*2);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+template<unsigned shift> SIMDPP_INL
+uint16<32> i_move8_l(const uint16<32>& a)
+{
+    static_assert(shift <= 8, "Selector out of range");
+    return _mm512_bsrli_epi128(a, shift*2);
 }
 #endif
 
@@ -130,7 +163,7 @@ uint32<N> i_move4_l(const uint32<N>& a)
 template<unsigned shift> SIMDPP_INL
 uint64<2> i_move2_l(const uint64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_NULL || (SIMDPP_USE_ALTIVEC && !SIMDPP_USE_VSX_207)
     return detail::null::move_n_l<shift>(a);
 #else
     return (uint64<2>) i_move16_l<shift*8>(uint8<16>(a));
@@ -208,10 +241,10 @@ float32<N> i_move4_l(const float32<N>& a)
 template<unsigned shift> SIMDPP_INL
 float64<2> i_move2_l(const float64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::move_n_l<shift>(a);
-#else
+#if SIMDPP_USE_SSE2 || SIMDPP_USE_NEON64 || SIMDPP_USE_VSX_206 || SIMDPP_USE_MSA
     return (float64<2>) i_move16_l<shift*8>(uint8<16>(a));
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    return detail::null::move_n_l<shift>(a);
 #endif
 }
 

@@ -32,6 +32,8 @@ SIMDPP_INL void i_store(char* p, const uint8x16& a)
     vst1q_u64(reinterpret_cast<uint64_t*>(p), vreinterpretq_u64_u8(a));
 #elif SIMDPP_USE_ALTIVEC
     vec_stl((__vector uint8_t)a, 0, reinterpret_cast<uint8_t*>(p));
+#elif SIMDPP_USE_MSA
+    __msa_st_b((v16i8)(v16u8) a, p, 0);
 #endif
 }
 
@@ -40,6 +42,14 @@ SIMDPP_INL void i_store(char* p, const uint8x32& a)
 {
     p = detail::assume_aligned(p, 32);
     _mm256_store_si256(reinterpret_cast<__m256i*>(p), a);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_store(char* p, const uint8<64>& a)
+{
+    p = detail::assume_aligned(p, 64);
+    _mm512_store_si512(reinterpret_cast<__m512i*>(p), a);
 }
 #endif
 
@@ -54,6 +64,13 @@ SIMDPP_INL void i_store(char* p, const uint16<8>& a)
 SIMDPP_INL void i_store(char* p, const uint16<16>& a)
 {
     i_store(p, uint8<32>(a));
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_store(char* p, const uint16<32>& a)
+{
+    i_store(p, uint8<64>(a));
 }
 #endif
 
@@ -83,7 +100,7 @@ SIMDPP_INL void i_store(char* p, const uint32<16>& a)
 
 SIMDPP_INL void i_store(char* p, const uint64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_NULL || (SIMDPP_USE_ALTIVEC && !SIMDPP_USE_VSX_207)
     p = detail::assume_aligned(p, 16);
     detail::null::store(p, a);
 #else
@@ -120,6 +137,8 @@ SIMDPP_INL void i_store(char* p, const float32x4& a)
     vst1q_f32(q, a);
 #elif SIMDPP_USE_ALTIVEC
     vec_stl((__vector float)a, 0, q);
+#elif SIMDPP_USE_MSA
+    __msa_st_w((v4i32)(v4f32) a, q, 0);
 #endif
 }
 
@@ -146,12 +165,16 @@ SIMDPP_INL void i_store(char* p, const float64x2& a)
 {
     double* q = reinterpret_cast<double*>(p);
     q = detail::assume_aligned(q, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    detail::null::store(q, a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     _mm_store_pd(q, a);
 #elif SIMDPP_USE_NEON64
     vst1q_f64(q, a);
+#elif SIMDPP_USE_VSX_206
+    vec_stl((__vector double)a, 0, q);
+#elif SIMDPP_USE_MSA
+    __msa_st_d((v2i64)(v2f64) a, q, 0);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+    detail::null::store(q, a);
 #endif
 }
 

@@ -46,6 +46,8 @@ SIMDPP_INL void i_store_u(char* p, const uint8<16>& a)
     LSQ = vec_perm((__vector uint8_t)a, edges, align);  // misalign the data (LSQ)
     vec_st(LSQ, 15, q);                                 // Store the LSQ part first
     vec_st(MSQ, 0, q);                                  // Store the MSQ part
+#elif SIMDPP_USE_MSA
+    __msa_st_b((v16i8)(v16u8) a, p, 0);
 #endif
 }
 
@@ -53,6 +55,8 @@ SIMDPP_INL void i_store_u(char* p, const uint16<8>& a)
 {
 #if SIMDPP_USE_NEON
     vst1q_u16(reinterpret_cast<uint16_t*>(p), a);
+#elif SIMDPP_USE_MSA
+    __msa_st_h((v8i16)(v8u16) a, p, 0);
 #else
     i_store_u(p, uint8<16>(a));
 #endif
@@ -62,6 +66,10 @@ SIMDPP_INL void i_store_u(char* p, const uint32<4>& a)
 {
 #if SIMDPP_USE_NEON
     vst1q_u32(reinterpret_cast<uint32_t*>(p), a);
+#elif SIMDPP_USE_VSX_206
+    vec_vsx_st((__vector uint32_t) a, 0, reinterpret_cast<__vector uint32_t*>(p));
+#elif SIMDPP_USE_MSA
+    __msa_st_w((v4i32)(v4u32) a, p, 0);
 #else
     i_store_u(p, uint8<16>(a));
 #endif
@@ -71,6 +79,11 @@ SIMDPP_INL void i_store_u(char* p, const uint64<2>& a)
 {
 #if SIMDPP_USE_NEON
     vst1q_u64(reinterpret_cast<uint64_t*>(p), a);
+#elif SIMDPP_USE_VSX_207
+    vec_vsx_st((__vector uint32_t)(__vector uint64_t) a, 0,
+               reinterpret_cast<__vector uint32_t*>(p));
+#elif SIMDPP_USE_MSA
+    __msa_st_d((v2i64)(v2u64) a, p, 0);
 #else
     i_store_u(p, uint8<16>(a));
 #endif
@@ -85,21 +98,29 @@ SIMDPP_INL void i_store_u(char* p, const float32x4& a)
     _mm_storeu_ps(q, a);
 #elif SIMDPP_USE_NEON
     vst1q_f32(q, a);
+#elif SIMDPP_USE_VSX_206
+    vec_vsx_st((__vector float) a, 0, q);
 #elif SIMDPP_USE_ALTIVEC
     uint32x4 b = bit_cast<uint32x4>(a.eval());
     i_store_u(reinterpret_cast<char*>(q), b);
+#elif SIMDPP_USE_MSA
+    __msa_st_w((v4i32)(v4f32) a, q, 0);
 #endif
 }
 
 SIMDPP_INL void i_store_u(char* p, const float64x2& a)
 {
     double* q = reinterpret_cast<double*>(p);
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    detail::null::store(q, a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     _mm_storeu_pd(q, a);
 #elif SIMDPP_USE_NEON64
     vst1q_f64(q, a);
+#elif SIMDPP_USE_VSX_206
+    vec_vsx_st((__vector double) a, 0, q);
+#elif SIMDPP_USE_MSA
+    __msa_st_d((v2i64)(v2f64) a, q, 0);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+    detail::null::store(q, a);
 #endif
 }
 
@@ -135,6 +156,18 @@ SIMDPP_INL void i_store_u(char* p, const float32x8& a)
 SIMDPP_INL void i_store_u(char* p, const float64x4& a)
 {
     _mm256_storeu_pd(reinterpret_cast<double*>(p), a);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_store_u(char* p, const uint8<64>& a)
+{
+    _mm512_storeu_si512(reinterpret_cast<__m512i*>(p), a);
+}
+
+SIMDPP_INL void i_store_u(char* p, const uint16<32>& a)
+{
+    _mm512_storeu_si512(reinterpret_cast<__m512i*>(p), a);
 }
 #endif
 

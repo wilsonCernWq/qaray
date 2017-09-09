@@ -118,18 +118,18 @@ void test_math_int_n(TestResultsSet& tc)
         TEST_ARRAY_HELPER1(tc, int16_n, neg, s);
         TEST_ARRAY_HELPER1(tc, int16_n, abs, s);
 
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint16_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int16_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint16_n, reduce_mul, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int16_n, reduce_mul, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_and, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_and, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_max, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_max, s, 1);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint16_n, reduce_add, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int16_n, reduce_add, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint16_n, reduce_mul, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int16_n, reduce_mul, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_or, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_or, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_and, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_and, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_min, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_min, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, uint16_t, uint16_n, reduce_max, s, 2);
+        TEST_ALL_COMB_HELPER1_T(tc, int16_t, int16_n, reduce_max, s, 2);
     }
 
     // Vectors with 32-bit integer elements
@@ -155,6 +155,12 @@ void test_math_int_n(TestResultsSet& tc)
         TEST_ALL_COMB_HELPER2(tc, int32_n, avg, s, 4);
         TEST_ALL_COMB_HELPER2(tc, int32_n, avg_trunc, s, 4);
 
+        tc.sync_archs();
+#if SIMDPP_USE_NEON || (defined(__GNUC__) && (__GNUC__ >= 8) && SIMDPP_USE_VSX_207) || SIMDPP_USE_MSA
+        TEST_ALL_COMB_HELPER2_T(tc, int64<B/4>, int32_n, mull, s, 4);
+#endif
+        tc.sync_archs();
+
         TEST_ALL_COMB_HELPER2(tc, uint32_n, add, s, 4);
         TEST_ALL_COMB_HELPER2(tc, uint32_n, sub, s, 4);
         TEST_ALL_COMB_HELPER2(tc, uint32_n, min, s, 4);
@@ -162,7 +168,10 @@ void test_math_int_n(TestResultsSet& tc)
         TEST_ALL_COMB_HELPER2(tc, uint32_n, avg, s, 4);
         TEST_ALL_COMB_HELPER2(tc, uint32_n, avg_trunc, s, 4);
 
+        tc.sync_archs();
+#if !(defined(__GNUC__) && (__GNUC__ < 8) && SIMDPP_USE_VSX_207)
         TEST_ALL_COMB_HELPER2_T(tc, uint64<B/4>, uint32_n, mull, s, 4);
+#endif
         tc.sync_archs();
 #if !(SIMDPP_USE_ALTIVEC)
         TEST_ALL_COMB_HELPER2_T(tc, uint32_n, uint32_n, mul_lo, s, 4);
@@ -172,18 +181,18 @@ void test_math_int_n(TestResultsSet& tc)
         TEST_ARRAY_HELPER1(tc, int32_n, neg, s);
         TEST_ARRAY_HELPER1(tc, int32_n, abs, s);
 
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_mul, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_mul, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_and, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_and, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_max, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_max, s, 1);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_add, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_add, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_mul, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_mul, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_or, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_or, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_and, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_and, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_min, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_min, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, uint32_t, uint32_n, reduce_max, s, 4);
+        TEST_ALL_COMB_HELPER1_T(tc, int32_t, int32_n, reduce_max, s, 4);
     }
 
     // Vectors with 64-bit integer elements
@@ -208,35 +217,35 @@ void test_math_int_n(TestResultsSet& tc)
             make_uint(0x5a6b7c8da5b6c7d8, 0, 0, 0, 0, 0, 0, 0)
         );
 
-        TEST_ALL_COMB_HELPER2(tc, int64_n, add, s, 2);
-        TEST_ALL_COMB_HELPER2(tc, int64_n, sub, s, 2);
-        TEST_ALL_COMB_HELPER2(tc, uint64_n, add, s, 2);
-        TEST_ALL_COMB_HELPER2(tc, uint64_n, sub, s, 2);
+        TEST_ALL_COMB_HELPER2(tc, int64_n, add, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, int64_n, sub, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, uint64_n, add, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, uint64_n, sub, s, 8);
 
         tc.sync_archs();
 #if SIMDPP_USE_NULL || SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64 || SIMDPP_USE_ALTIVEC
-        TEST_ALL_COMB_HELPER2(tc, int64_n, min, s, 4);
-        TEST_ALL_COMB_HELPER2(tc, int64_n, max, s, 4);
-        TEST_ALL_COMB_HELPER2(tc, uint64_n, min, s, 4);
-        TEST_ALL_COMB_HELPER2(tc, uint64_n, max, s, 4);
+        TEST_ALL_COMB_HELPER2(tc, int64_n, min, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, int64_n, max, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, uint64_n, min, s, 8);
+        TEST_ALL_COMB_HELPER2(tc, uint64_n, max, s, 8);
 #endif
         tc.sync_archs();
 
         TEST_ARRAY_HELPER1(tc, int64_n, neg, s);
         TEST_ARRAY_HELPER1(tc, int64_n, abs, s);
 
-        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_add, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_or, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_and, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_and, s, 1);
+        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_add, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_add, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_or, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_or, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_and, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_and, s, 8);
         tc.sync_archs();
 #if SIMDPP_USE_NULL || SIMDPP_USE_AVX2 || SIMDPP_USE_NEON64 || SIMDPP_USE_ALTIVEC
-        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_min, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_max, s, 1);
-        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_max, s, 1);
+        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_min, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_min, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, uint64_t, uint64_n, reduce_max, s, 8);
+        TEST_ALL_COMB_HELPER1_T(tc, int64_t, int64_n, reduce_max, s, 8);
 #endif
         tc.sync_archs();
     }

@@ -33,6 +33,8 @@ float32<4> expr_eval(const expr_add<float32<4,E1>,
     return vaddq_f32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_add((__vector float)a, (__vector float)b);
+#elif SIMDPP_USE_MSA
+    return __msa_fadd_w(a, b);
 #endif
 }
 
@@ -75,12 +77,16 @@ float64<2> expr_eval(const expr_add<float64<2,E1>,
 {
     float64<2> a = q.a.eval();
     float64<2> b = q.b.eval();
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::add(a, b);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     return _mm_add_pd(a, b);
 #elif SIMDPP_USE_NEON64
     return vaddq_f64(a, b);
+#elif SIMDPP_USE_VSX_206
+    return vec_add((__vector double) a, (__vector double) b);
+#elif SIMDPP_USE_MSA
+    return __msa_fadd_d(a, b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    return detail::null::add(a, b);
 #endif
 }
 

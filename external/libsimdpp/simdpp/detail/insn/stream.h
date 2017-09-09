@@ -29,7 +29,7 @@ SIMDPP_INL void i_stream(char* p, const uint8<16>& a)
     detail::null::store(p, a);
 #elif SIMDPP_USE_SSE2
     _mm_stream_si128(reinterpret_cast<__m128i*>(p), a);
-#elif SIMDPP_USE_NEON
+#elif SIMDPP_USE_NEON || SIMDPP_USE_MSA
     store(p, a);
 #elif SIMDPP_USE_ALTIVEC
     vec_st((__vector uint8_t)a, 0, reinterpret_cast<uint8_t*>(p));
@@ -44,6 +44,14 @@ SIMDPP_INL void i_stream(char* p, const uint8<32>& a)
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_stream(char* p, const uint8<64>& a)
+{
+    p = detail::assume_aligned(p, 64);
+    _mm512_stream_si512(reinterpret_cast<__m512i*>(p), a);
+}
+#endif
+
 // -----------------------------------------------------------------------------
 
 SIMDPP_INL void i_stream(char* p, const uint16<8>& a)
@@ -55,6 +63,14 @@ SIMDPP_INL void i_stream(char* p, const uint16<8>& a)
 SIMDPP_INL void i_stream(char* p, const uint16<16>& a)
 {
     i_stream(p, uint8<32>(a));
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_stream(char* p, const uint16<32>& a)
+{
+    p = detail::assume_aligned(p, 64);
+    _mm512_stream_si512(reinterpret_cast<__m512i*>(p), a);
 }
 #endif
 
@@ -84,7 +100,7 @@ SIMDPP_INL void i_stream(char* p, const uint32<16>& a)
 
 SIMDPP_INL void i_stream(char* p, const uint64<2>& a)
 {
-#if SIMDPP_USE_ALTIVEC
+#if (SIMDPP_USE_ALTIVEC && !SIMDPP_USE_VSX_207)
     p = detail::assume_aligned(p, 16);
     detail::null::store(p, a);
 #else
@@ -117,7 +133,7 @@ SIMDPP_INL void i_stream(char* p, const float32x4& a)
     detail::null::store(q, a);
 #elif SIMDPP_USE_SSE2
     _mm_stream_ps(q, a);
-#elif SIMDPP_USE_NEON
+#elif SIMDPP_USE_NEON || SIMDPP_USE_MSA
     store(q, a);
 #elif SIMDPP_USE_ALTIVEC
     vec_st((__vector float)a, 0, q);
@@ -145,12 +161,12 @@ SIMDPP_INL void i_stream(char* p, const float32<16>& a)
 SIMDPP_INL void i_stream(char* p, const float64x2& a)
 {
     p = detail::assume_aligned(p, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    detail::null::store(p, a);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     _mm_stream_pd(reinterpret_cast<double*>(p), a);
-#elif SIMDPP_USE_NEON64
+#elif SIMDPP_USE_NEON64 || SIMDPP_USE_VSX_206 || SIMDPP_USE_MSA
     store(p, a);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    detail::null::store(p, a);
 #endif
 }
 

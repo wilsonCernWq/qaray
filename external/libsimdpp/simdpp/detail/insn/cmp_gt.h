@@ -36,6 +36,8 @@ SIMDPP_INL mask_int8x16 i_cmp_gt(const int8x16& a, const int8x16& b)
     return vcgtq_s8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector int8_t)a, (__vector int8_t)b);
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_clt_s_b(b, a);
 #endif
 }
 
@@ -43,6 +45,13 @@ SIMDPP_INL mask_int8x16 i_cmp_gt(const int8x16& a, const int8x16& b)
 SIMDPP_INL mask_int8x32 i_cmp_gt(const int8x32& a, const int8x32& b)
 {
     return _mm256_cmpgt_epi8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int8<64> i_cmp_gt(const int8<64>& a, const int8<64>& b)
+{
+    return _mm512_cmpgt_epi8_mask(a, b);
 }
 #endif
 
@@ -63,6 +72,8 @@ SIMDPP_INL mask_int8x16 i_cmp_gt(const uint8x16& ca, const uint8x16& cb)
     return vcgtq_u8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector uint8_t)a, (__vector uint8_t)b);
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_clt_u_b(b, a);
 #endif
 }
 
@@ -73,6 +84,13 @@ SIMDPP_INL mask_int8x32 i_cmp_gt(const uint8x32& ca, const uint8x32& cb)
     a = bit_xor(a, 0x80); // sub
     b = bit_xor(b, 0x80); // sub
     return _mm256_cmpgt_epi8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int8<64> i_cmp_gt(const uint8<64>& a, const uint8<64>& b)
+{
+    return _mm512_cmpgt_epu8_mask(a, b);
 }
 #endif
 
@@ -88,6 +106,8 @@ SIMDPP_INL mask_int16x8 i_cmp_gt(const int16x8& a, const int16x8& b)
     return vcgtq_s16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector int16_t)a, (__vector int16_t)b);
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_clt_s_h(b, a);
 #endif
 }
 
@@ -95,6 +115,13 @@ SIMDPP_INL mask_int16x8 i_cmp_gt(const int16x8& a, const int16x8& b)
 SIMDPP_INL mask_int16x16 i_cmp_gt(const int16x16& a, const int16x16& b)
 {
     return _mm256_cmpgt_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int16<32> i_cmp_gt(const int16<32>& a, const int16<32>& b)
+{
+    return _mm512_cmpgt_epi16_mask(a, b);
 }
 #endif
 
@@ -115,6 +142,8 @@ SIMDPP_INL mask_int16x8 i_cmp_gt(const uint16x8& ca, const uint16x8& cb)
     return vcgtq_u16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector uint16_t)a, (__vector uint16_t)b);
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_clt_u_h(b, a);
 #endif
 }
 
@@ -125,6 +154,13 @@ SIMDPP_INL mask_int16x16 i_cmp_gt(const uint16x16& ca, const uint16x16& cb)
     a = bit_xor(a, 0x8000); // sub
     b = bit_xor(b, 0x8000); // sub
     return _mm256_cmpgt_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int16<32> i_cmp_gt(const uint16<32>& a, const uint16<32>& b)
+{
+    return _mm512_cmpgt_epu16_mask(a, b);
 }
 #endif
 
@@ -140,6 +176,8 @@ SIMDPP_INL mask_int32x4 i_cmp_gt(const int32x4& a, const int32x4& b)
     return vcgtq_s32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector int32_t)a, (__vector int32_t)b);
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_clt_s_w(b, a);
 #endif
 }
 
@@ -174,6 +212,8 @@ SIMDPP_INL mask_int32x4 i_cmp_gt(const uint32x4& ca, const uint32x4& cb)
     return vcgtq_u32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector uint32_t)a, (__vector uint32_t)b);
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_clt_u_w(b, a);
 #endif
 }
 
@@ -199,14 +239,18 @@ SIMDPP_INL mask_int32<16> i_cmp_gt(const uint32<16>& a, const uint32<16>& b)
 
 SIMDPP_INL mask_int64x2 i_cmp_gt(const int64x2& a, const int64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::cmp_gt(a, b);
-#elif SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
+#if SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
     return _mm_comgt_epi64(a, b);
 #elif SIMDPP_USE_AVX2
     return _mm_cmpgt_epi64(a, b);
 #elif SIMDPP_USE_NEON64
     return vcgtq_s64(a, b);
+#elif SIMDPP_USE_VSX_207
+    return (__vector uint64_t) vec_cmpgt((__vector int64_t) a, (__vector int64_t) b);
+#elif SIMDPP_USE_MSA
+    return (v2u64) __msa_clt_s_d(b, a);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::cmp_gt(a, b);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, b);
 #endif
@@ -231,9 +275,7 @@ SIMDPP_INL mask_int64<8> i_cmp_gt(const int64<8>& a, const int64<8>& b)
 
 SIMDPP_INL mask_int64x2 i_cmp_gt(const uint64x2& a, const uint64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::cmp_gt(a, b);
-#elif SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
+#if SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
     return _mm_comgt_epu64(a, b);
 #elif SIMDPP_USE_AVX2
     uint64<2> ca = bit_xor(a, 0x8000000000000000); // sub
@@ -241,6 +283,12 @@ SIMDPP_INL mask_int64x2 i_cmp_gt(const uint64x2& a, const uint64x2& b)
     return _mm_cmpgt_epi64(ca, cb);
 #elif SIMDPP_USE_NEON64
     return vcgtq_u64(a, b);
+#elif SIMDPP_USE_VSX_207
+    return (__vector uint64_t) vec_cmpgt((__vector uint64_t) a, (__vector uint64_t) b);
+#elif SIMDPP_USE_MSA
+    return (v2u64) __msa_clt_u_d(b, a);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::cmp_gt(a, b);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, b);
 #endif
@@ -277,6 +325,8 @@ SIMDPP_INL mask_float32x4 i_cmp_gt(const float32x4& a, const float32x4& b)
     return vreinterpretq_f32_u32(vcgtq_f32(a, b));
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpgt((__vector float)a, (__vector float)b);
+#elif SIMDPP_USE_MSA
+    return (v4f32) __msa_fclt_w(b, a);
 #endif
 }
 
@@ -298,16 +348,18 @@ SIMDPP_INL mask_float32<16> i_cmp_gt(const float32<16>& a, const float32<16>& b)
 
 SIMDPP_INL mask_float64x2 i_cmp_gt(const float64x2& a, const float64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::cmp_gt(a, b);
-#elif SIMDPP_USE_AVX
+#if SIMDPP_USE_AVX
     return _mm_cmp_pd(a, b, _CMP_GT_OQ);
 #elif SIMDPP_USE_SSE2
     return _mm_cmpgt_pd(a, b);
 #elif SIMDPP_USE_NEON64
     return vreinterpretq_f64_u64(vcgtq_f64(a, b));
-#else
-    return SIMDPP_NOT_IMPLEMENTED2(a, b);
+#elif SIMDPP_USE_VSX_206
+    return (__vector double) vec_cmpgt((__vector double) a, (__vector double) b);
+#elif SIMDPP_USE_MSA
+    return (v2f64) __msa_fclt_d(b, a);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    return detail::null::cmp_gt(a, b);
 #endif
 }
 

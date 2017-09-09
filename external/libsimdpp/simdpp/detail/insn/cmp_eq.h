@@ -37,6 +37,8 @@ SIMDPP_INL mask_int8x16 i_cmp_eq(const uint8x16& a, const uint8x16& b)
     return vceqq_u8(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpeq((__vector uint8_t)a, (__vector uint8_t)b);
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_ceq_b((v16i8)(v16u8) a, (v16i8)(v16u8) b);
 #endif
 }
 
@@ -44,6 +46,13 @@ SIMDPP_INL mask_int8x16 i_cmp_eq(const uint8x16& a, const uint8x16& b)
 SIMDPP_INL mask_int8x32 i_cmp_eq(const uint8x32& a, const uint8x32& b)
 {
     return _mm256_cmpeq_epi8(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int8<64> i_cmp_eq(const uint8<64>& a, const uint8<64>& b)
+{
+    return _mm512_cmpeq_epi8_mask(a, b);
 }
 #endif
 
@@ -59,6 +68,8 @@ SIMDPP_INL mask_int16x8 i_cmp_eq(const uint16x8& a, const uint16x8& b)
     return vceqq_u16(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpeq((__vector uint16_t)a, (__vector uint16_t)b);
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_ceq_h((v8i16)(v8u16) a, (v8i16)(v8u16) b);
 #endif
 }
 
@@ -66,6 +77,13 @@ SIMDPP_INL mask_int16x8 i_cmp_eq(const uint16x8& a, const uint16x8& b)
 SIMDPP_INL mask_int16x16 i_cmp_eq(const uint16x16& a, const uint16x16& b)
 {
     return _mm256_cmpeq_epi16(a, b);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL mask_int16<32> i_cmp_eq(const uint16<32>& a, const uint16<32>& b)
+{
+    return _mm512_cmpeq_epi16_mask(a, b);
 }
 #endif
 
@@ -81,6 +99,8 @@ SIMDPP_INL mask_int32x4 i_cmp_eq(const uint32x4& a, const uint32x4& b)
     return vceqq_u32(a, b);
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpeq((__vector uint32_t)a, (__vector uint32_t)b);
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_ceq_w((v4i32)(v4u32) a, (v4i32)(v4u32) b);
 #endif
 }
 
@@ -107,9 +127,7 @@ SIMDPP_INL mask_int32<16> i_cmp_eq(const mask_int32<16>& a, const mask_int32<16>
 
 SIMDPP_INL mask_int64x2 i_cmp_eq(const uint64x2& a, const uint64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    return detail::null::cmp_eq(a, b);
-#elif SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
+#if SIMDPP_USE_XOP && !SIMDPP_WORKAROUND_XOP_COM
     return _mm_comeq_epi64(a, b);
 #elif SIMDPP_USE_SSE4_1
     return _mm_cmpeq_epi64(a, b);
@@ -132,6 +150,12 @@ SIMDPP_INL mask_int64x2 i_cmp_eq(const uint64x2& a, const uint64x2& b)
     // combine the results. Each 32-bit half is ANDed with the neighbouring pair
     r32 = bit_and(r32, r32s);
     return uint64x2(r32);
+#elif SIMDPP_USE_VSX_207
+    return (__vector uint64_t) vec_cmpeq((__vector uint64_t) a, (__vector uint64_t) b);
+#elif SIMDPP_USE_MSA
+    return (v2u64) __msa_ceq_d((v2i64)(v2u64) a, (v2i64)(v2u64) b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    return detail::null::cmp_eq(a, b);
 #endif
 }
 
@@ -168,6 +192,8 @@ SIMDPP_INL mask_float32x4 i_cmp_eq(const float32x4& a, const float32x4& b)
     return vreinterpretq_f32_u32(vceqq_f32(a, b));
 #elif SIMDPP_USE_ALTIVEC
     return vec_cmpeq((__vector float)a, (__vector float)b);
+#elif SIMDPP_USE_MSA
+    return (v4f32) __msa_fceq_w(a, b);
 #endif
 }
 
@@ -194,14 +220,18 @@ SIMDPP_INL mask_float32<16> i_cmp_eq(const mask_float32<16>& a, const mask_float
 
 SIMDPP_INL mask_float64x2 i_cmp_eq(const float64x2& a, const float64x2& b)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    return detail::null::cmp_eq(a, b);
-#elif SIMDPP_USE_AVX
+#if SIMDPP_USE_AVX
     return _mm_cmp_pd(a, b, _CMP_EQ_OQ);
 #elif SIMDPP_USE_SSE2
     return _mm_cmpeq_pd(a, b);
 #elif SIMDPP_USE_NEON64
     return vreinterpretq_f64_u64(vceqq_f64(a, b));
+#elif SIMDPP_USE_VSX_206
+    return (__vector double) vec_cmpeq((__vector double) a, (__vector double) b);
+#elif SIMDPP_USE_MSA
+    return (v2f64) __msa_fceq_d(a, b);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    return detail::null::cmp_eq(a, b);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, b);
 #endif

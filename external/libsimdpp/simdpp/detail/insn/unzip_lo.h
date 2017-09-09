@@ -40,9 +40,15 @@ SIMDPP_INL uint8x16 i_unzip16_lo(const uint8x16& ca, const uint8x16& cb)
 #elif SIMDPP_USE_NEON
     return vuzpq_u8(a, b).val[0];
 #elif SIMDPP_USE_ALTIVEC
+#if SIMDPP_BIG_ENDIAN
     uint8x16 mask = make_shuffle_bytes16_mask<0,2,4,6,8,10,12,14,
                                               16,18,20,22,24,26,28,30>(mask);
     return shuffle_bytes16(a, b, mask);
+#else
+    return vec_pack((__vector uint16_t)(__vector uint8_t)a, (__vector uint16_t)(__vector uint8_t)b);
+#endif
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_pckev_b((v16i8)(v16u8) b, (v16i8)(v16u8) a);
 #endif
 }
 
@@ -57,6 +63,20 @@ SIMDPP_INL uint8x32 i_unzip16_lo(const uint8x32& ca, const uint8x32& cb)
     b = bit_and(b, mask);
     r = _mm256_packus_epi16(a, b);
     return uint8x32(r);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint8<64> i_unzip16_lo(const uint8<64>& ca, const uint8<64>& cb)
+{
+    uint8<64> a = ca, b = cb;
+    uint16<32> mask, r;
+    mask = make_ones();
+    mask = _mm512_srli_epi16(mask, 8);
+    a = bit_and(a, mask);
+    b = bit_and(b, mask);
+    r = _mm512_packus_epi16(a, b);
+    return uint8<64>(r);
 }
 #endif
 
@@ -92,8 +112,14 @@ SIMDPP_INL uint16x8 i_unzip8_lo(const uint16x8& ca, const uint16x8& cb)
 #elif SIMDPP_USE_NEON
     return vuzpq_u16(a, b).val[0];
 #elif SIMDPP_USE_ALTIVEC
+#if SIMDPP_BIG_ENDIAN
     uint16x8 mask = make_shuffle_bytes16_mask<0,2,4,6,8,10,12,14>(mask);
     return shuffle_bytes16(a, b, mask);
+#else
+    return vec_pack((__vector uint32_t)(__vector uint16_t)a, (__vector uint32_t)(__vector uint16_t)b);
+#endif
+#elif SIMDPP_USE_MSA
+    return (v8u16) __msa_pckev_h((v8i16)(v8u16) b, (v8i16)(v8u16) a);
 #endif
 }
 
@@ -108,6 +134,20 @@ SIMDPP_INL uint16x16 i_unzip8_lo(const uint16x16& ca, const uint16x16& cb)
     b = bit_and(b, mask);
     r = _mm256_packus_epi32(a, b);
     return uint16x16(r);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint16<32> i_unzip8_lo(const uint16<32>& ca, const uint16<32>& cb)
+{
+    uint16<32> a = ca, b = cb;
+    uint32<16> mask, r;
+    mask = make_ones();
+    mask = _mm512_srli_epi32(mask, 16);
+    a = bit_and(a, mask);
+    b = bit_and(b, mask);
+    r = _mm512_packus_epi32(a, b);
+    return uint16<32>(r);
 }
 #endif
 
@@ -130,6 +170,8 @@ SIMDPP_INL uint32x4 i_unzip4_lo(const uint32x4& a, const uint32x4& b)
 #elif SIMDPP_USE_ALTIVEC
     uint32x4 mask = make_shuffle_bytes16_mask<0,2,4,6>(mask);
     return shuffle_bytes16(a, b, mask);
+#elif SIMDPP_USE_MSA
+    return (v4u32) __msa_pckev_w((v4i32)(v4u32) b, (v4i32)(v4u32) a);
 #endif
 }
 
@@ -174,6 +216,8 @@ SIMDPP_INL float32x4 i_unzip4_lo(const float32x4& a, const float32x4& b)
 #elif SIMDPP_USE_ALTIVEC
     uint32x4 mask = make_shuffle_bytes16_mask<0,2,4,6>(mask);
     return shuffle_bytes16(a, b, mask);
+#elif SIMDPP_USE_MSA
+    return (v4f32) __msa_pckev_w((v4i32)(v4f32) b, (v4i32)(v4f32) a);
 #endif
 }
 

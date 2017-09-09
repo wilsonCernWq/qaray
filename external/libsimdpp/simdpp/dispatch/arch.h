@@ -45,6 +45,10 @@ enum class Arch : std::uint32_t {
     X86_XOP = 1 << 9,
     /// Indicates x86 AVX-512F suppotr
     X86_AVX512F = 1 << 10,
+    /// Indicates x86 AVX-512BW suppotr
+    X86_AVX512BW = 1 << 11,
+    /// Indicates x86 AVX-512DQ suppotr
+    X86_AVX512DQ = 1 << 12,
 
     /// Indicates ARM NEON support (SP and DP floating-point math is executed
     /// on VFP)
@@ -54,7 +58,16 @@ enum class Arch : std::uint32_t {
     ARM_NEON_FLT_SP = 1 << 1,
 
     /// Indicates POWER ALTIVEC support.
-    POWER_ALTIVEC = 1 << 0
+    POWER_ALTIVEC = 1 << 0,
+
+    /// Indicates POWER VSX support available since Power ISA 2.06
+    POWER_VSX_206 = 1 << 1,
+
+    /// Indicates POWER VSX support available since Power ISA 2.07
+    POWER_VSX_207 = 1 << 2,
+
+    /// Indicates MIPS MSA support
+    MIPS_MSA = 1 << 0
 };
 
 /// Bitwise operators for @c Arch

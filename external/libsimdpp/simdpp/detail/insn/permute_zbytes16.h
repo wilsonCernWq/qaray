@@ -44,6 +44,10 @@ SIMDPP_INL uint8x16 i_permute_zbytes16(const uint8x16& a, const uint8x16& mask)
     a0 = i_permute_bytes16(a0, mask);
     a0 = bit_andnot(a0, zero_mask);
     return a0;
+#elif SIMDPP_USE_MSA
+    return (v16u8) __msa_vshf_b((v16i8)(v16u8)mask,
+                                (v16i8)(v16u8)a,
+                                (v16i8)(v16u8)a);
 #else
     return SIMDPP_NOT_IMPLEMENTED2(a, mask);
 #endif
@@ -53,6 +57,13 @@ SIMDPP_INL uint8x16 i_permute_zbytes16(const uint8x16& a, const uint8x16& mask)
 SIMDPP_INL uint8x32 i_permute_zbytes16(const uint8x32& a, const uint8x32& mask)
 {
     return _mm256_shuffle_epi8(a, mask);
+}
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL uint8<64> i_permute_zbytes16(const uint8<64>& a, const uint8<64>& mask)
+{
+    return _mm512_shuffle_epi8(a, mask);
 }
 #endif
 

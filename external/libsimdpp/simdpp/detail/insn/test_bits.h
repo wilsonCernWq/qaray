@@ -41,6 +41,8 @@ SIMDPP_INL bool i_test_bits_any(const uint32<4>& a)
 #elif SIMDPP_USE_ALTIVEC
     uint32<4> z = make_uint(0);
     return vec_any_gt((__vector uint32_t)a, (__vector uint32_t)z);
+#elif SIMDPP_USE_MSA
+    return __msa_test_bnz_v((uint8<16>) a);
 #endif
 }
 
@@ -49,7 +51,10 @@ SIMDPP_INL bool i_test_bits_any(const uint8<16>& a) { return i_test_bits_any(uin
 
 SIMDPP_INL bool i_test_bits_any(const uint64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_VSX_207
+    uint64<2> z = make_zero();
+    return vec_any_gt((__vector uint64_t)a, (__vector uint64_t)z);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
     return null::test_bits_any(a);
 #else
     return i_test_bits_any(uint32<4>(a));
@@ -67,7 +72,9 @@ SIMDPP_INL bool i_test_bits_any(const float32<4>& a)
 
 SIMDPP_INL bool i_test_bits_any(const float64<2>& a)
 {
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+#if SIMDPP_USE_VSX_206
+    return i_test_bits_any(uint32<4>(a));
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
     return null::test_bits_any(a);
 #else
     return i_test_bits_any(uint32<4>(a));
@@ -102,6 +109,11 @@ SIMDPP_INL bool i_test_bits_any(const uint32<16>& a)
 SIMDPP_INL bool i_test_bits_any(const uint64<8>& a) { return i_test_bits_any(uint32<16>(a)); }
 SIMDPP_INL bool i_test_bits_any(const float32<16>& a) { return i_test_bits_any(uint32<16>(a)); }
 SIMDPP_INL bool i_test_bits_any(const float64<8>& a) { return i_test_bits_any(uint32<16>(a)); }
+#endif
+
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL bool i_test_bits_any(const uint8<64>& a) { return i_test_bits_any(uint32<16>(a)); }
+SIMDPP_INL bool i_test_bits_any(const uint16<32>& a) { return i_test_bits_any(uint32<16>(a)); }
 #endif
 
 template<unsigned N, class V>

@@ -15,6 +15,7 @@
 #include <simdpp/types.h>
 #include <simdpp/detail/align.h>
 #include <simdpp/core/blend.h>
+#include <simdpp/core/cmp_gt.h>
 #include <simdpp/core/load.h>
 #include <simdpp/core/load_u.h>
 #include <simdpp/core/store.h>
@@ -32,7 +33,22 @@ SIMDPP_INL void i_store_first(char* p, const uint8x16& a, unsigned n)
     p = detail::assume_aligned(p, 16);
 #if SIMDPP_USE_NULL
     detail::null::store_first(p, a, n);
-#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+#elif SIMDPP_USE_ALTIVEC && SIMDPP_BIG_ENDIAN
+    uint8x16 mask = vec_lvsr(n, (const uint8_t*)NULL);
+    mask = cmp_lt(mask, 0x10);
+    uint8x16 b = load(p);
+    b = blend(a, b, mask);
+    store(p, b);
+#elif SIMDPP_USE_ALTIVEC && SIMDPP_LITTLE_ENDIAN
+    uint8<16> mask = make_ones();
+    uint8<16> shift = vec_splats((unsigned char)(n << 3));
+    mask = vec_slo((__vector uint8_t)mask, (__vector uint8_t)shift);
+
+    uint8x16 b = load(p);
+    b = blend(b, a, mask);
+    store(p, b);
+#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_MSA
+    // for MSA we can't use __msa_sld_b because it does not work with shift==16
     static const uint8_t mask_d[32] = {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
                                        0,0,0,0,0,0,0,0,
@@ -62,6 +78,29 @@ SIMDPP_INL void i_store_first(char* p, const uint8x32& a, unsigned n)
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_store_first(char* p, const uint8<64>& a, unsigned n)
+{
+    static const uint8_t mask_d[128] = {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+                                        0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0};
+
+    uint8<64> mask = load_u(mask_d + 64 - n);
+    uint8<64> b = load(p);
+    b = blend(a, b, mask);
+    store(p, b);
+}
+#endif
+
 // -----------------------------------------------------------------------------
 
 SIMDPP_INL void i_store_first(char* p, const uint16x8& a, unsigned n)
@@ -69,7 +108,7 @@ SIMDPP_INL void i_store_first(char* p, const uint16x8& a, unsigned n)
     p = detail::assume_aligned(p, 16);
 #if SIMDPP_USE_NULL
     detail::null::store_first(p, a, n);
-#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC || SIMDPP_USE_MSA
     i_store_first(p, (uint8x16)a, n*2);
 #endif
 }
@@ -81,6 +120,13 @@ SIMDPP_INL void i_store_first(char* p, const uint16x16& a, unsigned n)
 }
 #endif
 
+#if SIMDPP_USE_AVX512BW
+SIMDPP_INL void i_store_first(char* p, const uint16<32>& a, unsigned n)
+{
+    i_store_first(p, uint8<64>(a), n*2);
+}
+#endif
+
 // -----------------------------------------------------------------------------
 
 SIMDPP_INL void i_store_first(char* p, const uint32x4& a, unsigned n)
@@ -88,7 +134,7 @@ SIMDPP_INL void i_store_first(char* p, const uint32x4& a, unsigned n)
     p = detail::assume_aligned(p, 16);
 #if SIMDPP_USE_NULL
     detail::null::store_first(p, a, n);
-#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC
+#elif SIMDPP_USE_SSE2 || SIMDPP_USE_NEON || SIMDPP_USE_ALTIVEC || SIMDPP_USE_MSA
     i_store_first(p, (uint8x16)a, n*4);
 #endif
 }
@@ -115,9 +161,7 @@ SIMDPP_INL void i_store_first(char* p, const uint32<16>& a, unsigned n)
 SIMDPP_INL void i_store_first(char* p, const uint64x2& a, unsigned n)
 {
     p = detail::assume_aligned(p, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
-    detail::null::store_first(p, a, n);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     if (n == 1) {
         _mm_store_sd(reinterpret_cast<double*>(p), _mm_castsi128_pd(a));
     }
@@ -125,6 +169,15 @@ SIMDPP_INL void i_store_first(char* p, const uint64x2& a, unsigned n)
     if (n == 1) {
         neon::store_lane<0,1>(p, a);
     }
+#elif SIMDPP_USE_VSX_207
+    if (n == 1) {
+        uint64_t* q = reinterpret_cast<uint64_t*>(p);
+        *q = vec_extract((__vector uint64_t) a, 0);
+    }
+#elif SIMDPP_USE_MSA
+    i_store_first(p, uint8<16>(a), n*8);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC
+    detail::null::store_first(p, a, n);
 #endif
 }
 
@@ -153,7 +206,7 @@ SIMDPP_INL void i_store_first(char* p, const uint64<8>& a, unsigned n)
 SIMDPP_INL void i_store_first(char* p, const float32x4& a, unsigned n)
 {
     p = detail::assume_aligned(p, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON_NO_FLT_SP
+#if SIMDPP_USE_NULL || SIMDPP_USE_ALTIVEC || SIMDPP_USE_NEON_NO_FLT_SP || SIMDPP_USE_MSA
     i_store_first(p, int32x4(a), n);
 #elif SIMDPP_USE_AVX && !SIMDPP_USE_AMD
     static const int32_t mask_d[8] = { -1, -1, -1, -1, 0, 0, 0, 0 };
@@ -206,9 +259,7 @@ SIMDPP_INL void i_store_first(char* p, const float32<16>& a, unsigned n)
 SIMDPP_INL void i_store_first(char* p, const float64x2& a, unsigned n)
 {
     p = detail::assume_aligned(p, 16);
-#if SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
-    detail::null::store_first(p, a, n);
-#elif SIMDPP_USE_SSE2
+#if SIMDPP_USE_SSE2
     if (n == 1) {
         _mm_store_sd(reinterpret_cast<double*>(p), a);
     }
@@ -216,6 +267,15 @@ SIMDPP_INL void i_store_first(char* p, const float64x2& a, unsigned n)
     if (n == 1) {
         vst1_f64(reinterpret_cast<double*>(p), vget_low_f64(a));
     }
+#elif SIMDPP_USE_VSX_206
+    if (n == 1) {
+        double* q = reinterpret_cast<double*>(p);
+        *q = vec_extract((__vector double) a, 0);
+    }
+#elif SIMDPP_USE_MSA
+    i_store_first(p, (uint64x2)a, n);
+#elif SIMDPP_USE_NULL || SIMDPP_USE_NEON32 || SIMDPP_USE_ALTIVEC
+    detail::null::store_first(p, a, n);
 #endif
 }
 
