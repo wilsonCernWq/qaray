@@ -1,7 +1,7 @@
 #
 #--- Libraries Setups
-# 
-# Author: Qi WU, University of Utah 
+#
+# Author: Qi WU, University of Utah
 #
 # Modified based on the course project from EPFL ICG course that I have taken
 # This is used for configure the environment with CMAKE
@@ -112,7 +112,7 @@ INCLUDE_DIRECTORIES(${LodePNG_INCLUDE_DIR})
 LIST(APPEND COMMON_LIBS ${LodePNG_LIBRARIES})
 #
 #--- TinyXML
-#   
+#
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/tinyxml)
 INCLUDE_DIRECTORIES(${TinyXML_INCLUDE_DIR})
 LIST(APPEND COMMON_LIBS ${TinyXML_LIBRARIES})
@@ -135,15 +135,18 @@ ENDIF()
 #
 FIND_PACKAGE(OpenMP)
 IF (OPENMP_FOUND)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")  
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   ADD_DEFINITIONS(-DUSE_OPENMP)
 ENDIF()
 #
 #--- libsimdpp
 #
-IF(EXISTS ${PROJECT_SOURCE_DIR}/external/libsimdpp)
-  ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
-  INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
-  ADD_DEFINITIONS(-DUSE_LIBSIMDPP)
-ENDIF()
+OPTION(EMABLE_LIBSIMDPP "Enable libsimdpp Library" OFF)
+IF (EMABLE_LIBSIMDPP)
+  IF(EXISTS ${PROJECT_SOURCE_DIR}/external/libsimdpp)
+    ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
+    INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
+    ADD_DEFINITIONS(-DUSE_LIBSIMDPP)
+  ENDIF()
+ENDIF(EMABLE_LIBSIMDPP)

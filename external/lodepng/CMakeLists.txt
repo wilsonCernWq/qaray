@@ -1,10 +1,10 @@
 #
 # build LodePNG
 #
-ADD_LIBRARY(lodepng SHARED
+ADD_LIBRARY(lodepng
    lodepng.cpp
    lodepng.h)
-ADD_LIBRARY(lodepng_util SHARED
+ADD_LIBRARY(lodepng_util
   lodepng_util.cpp
   lodepng_util.h)
 TARGET_LINK_LIBRARIES(lodepng_util lodepng)
