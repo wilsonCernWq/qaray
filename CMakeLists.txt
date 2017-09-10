@@ -1,15 +1,23 @@
 cmake_minimum_required(VERSION 2.8)
-project(OSPRayTinyLoader)
+project(RayTracer)
+#
+# options
+OPTION(EMABLE_SHARED "Enable shared Library" OFF)
+if(EMABLE_SHARED) 
+  set(BUILD_SHARED_LIBS ON)
+else(EMABLE_SHARED) 
+  set(BUILD_SHARED_LIBS OFF)
+endif(EMABLE_SHARED)
 #
 # include host specification file
 cmake_host_system_information(RESULT SYSNAME QUERY HOSTNAME)
-message(STATUS "trying to include ${SYSNAME}.cmake configuration file")
+message(STATUS "Trying to include ${SYSNAME}.cmake configuration file")
 include(cmake/config-site/${SYSNAME}.cmake OPTIONAL RESULT_VARIABLE CONFIGFOUND)
 if (NOT CONFIGFOUND)
-  message(STATUS "failed to load the configuration file")
-  message(STATUS "helper message:
+  message(STATUS "Failed to load the configuration file")
+  message(STATUS "Helper message:\n
     To build the program sucessfully, you might need to provide following paths to your cmake
-    *) path to the root directory of your standalone TBB library as '-DTBB_ROOT=<..>'
+    *) path to the root directory of your standalone TBB library as '-DTBB_ROOT=<..>'       
   ")
 endif()
 #
