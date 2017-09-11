@@ -9,12 +9,16 @@
 
 #pragma once
 
-#include "common.h"
-#include <simdpp/simd.h>
+#include "math.h"
 
-class RayPacket {
-public:
-  simdpp::float32<PACK_SIZE> x, y, z;
-public:
-  RayPacket();
+namespace qw {
+  class RayPacket {
+  public:
+    vec3fv ori, dir;
+  public:
+    RayPacket();
+    RayPacket(const vec3fv&, const vec3fv&);
+    RayPacket(const RayPacket&);    
+    void Normalize();    
+  };
 };
