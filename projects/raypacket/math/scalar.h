@@ -9,18 +9,13 @@
 
 #pragma once
 
-#include "math.h"
+#define SIMDPP_ARCH_X86_AVX512F
+#define PACKET_SIZE 16
 
 #ifndef USE_LIBSIMDPP
 # error "Ray-packet project requires libsimdpp"
 #else
 # include <simdpp/simd.h>
-#endif
-
-#ifndef USE_GLM
-# error "Ray-packet project requires GLM"
-#else
-# include <glm/glm.hpp>
 #endif
 
 #include <type_traits>
@@ -94,6 +89,9 @@ namespace qw
       return vScalar(core / simdpp::splat<TCore>(x)); 
     };
     void Stream(void* ptr) const { simdpp::stream(ptr, core); }
-  };  
-  typedef vScalar<simdpp::float32<PACKET_SIZE>, float> vfloat;  
+  };
+
+  typedef vScalar<simdpp::float32<PACKET_SIZE>, float> vfloat;
+
 };
+

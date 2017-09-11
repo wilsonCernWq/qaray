@@ -11,12 +11,18 @@
 
 #include "scalar.h"
 
+#ifndef USE_GLM
+# error "Ray-packet project requires GLM"
+#else
+# include <glm/glm.hpp>
+#endif
+
 //------------------------------------------------------------------------------
 #define DEFINE_TYPE(TYPE, N, T)				\
   namespace qw						\
   {							\
     typedef glm::tvec##N<TYPE> vec##N##T;		\
-      typedef glm::tmat##N##x##N<TYPE> mat##N##T;	\
+    typedef glm::tmat##N##x##N<TYPE> mat##N##T;		\
     struct bbox##N##T { vec##N##T upper, lower; };	\
     struct affine##N##T { mat##N##T l; vec##N##T p; };	\
   };
@@ -34,5 +40,4 @@
   DEFINE_FUNC(type, 3, t)			\
   DEFINE_FUNC(type, 4, t)
 
-DEFINE_ALL_DEC(vfloat, fv);
-
+DEFINE_ALL_DEC(qw::vfloat, fv);
