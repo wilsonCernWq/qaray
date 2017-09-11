@@ -9,16 +9,17 @@
 
 #pragma once
 
-#include "math.h"
+#include "math/math.h"
 
-namespace qw {
+namespace qw 
+{
   class RayPacket {
   public:
     vec3fv ori, dir;
   public:
     RayPacket();
     RayPacket(const vec3fv&, const vec3fv&);
-    RayPacket(const RayPacket&);    
-    void Normalize();    
+    RayPacket(const RayPacket&);
+    void Normalize();
   };
 };
