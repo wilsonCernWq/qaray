@@ -83,15 +83,15 @@ ENDIF()
 #
 #--- GLFW
 #
-OPTION(EMABLE_GLFW "Enable GLFW Library" OFF)
-IF(EMABLE_GLFW)
+OPTION(ENABLE_GLFW "Enable GLFW Library" OFF)
+IF(ENABLE_GLFW)
   IF(EXISTS ${PROJECT_SOURCE_DIR}/external/glfw)
     ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/glfw)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glfw/include)
     LIST(APPEND COMMON_LIBS glfw)
     ADD_DEFINITIONS(-DUSE_GLFW)
   ENDIF()
-ENDIF(EMABLE_GLFW)
+ENDIF(ENABLE_GLFW)
 #
 #----------------------------------------------------------------------------
 #
@@ -145,11 +145,11 @@ ENDIF()
 #
 #--- libsimdpp
 #
-OPTION(EMABLE_LIBSIMDPP "Enable libsimdpp Library" OFF)
-IF (EMABLE_LIBSIMDPP)
+OPTION(ENABLE_LIBSIMDPP "Enable libsimdpp Library" OFF)
+IF (ENABLE_LIBSIMDPP)
   IF(EXISTS ${PROJECT_SOURCE_DIR}/external/libsimdpp)
     ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
     ADD_DEFINITIONS(-DUSE_LIBSIMDPP)
   ENDIF()
-ENDIF(EMABLE_LIBSIMDPP)
+ENDIF(ENABLE_LIBSIMDPP)
