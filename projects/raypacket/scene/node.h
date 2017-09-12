@@ -20,6 +20,8 @@
 #pragma once
 
 #include "scene_fwd.h"
+#include "scene/hitinfo.h"
+#include "common/ray.h"
 #include "common/transform.h"
 #include "common/item.h"
 
@@ -27,10 +29,10 @@ namespace qw
 {
   class Node : public ItemBase, public Transformation {
   private:
-    Node **child;    //!< Child nodes
-    size_t numChild; //!< The number of child nodes
-    Object   *obj;   //!< Object reference (merely points to the object, but does not own the object)
-    Material *mtl;   //!< Material used for shading the object
+    Node  **child; //!< Child nodes
+    int  numChild; //!< The number of child nodes
+    Object   *obj; //!< Object reference (merely points to the object, but does not own the object)
+    Material *mtl; //!< Material used for shading the object
   public:
     Node();
     virtual ~Node();
@@ -55,6 +57,6 @@ namespace qw
     void            SetMaterial(Material *material);
     // Transformations
     RayPacket ToNodeCoords(const RayPacket &ray) const;
-    void FromNodeCoords( HitInfo &hInfo ) const;
+    void      FromNodeCoords(HitInfo &hInfo) const;
   };
 };

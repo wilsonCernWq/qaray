@@ -20,7 +20,7 @@ namespace qw
   //! four different array in order to stream data from SIMD data type.
   class Tile 
   {
-    size_t tile_id = 0;
+    int tile_id = 0;
     float r[TILE_SIZE * TILE_SIZE];
     float g[TILE_SIZE * TILE_SIZE];
     float b[TILE_SIZE * TILE_SIZE];

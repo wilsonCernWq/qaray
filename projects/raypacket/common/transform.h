@@ -41,12 +41,12 @@ namespace qw {
 
     //! SIMD Calls
     // Transform to the local coordinate system
-    vec3fv PointTransformInTo(const vec3fv &p) const;
+    vec3fv PointTransformInto(const vec3fv &p) const;
     // Transform from the local coordinate system
     vec3fv PointTransformFrom(const vec3fv &p) const;
     // Transforms a vector to the local coordinate system 
     // (same as multiplication with the inverse transpose of the transformation)
-    vec3fv VectorTransformInTo(const vec3fv &v) const;
+    vec3fv VectorTransformInto(const vec3fv &v) const;
     // Transforms a vector from the local coordinate system 
     // (same as multiplication with the inverse transpose of the transformation)
     vec3fv VectorTransformFrom(const vec3fv &v) const;

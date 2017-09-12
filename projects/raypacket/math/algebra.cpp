@@ -22,14 +22,14 @@
   namespace qw {					\
     vec##N##T normalize(const vec##N##T& v) {		\
       TYPE s(0);					\
-      for (size_t i = 0; i < N; ++i) {			\
+      for (int i = 0; i < N; ++i) {			\
 	s = s + v[i];					\
       }							\
       return v / s;					\
     }							\
     TYPE dot(const vec##N##T& a, const vec##N##T& b) {	\
       TYPE s(0);					\
-      for (size_t i = 0; i < N; ++i) {			\
+      for (int i = 0; i < N; ++i) {			\
 	s = s + a[i] * b[i];				\
       }							\
       return s;						\

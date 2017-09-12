@@ -11,9 +11,6 @@
 
 #include "types.h"
 
-#define SIMDPP_ARCH_X86_AVX512F
-#define PACKET_SIZE 16
-
 #ifndef USE_LIBSIMDPP
 # error "Ray-packet project requires libsimdpp"
 #else

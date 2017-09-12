@@ -28,7 +28,7 @@ namespace qw
 
   //! SIMD Calls
   // Transform to the local coordinate system
-  vec3fv Transformation::PointTransformInTo(const vec3fv &p) const 
+  vec3fv Transformation::PointTransformInto(const vec3fv &p) const 
   { 
     return packet_itm * (p - packet_pos); 
   }
@@ -39,7 +39,7 @@ namespace qw
   }
   // Transforms a vector to the local coordinate system 
   // (same as multiplication with the inverse transpose of the transformation)
-  vec3fv Transformation::VectorTransformInTo(const vec3fv &v) const 
+  vec3fv Transformation::VectorTransformInto(const vec3fv &v) const 
   { 
     return TransposeMult(packet_tm,  v); 
   }
@@ -71,7 +71,7 @@ namespace qw
   void Transformation:: FinalizeTransform() 
   { 
     packet_pos.x = pos.x; packet_pos.y = pos.y; packet_pos.z = pos.z;
-    for (size_t i = 0; i < 9; ++i) {
+    for (int i = 0; i < 9; ++i) {
       packet_tm[i]  =  tm[i];
       packet_itm[i] = itm[i];
     }

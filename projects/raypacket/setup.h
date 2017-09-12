@@ -10,27 +10,21 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 ///
-/// \file       camera.h 
+/// \file       setup.h 
 /// \author     Qi WU
 ///
-/// \brief Modified for ray-packet project
+/// \brief Setup constants
 ///
 //------------------------------------------------------------------------------
 
 #pragma once
 
-#include "math/math.h"
+#define SIMDPP_ARCH_X86_AVX512F
+#define PACKET_SIZE 16
 
-//------------------------------------------------------------------------------
+#define HIT_NONE           1<<0
+#define HIT_FRONT          1<<1
+#define HIT_BACK           1<<2
+#define HIT_FRONT_AND_BACK (HIT_FRONT|HIT_BACK)
 
-namespace qw {
-  class Camera {
-  public:
-    vec3f pos, dir, up;
-    float fov;
-    int   imgWidth, imgHeight;
-    Camera();
-  };
-}
-
-//------------------------------------------------------------------------------
+#define BIGFLOAT 1.0e30f

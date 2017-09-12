@@ -17,9 +17,20 @@
 ///
 //------------------------------------------------------------------------------
 
-#pragma once
-
 #include "node.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#ifndef min
+# define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
+#ifndef max
+# define max(a,b) ((a)>(b)?(a):(b))
+#endif
+
+//------------------------------------------------------------------------------
 
 namespace qw {
 
@@ -35,8 +46,9 @@ namespace qw {
 
   // Hierarchy management
   int  Node::GetNumChild() const { return numChild; }
-  void Node::SetNumChild(const int n, const int keepOld = false)
+  void Node::SetNumChild(const int num, const int keepOld)
   {
+    int n = num;
     if ( n < 0 ) n=0;	// just to be sure
     Node **nc = NULL;	// new child pointer
     if ( n > 0 ) nc = new Node*[n];
@@ -87,14 +99,14 @@ namespace qw {
   RayPacket Node::ToNodeCoords(const RayPacket &ray) const
   {
     RayPacket r;
-    r.ori = TransformTo(ray.ori);
-    r.dir = TransformTo(ray.ori + ray.dir) - r.ori;
+    r.ori = PointTransformInto(ray.ori);
+    r.dir = PointTransformInto(ray.ori + ray.dir) - r.ori;
     return r;
   }
   void Node::FromNodeCoords( HitInfo &hInfo ) const
   {
-    hInfo.p = TransformFrom(hInfo.p);
-    hInfo.N = VectorTransformFrom(hInfo.N).GetNormalized();
+    hInfo.p = PointTransformFrom(hInfo.p);
+    hInfo.N = normalize(VectorTransformFrom(hInfo.N));
   }
   
 };

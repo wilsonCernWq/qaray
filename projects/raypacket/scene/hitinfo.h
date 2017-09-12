@@ -19,13 +19,9 @@
 
 #pragma once
 
+#include "setup.h"
 #include "scene/scene_fwd.h"
 #include "math/math.h"
-
-#define HIT_NONE           1<<0
-#define HIT_FRONT          1<<1
-#define HIT_BACK           1<<2
-#define HIT_FRONT_AND_BACK (HIT_FRONT|HIT_BACK)
 
 namespace qw {
   struct HitInfo
@@ -35,8 +31,8 @@ namespace qw {
       struct { const Node* node; int front; } in;
     };
     vfloat z;	   // the distance from the ray center to the hit point
-    vec3f  p;	   // position of the hit point
-    vec3f  N;	   // surface normal at the hit point
+    vec3fv p;	   // position of the hit point
+    vec3fv N;	   // surface normal at the hit point
     vfloat nodeInfo; // [const Node *node, front] ==> pack of (void*) & (int)
     // [node ] the object node that was hit
     // [front] true if the ray hits the front side, false if the ray hits the back side

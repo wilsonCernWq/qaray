@@ -4,6 +4,8 @@
 #include "scene/object.h"
 #include "scene/material.h"
 #include "scene/light.h"
+#include "scene/node.h"
+#include "fb/framebuffer.h"
 
 using namespace qw;
 
