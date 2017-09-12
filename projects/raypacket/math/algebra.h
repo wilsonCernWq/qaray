@@ -1,9 +1,10 @@
 //------------------------------------------------------------------------------
 ///
-/// \file       vec.h
+/// \file       algebra.h
 /// \author     Qi WU
 ///
 /// \brief Math library used in this project
+/// In this file, the linear algebra types (vector & matrix) are defined
 ///
 //------------------------------------------------------------------------------
 
@@ -15,6 +16,8 @@
 # error "Ray-packet project requires GLM"
 #else
 # include <glm/glm.hpp>
+# include <glm/gtc/matrix_transform.hpp>
+# include <glm/gtc/matrix_access.hpp>
 #endif
 
 //------------------------------------------------------------------------------
@@ -27,9 +30,10 @@
     struct affine##N##T { mat##N##T l; vec##N##T p; };	\
   };
 
-#define DEFINE_FUNC(TYPE, N, T)			\
-  namespace qw {				\
-    void normalize(vec##N##T&);			\
+#define DEFINE_FUNC(TYPE, N, T)				\
+  namespace qw {					\
+    vec##N##T normalize(const vec##N##T&);		\
+    TYPE dot(const vec##N##T&, const vec##N##T&);	\
   };
 
 #define DEFINE_ALL_DEC(type, t)			\
@@ -41,3 +45,13 @@
   DEFINE_FUNC(type, 4, t)
 
 DEFINE_ALL_DEC(qw::vfloat, fv);
+DEFINE_ALL_DEC(uchar,       c);
+DEFINE_ALL_DEC(int,         i);
+DEFINE_ALL_DEC(float,       f);
+DEFINE_ALL_DEC(double,      d);
+
+namespace qw {
+  typedef vec3fv Color3fv;
+  typedef vec3f  Color3f;
+  typedef vec3c  Color3c;
+};

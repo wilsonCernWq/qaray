@@ -1,6 +1,9 @@
 #include <iostream>
 
 #include "math/math.h"
+#include "scene/object.h"
+#include "scene/material.h"
+#include "scene/light.h"
 
 using namespace qw;
 
@@ -36,7 +39,6 @@ int main()
   arr[4].Stream(val); // wrong
   for (int i = 0; i < PACKET_SIZE; ++i)
     std::cout << val[i] << std::endl;
-
 
   return 0;
 }

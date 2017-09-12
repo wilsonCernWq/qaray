@@ -9,40 +9,54 @@ if(ENABLE_PACKET_PROJECT)
   file(GLOB SHADERS "*.glsl")
   set(COPYLIST ${COMMON_DLLS} ${SHADERS})
   if(EXECUTABLE_OUTPUT_PATH)
-    DeployRepo(${COPYLIST} ${EXECUTABLE_OUTPUT_PATH})
+    DeployRepo("${COPYLIST}" "${EXECUTABLE_OUTPUT_PATH}")
   else()
     DeployRepo("${COPYLIST}" "${CMAKE_BINARY_DIR}")
   endif()
   #
   # include sources
-  file(GLOB MATH_CXX  "math/*.cpp")
-  file(GLOB MATH_HXX  "math/*.h")
-  file(GLOB SCENE_CXX "scene/*.cpp")
-  file(GLOB SCENE_HXX "scene/*.h")
-  file(GLOB CXX       "*.cpp")
-  file(GLOB HXX       "*.h")
-  file(GLOB MAIN      "main.cpp")
+  file(GLOB         MAIN      "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+  file(GLOB_RECURSE SCENE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/scene/*")
+  file(GLOB        COMMON_SRC "${CMAKE_CURRENT_SOURCE_DIR}/common/*")
+  file(GLOB          MATH_SRC "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
+  file(GLOB          GLOB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*")
   foreach(f ${MAIN})
-    list(REMOVE_ITEM CXX ${f})
+    list(REMOVE_ITEM GLOB_SRC ${f})
   endforeach()
   include_directories(${CMAKE_CURRENT_LIST_DIR})
   #
+  #
+  macro(qw_add_library name list)
+    message(STATUS "[ ${name} ]")
+    foreach(f ${${list}})
+      message(STATUS "-- * ${f}")
+    endforeach()
+    add_library(${name} ${${list}})
+  endmacro()
+  #
   # add library
   # -- math
-  add_library(math_${PID} ${MATH_CXX} ${MATH_HXX})
+  qw_add_library(math_${PID} MATH_SRC)
   target_link_libraries(math_${PID} ${COMMON_LIBS})
-  # -- scene
-  add_library(scene_${PID} ${SCENE_CXX} ${SCENE_HXX})
-  target_link_libraries(scene_${PID} math_${PID} ${COMMON_LIBS})
   # -- common
-  add_library(common_${PID} ${CXX} ${HXX})
-  target_link_libraries(common_${PID} scene_${PID} math_${PID} ${COMMON_LIBS})
+  qw_add_library(common_${PID} COMMON_SRC)
+  target_link_libraries(common_${PID} math_${PID} ${COMMON_LIBS})
+  # -- scene
+  #qw_add_library(scene_${PID} SCENE_SRC)
+  #target_link_libraries(scene_${PID} common_${PID} math_${PID} ${COMMON_LIBS})
+  # -- common
+  qw_add_library(glob_${PID} GLOB_SRC)
+  target_link_libraries(glob_${PID} 
+    #scene_${PID} 
+    common_${PID} 
+    math_${PID} 
+    ${COMMON_LIBS})
   #
   # add executable
   add_executable(raytracer_${PID} ${MAIN})
   target_link_libraries(raytracer_${PID} 
     common_${PID} 
-    scene_${PID} 
+    #scene_${PID} 
     math_${PID} 
     ${COMMON_LIBS})
 endif(ENABLE_PACKET_PROJECT)
