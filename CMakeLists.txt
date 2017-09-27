@@ -33,3 +33,11 @@ FOREACH(child ${children})
       add_subdirectory(${projdir}/${child})
   ENDIF()
 ENDFOREACH()
+#
+# deploy mesh
+file(GLOB MESHES  ${CMAKE_CURRENT_LIST_DIR}/meshes/*.obj)
+if(EXECUTABLE_OUTPUT_PATH)
+  DeployRepo("${MESHES}" "${EXECUTABLE_OUTPUT_PATH}")
+else()
+  DeployRepo("${MESHES}" "${CMAKE_BINARY_DIR}")
+endif()
