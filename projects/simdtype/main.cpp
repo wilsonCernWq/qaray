@@ -1,16 +1,7 @@
-//------------------------------------------------------------------------------
-///
-/// \file       test_math.h 
-/// \author     Qi WU
-///
-//------------------------------------------------------------------------------
-
-#pragma once
-
 #include "math/math.h"
 #include <iostream>
 
-bool test_math() {
+bool test() {
 
   using namespace qw;
   
@@ -45,4 +36,26 @@ bool test_math() {
   for (int i = 0; i < PACKET_SIZE; ++i)
     std::cout << val[i] << std::endl;
 
+  // Texting vectors
+  x = 1.0f;
+  y = 2.0f;
+  z = 3.0f;
+  // Texting vector constructors
+  vec3fv v0(x,y,z);
+  vec3fv v1(x);
+
+  v0.x.Stream(val);
+  for (int i = 0; i < PACKET_SIZE; ++i)
+    std::cout << val[i] << std::endl;
+
+  /* x = glm::dot(v0, v0); */
+  /* for (int i = 0; i < PACKET_SIZE; ++i) */
+  /*   std::cout << val[i] << std::endl; */
+
 };
+
+int main() 
+{ 
+  test();
+  return 0;
+}

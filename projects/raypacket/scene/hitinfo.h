@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "setup.h"
+#include "macro.h"
 #include "scene/scene_fwd.h"
 #include "math/math.h"
 

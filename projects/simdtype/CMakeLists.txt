@@ -16,14 +16,7 @@ if(ENABLE_PACKET_PROJECT)
   #
   # include sources
   file(GLOB_RECURSE MATH_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
-  file(GLOB_RECURSE FB_SRC     "${CMAKE_CURRENT_SOURCE_DIR}/fb/*")
-  file(GLOB_RECURSE COMMON_SRC "${CMAKE_CURRENT_SOURCE_DIR}/common/*")
-  file(GLOB_RECURSE SCENE_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/scene/*")
-  file(GLOB GLOB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*")
-  file(GLOB MAIN     "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
-  foreach(f ${MAIN})
-    list(REMOVE_ITEM GLOB_SRC ${f})
-  endforeach()
+  file(GLOB MAIN               "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
   include_directories(${CMAKE_CURRENT_LIST_DIR})
   #
   #
@@ -49,12 +42,8 @@ if(ENABLE_PACKET_PROJECT)
   #
   # add library
   qw_add_library(math)
-  qw_add_library(fb math)
-  qw_add_library(common math)
-  qw_add_library(scene common fb math)
-  qw_add_library(glob scene common fb math)
   #
   # add executable
-  add_executable(raytracer_${PID} ${MAIN})
-  target_link_libraries(raytracer_${PID} ${ALL_LIBS} ${COMMON_LIBS})
+  add_executable(test_${PID} ${MAIN})
+  target_link_libraries(test_${PID} ${ALL_LIBS} ${COMMON_LIBS})
 endif(ENABLE_PACKET_PROJECT)

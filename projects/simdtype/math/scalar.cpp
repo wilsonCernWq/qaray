@@ -1,18 +1,15 @@
 //------------------------------------------------------------------------------
 ///
-/// \file       math.h
+/// \file       scalar.cpp
 /// \author     Qi WU
 ///
 /// \brief Math library used in this project
 ///
 //------------------------------------------------------------------------------
 
-#pragma once
-
-//------------------------------------------------------------------------------
-
 #include "scalar.h"
-#include "algebra.h"
 
-//------------------------------------------------------------------------------
-
+//! Explicit instantiation
+namespace qw {
+  template class vScalar<simdpp::float32<PACKET_SIZE>, float>;
+};

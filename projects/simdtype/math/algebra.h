@@ -32,6 +32,8 @@
 
 #define DEFINE_FUNC(TYPE, N, T)				\
   namespace qw {					\
+    vec##N##T normalize(const vec##N##T&);		\
+    TYPE dot(const vec##N##T&, const vec##N##T&);	\
   };
 
 #define DEFINE_ALL_DEC(type, t)			\
