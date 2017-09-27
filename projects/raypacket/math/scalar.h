@@ -20,14 +20,5 @@
 #include <type_traits>
 
 //------------------------------------------------------------------------------
-namespace qw 
-{
-  typedef unsigned char uchar;
-
-  /* SIMD types */
-  // For now we define vfloat as float  
-  typedef float vfloat;
-  typedef float vmask;
-  
-};
+namespace qw {};
 
