@@ -37,8 +37,8 @@
 static const float PI = std::acos(-1);
 static const float nearClip = 10.0f;
 static size_t spp = 1, bounce = 5;
-static float     screenW, screenH, aspect;
-static cyPoint3f screenU, screenV, screenA;
+static float  screenW, screenH, aspect;
+static Point3 screenU, screenV, screenA;
 static Color24* colorBuffer = NULL; // RGB uchar
 static float*   depthBuffer = NULL;
 static size_t pixelW, pixelH;       // global size in pixel
@@ -65,7 +65,7 @@ void PixelRender(const size_t i, const size_t j)
   Color color(0.0f, 0.0f, 0.0f);
   float depth = 0.0f;
   for (size_t s = 0; s < spp; ++s) {
-    const cyPoint3f cpt =
+    const Point3 cpt =
       screenA +
       (i + (s % sppLen + 0.5f) * sppStp) * screenU +
       (j + (s / sppLen + 0.5f) * sppStp) * screenV;
@@ -170,9 +170,9 @@ void ComputeScene()
     static_cast<float>(camera.imgHeight);
   screenH = 2.f * nearClip * std::tan(camera.fov * PI / 2.f / 180.f);
   screenW = aspect * screenH;
-  cyPoint3f X = camera.dir.Cross(camera.up).GetNormalized();
-  cyPoint3f Y = X.Cross(camera.dir).GetNormalized();
-  cyPoint3f Z = -camera.dir.GetNormalized();
+  Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
+  Point3 Y = glm::normalize(glm::cross(X, camera.dir));
+  Point3 Z = glm::normalize(-camera.dir);
   screenU = X * (screenW / camera.imgWidth);
   screenV =-Y * (screenH / camera.imgHeight);
   screenA = camera.pos 

@@ -54,17 +54,12 @@ namespace qw {
   typedef vec4f  Color4f;
   typedef vec4c  Color4c;
 };
-using namespace qw;
-
-#define make_vec2(x) glm::make_vec2(x)
-#define make_vec3(x) glm::make_vec3(x)
-#define make_vec4(x) glm::make_vec4(x)
-#define normalize(x) glm::normalize(x)
 
 typedef qw::vec2f Point2;
 typedef qw::vec3f Point3;
 typedef qw::vec4f Point4;
 typedef qw::mat3f Matrix3;
+typedef qw::mat4f Matrix4;
 typedef qw::Color3f Color;
 typedef qw::Color4f ColorA;
 typedef qw::Color3c Color24;

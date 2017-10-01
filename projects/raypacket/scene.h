@@ -26,20 +26,19 @@
 
 #include "lodepng.h"
 
-#include "cyPoint.h"
-typedef cyPoint2f Point2;
-typedef cyPoint3f Point3;
-typedef cyPoint4f Point4;
+#include "math/math.h"
 
-#include "cyMatrix.h"
-typedef cyMatrix3f Matrix3;
-
-#include "cyColor.h"
-typedef cyColor Color;
-typedef cyColorA ColorA;
-typedef cyColor24 Color24;
-
-typedef unsigned char uchar;
+//#include "cyPoint.h"
+//typedef cyPoint2f Point2;
+//typedef cyPoint3f Point3;
+//typedef cyPoint4f Point4;
+//#include "cyMatrix.h"
+//typedef cyMatrix3f Matrix3;
+//#include "cyColor.h"
+//typedef cyColor Color;
+//typedef cyColorA ColorA;
+//typedef cyColor24 Color24;
+//typedef unsigned char uchar;
 
 //-----------------------------------------------------------------------------
 
@@ -72,7 +71,7 @@ public:
   Ray() {}
   Ray(const Point3 &_p, const Point3 &_dir) : p(_p), dir(_dir) {}
   Ray(const Ray &r) : p(r.p), dir(r.dir) {}
-  void Normalize() { dir.Normalize(); }
+  void Normalize() { dir = glm::normalize(dir); }
 };
 
 //-----------------------------------------------------------------------------
@@ -85,11 +84,15 @@ public:
   // Constructors
   Box() { Init(); }
   Box(const Point3 &_pmin, const Point3 &_pmax) : pmin(_pmin), pmax(_pmax) {}
-  Box(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax ) : pmin(xmin,ymin,zmin), pmax(xmax,ymax,zmax) {}
-  Box(const float *dim) : pmin(dim), pmax(&dim[3]) {}
+  Box(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax )
+    : pmin(xmin,ymin,zmin), pmax(xmax,ymax,zmax) {}
+  Box(const float *dim) : pmin(dim[0],dim[1],dim[2]), pmax(dim[3],dim[4],dim[5]) {}
 
   // Initializes the box, such that there exists no point inside the box (i.e. it is empty).
-  void Init() { pmin.Set(BIGFLOAT,BIGFLOAT,BIGFLOAT); pmax.Set(-BIGFLOAT,-BIGFLOAT,-BIGFLOAT); }
+  void Init() {
+    pmin = Point3( BIGFLOAT, BIGFLOAT, BIGFLOAT);
+    pmax = Point3(-BIGFLOAT,-BIGFLOAT,-BIGFLOAT);
+  }
 
   // Returns true if the box is empty; otherwise, returns false.
   bool IsEmpty() const { return pmin.x>pmax.x || pmin.y>pmax.y || pmin.z>pmax.z; }
@@ -127,18 +130,23 @@ public:
   }
 
   // Returns true if the point is inside the box; otherwise, returns false.
-  bool IsInside(const Point3 &p) const { for ( int i=0; i<3; i++ ) if ( pmin[i] > p[i] || pmax[i] < p[i] ) return false; return true; }
+  bool IsInside(const Point3 &p) const {
+    for ( int i=0; i<3; i++ ) {
+      if ( pmin[i] > p[i] || pmax[i] < p[i] ) return false; return true;
+    }
+  }
 
-  // Returns true if the ray intersects with the box for any parameter that is smaller than t_max; otherwise, returns false.
+  // Returns true if the ray intersects with the box for any parameter
+  // that is smaller than t_max; otherwise, returns false.
   bool IntersectRay(const Ray &r, float t_max) const;
 };
 
 //-----------------------------------------------------------------------------
 
-#define HIT_NONE			0
-#define HIT_FRONT			1
-#define HIT_BACK			2
-#define HIT_FRONT_AND_BACK	(HIT_FRONT|HIT_BACK)
+/* #define HIT_NONE			0 */
+/* #define HIT_FRONT			1 */
+/* #define HIT_BACK			2 */
+/* #define HIT_FRONT_AND_BACK	(HIT_FRONT|HIT_BACK) */
 
 class Node;
 class HitInfo
@@ -219,10 +227,13 @@ private:
   Point3 pos;						// Translation part of the transformation matrix
   mutable Matrix3 itm;			// Inverse of the transformation matrix (cached)
 public:
-  Transformation() : pos(0,0,0) { tm.SetIdentity(); itm.SetIdentity(); }
+  Transformation() : pos(0,0,0) {
+    tm  = Matrix3(1.f);
+    itm = Matrix3(1.f);
+  }
   const Matrix3& GetTransform() const { return tm; }
-  const Point3& GetPosition() const { return pos; }
-  const Matrix3&	GetInverseTransform() const { return itm; }
+  const Point3&  GetPosition() const { return pos; }
+  const Matrix3& GetInverseTransform() const { return itm; }
 
   Point3 TransformTo( const Point3 &p ) const { return itm * (p - pos); }	// Transform to the local coordinate system
   Point3 TransformFrom( const Point3 &p ) const { return tm*p + pos; }	// Transform from the local coordinate system
@@ -234,20 +245,30 @@ public:
   Point3 VectorTransformFrom( const Point3 &dir ) const { return TransposeMult(itm,dir); }
 
   void Translate(Point3 p) { pos+=p; }
-  void Rotate(Point3 axis, float degree) { Matrix3 m; m.SetRotation(axis,degree*(float)M_PI/180.0f); Transform(m); }
-  void Scale(float sx, float sy, float sz) { Matrix3 m; m.Zero(); m[0]=sx; m[4]=sy; m[8]=sz; Transform(m); }
-  void Transform(const Matrix3 &m) { tm=m*tm; pos=m*pos; tm.GetInverse(itm); }
+  void Rotate(Point3 axis, float degree) {
+    Matrix3 m(glm::rotate(Matrix4(1.0f), degree*(float)M_PI/180.0f, axis));
+    Transform(m);
+  }
+  void Scale(float sx, float sy, float sz) {
+    Matrix3 m(glm::scale(Matrix4(1.0f), Point3(sx, sy, sz)));
+    Transform(m);
+  }
+  void Transform(const Matrix3 &m) { tm=m*tm; pos=m*pos; itm = glm::inverse(tm); }
 
-  void InitTransform() { pos.Zero(); tm.SetIdentity(); itm.SetIdentity(); }
+  void InitTransform() {
+    pos = Point3(0.f);
+    tm  = Matrix3(1.f);
+    itm = Matrix3(1.f);
+  }
 
 private:
   // Multiplies the given vector with the transpose of the given matrix
   static Point3 TransposeMult( const Matrix3 &m, const Point3 &dir )
   {
     Point3 d;
-    d.x = m.GetColumn(0) % dir;
-    d.y = m.GetColumn(1) % dir;
-    d.z = m.GetColumn(2) % dir;
+    d.x = glm::dot(glm::column(m,0), dir);
+    d.y = glm::dot(glm::column(m,1), dir);
+    d.z = glm::dot(glm::column(m,2), dir);
     return d;
   }
 };
@@ -377,7 +398,7 @@ public:
   void FromNodeCoords( HitInfo &hInfo ) const
   {
     hInfo.p = TransformFrom(hInfo.p);
-    hInfo.N = VectorTransformFrom(hInfo.N).GetNormalized();
+    hInfo.N = glm::normalize(VectorTransformFrom(hInfo.N));
   }
 };
 
@@ -392,9 +413,9 @@ public:
 
   void Init()
   {
-    pos.Set(0,0,0);
-    dir.Set(0,0,-1);
-    up.Set(0,1,0);
+    pos = Point3(0,0,0);
+    dir = Point3(0,0,-1);
+    up  = Point3(0,1,0);
     fov = 40;
     imgWidth = 200;
     imgHeight = 150;

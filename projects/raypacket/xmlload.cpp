@@ -121,9 +121,9 @@ int LoadScene(const char *filename)
     camChild = camChild->NextSiblingElement();
   }
   camera.dir -= camera.pos;
-  camera.dir.Normalize();
-  Point3 x = camera.dir ^ camera.up;
-  camera.up = (x ^ camera.dir).GetNormalized();
+  camera.dir = glm::normalize(camera.dir);
+  Point3 x = glm::cross(camera.dir, camera.up);
+  camera.up = glm::normalize(glm::cross(x, camera.dir));
 
   // renderImage.Init( camera.imgWidth, camera.imgHeight );
 
@@ -235,7 +235,7 @@ void LoadTransform( Transformation *trans, TiXmlElement *element, int level )
     } else if ( COMPARE( child->Value(), "rotate" ) ) {
       Point3 s(0,0,0);
       ReadVector( child, s );
-      s.Normalize();
+      s = glm::normalize(s);
       float a;
       ReadFloat(child,a,"angle");
       trans->Rotate(s,a);
