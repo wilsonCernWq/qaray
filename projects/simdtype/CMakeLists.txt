@@ -1,5 +1,5 @@
-option(ENABLE_PACKET_PROJECT "Build Ray Packet Project" OFF)
-if(ENABLE_PACKET_PROJECT)
+option(ENABLE_SIMDTYPE_PROJECT "Build SIMD Type Project" OFF)
+if(ENABLE_SIMDTYPE_PROJECT)
   #
   # get ptoject info
   get_filename_component(PID ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -46,4 +46,4 @@ if(ENABLE_PACKET_PROJECT)
   # add executable
   add_executable(test_${PID} ${MAIN})
   target_link_libraries(test_${PID} ${ALL_LIBS} ${COMMON_LIBS})
-endif(ENABLE_PACKET_PROJECT)
+endif(ENABLE_SIMDTYPE_PROJECT)
