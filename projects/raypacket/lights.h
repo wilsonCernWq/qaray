@@ -33,11 +33,11 @@ public:
   virtual Point3 Direction(const Point3 &p) const { return Point3(0,0,0); }
   virtual bool IsAmbient() const { return true; }
   virtual void SetViewportLight(int lightID) const {
-    SetViewportParam(lightID,ColorA(intensity),ColorA(0.0f),Point4(0,0,0,1));
+    SetViewportParam(lightID, ColorA(intensity,1.f), ColorA(0.0f), Point4(0,0,0,1));
   }  
   void SetIntensity(Color intens) { intensity=intens; }
 private:
-	Color intensity;
+  Color intensity;
 };
 
 //------------------------------------------------------------------------------
@@ -52,10 +52,10 @@ public:
   }
   virtual Point3 Direction(const Point3 &p) const { return direction; }
   virtual void SetViewportLight(int lightID) const {
-    SetViewportParam(lightID,ColorA(0.0f),ColorA(intensity),Point4(-direction,0.0f));
+    SetViewportParam(lightID, ColorA(0.0f), ColorA(intensity,1.f), Point4(-direction,0.f));
   }  
   void SetIntensity(Color intens) { intensity=intens; }
-  void SetDirection(Point3 dir) { direction=dir.GetNormalized(); }
+  void SetDirection(Point3 dir) { direction = glm::normalize(dir); }
 private:
   Color intensity;
   Point3 direction;
@@ -69,11 +69,11 @@ public:
   PointLight() : intensity(0,0,0), position(0,0,0) {}
   virtual Color Illuminate(const Point3 &p, const Point3 &N) const {
     Ray ray(p,position-p); ray.Normalize();
-    return Shadow(ray,(position-p).Length()) * intensity;
+    return Shadow(ray,glm::length(position-p)) * intensity;
   }
-  virtual Point3 Direction(const Point3 &p) const { return (p-position).GetNormalized(); }
+  virtual Point3 Direction(const Point3 &p) const { return glm::normalize(p-position); }
   virtual void SetViewportLight(int lightID) const {
-    SetViewportParam(lightID,ColorA(0.0f),ColorA(intensity),Point4(position,1.0f));
+    SetViewportParam(lightID,ColorA(0.0f),ColorA(intensity,1.f),Point4(position,1.0f));
   }
   void SetIntensity(Color intens) { intensity=intens; }
   void SetPosition(Point3 pos) { position=pos; }

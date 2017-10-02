@@ -25,14 +25,14 @@ Color MtlBlinn::Shade
 {
   Color color(0.f,0.f,0.f);
   const auto p = hInfo.p;                  // surface position in world coordinate
-  const auto N = hInfo.N.GetNormalized();  // surface normal in world coordinate
-  const auto V = -ray.dir.GetNormalized(); // ray incoming direction
+  const auto N = glm::normalize(hInfo.N);  // surface normal in world coordinate
+  const auto V = glm::normalize(-ray.dir); // ray incoming direction
   
-  const float cosI = N.Dot(V);
+  const float cosI = glm::dot(N,V);
   const float sinI = SQRT(1 - cosI * cosI);
   
-  const auto X = (V - N * cosI).GetNormalized(); // Vx
-  const auto Y = (N * cosI).GetNormalized();     // Vy
+  const auto X = glm::normalize(V - N * cosI); // Vx
+  const auto Y = glm::normalize(N * cosI);     // Vy
   
   const float n1 = hInfo.front ? 1.f : ior;
   const float n2 = hInfo.front ? ior : 1.f;
@@ -45,9 +45,10 @@ Color MtlBlinn::Shade
   const bool totReflection = (n1 * sinI / n2) > 1.001f;
   const auto tK = totReflection ? Color(0.f) : refraction * tC;
   const auto rK = totReflection ? (reflection + refraction) : (reflection + refraction * rC);
-  
+
+  const float threshold = 0.001f;
   //!--- refraction ---
-  if (bounceCount > 0 && tK.Gray() > 0.001f) {
+  if (bounceCount > 0 && (tK.x > threshold || tK.y > threshold || tK.z > threshold)) {
     const float sinO = MAX(0.f, MIN(1.f, sinI * n1 / n2));
     const float cosO = SQRT(1.f - sinO * sinO);
     Ray tRay(p, (-X * sinO - Y * cosO)); tRay.Normalize();
@@ -60,8 +61,8 @@ Color MtlBlinn::Shade
   }
   
   //!--- reflection ---
-  if (bounceCount > 0 && rK.Gray() > 0.001f) {
-    Ray rRay(p, 2.f * N * (N.Dot(V)) - V); rRay.Normalize();
+  if (bounceCount > 0 && (rK.x > threshold || rK.y > threshold || rK.z > threshold)) {
+    Ray rRay(p, 2.f * N * glm::dot(N,V) - V); rRay.Normalize();
     HitInfo rHit; rHit.z = BIGFLOAT;
     if (TraceNodeNormal(rootNode, rRay, rHit)) {
       const auto K = rK * (rHit.front ? Color(1.f) : Attenuation(absorption, rHit.z));
@@ -78,10 +79,10 @@ Color MtlBlinn::Shade
         color += diffuse * Intensity;
       }
       else {
-        auto L = -light->Direction(p).GetNormalized();
-        auto H = (V + L).GetNormalized();
-        auto cosNL = MAX(0.f, N.Dot(L));
-        auto cosNH = MAX(0.f, N.Dot(H));
+        auto L = glm::normalize(-light->Direction(p));
+        auto H = glm::normalize(V + L);
+        auto cosNL = MAX(0.f, glm::dot(N,L));
+        auto cosNH = MAX(0.f, glm::dot(N,H));
         color += diffuse * Intensity * cosNL;
         color += specular * Intensity * POW(cosNH , glossiness) * cosNL;
       }
@@ -100,18 +101,18 @@ Color MtlPhong::Shade
 {
   Color color(0.f,0.f,0.f);
   auto p = hInfo.p;                  // surface position in world coordinate
-  auto N = hInfo.N.GetNormalized();  // surface normal in world coordinate
-  auto V = -ray.dir.GetNormalized(); // ray incoming direction
+  auto N = glm::normalize(hInfo.N);  // surface normal in world coordinate
+  auto V = glm::normalize(-ray.dir); // ray incoming direction
   for (auto& light : lights) {
     auto I = light->Illuminate(p, N);
     if (light->IsAmbient()) {
       color += diffuse * light->Illuminate(p, N);
     }
     else {
-      auto L = -light->Direction(p).GetNormalized();
-      auto H = 2.f * L.Dot(N) * N - L.GetNormalized();
-      auto cosNL = MAX(0.f, N.Dot(L));
-      auto cosVH = MAX(0.f, V.Dot(H));
+      auto L = -glm::normalize(light->Direction(p));
+      auto H = 2.f * glm::dot(L,N) * N - glm::normalize(L);
+      auto cosNL = MAX(0.f, glm::dot(N,L));
+      auto cosVH = MAX(0.f, glm::dot(V,H));
       color += diffuse * I * cosNL;
       color += specular * I * POW(cosVH, glossiness) * cosNL;
     }

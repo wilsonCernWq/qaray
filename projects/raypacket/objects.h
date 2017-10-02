@@ -14,6 +14,7 @@
 
 #include "scene.h"
 #include "cyTriMesh.h"
+#include "cyBVH.h"
 
 //------------------------------------------------------------------------------
 
@@ -45,7 +46,10 @@ class TriObj : public Object, public cyTriMesh
 {
 public:
   virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const;
-  virtual Box GetBoundBox() const { return Box(GetBoundMin(),GetBoundMax()); }
+  virtual Box GetBoundBox() const {
+    return Box(Point3(GetBoundMin().x,GetBoundMin().y,GetBoundMin().z),
+	       Point3(GetBoundMax().x,GetBoundMax().y,GetBoundMax().z));
+  }
   virtual void ViewportDisplay(const Material *mtl) const;
 
   bool Load(const char *filename)
@@ -53,11 +57,17 @@ public:
     if ( ! LoadFromFileObj( filename ) ) return false;
     if ( ! HasNormals() ) ComputeNormals();
     ComputeBoundingBox();
+    bvh.SetMesh(this,4);
     return true;
   }
 
 private:
-  bool IntersectTriangle( const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int faceID ) const;
+  cyBVHTriMesh bvh;
+  bool IntersectTriangle
+    (const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int faceID) const;
+  bool TraceBVHNode
+    (const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int nodeID) const;
+  
 };
 
 //-------------------------------------------------------------------------------

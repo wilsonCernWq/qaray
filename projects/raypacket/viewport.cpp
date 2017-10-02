@@ -152,7 +152,17 @@ void DrawNode( Node *node )
 
   Matrix3 tm = node->GetTransform();
   Point3 p = node->GetPosition();
-  float m[16] = { tm[0],tm[1],tm[2],0, tm[3],tm[4],tm[5],0, tm[6],tm[7],tm[8],0, p.x,p.y,p.z,1 };
+  Point3 v0 = glm::column(tm, 0);
+  Point3 v1 = glm::column(tm, 1);
+  Point3 v2 = glm::column(tm, 2);
+  float m[16] = { v0.x, v0.y, v0.z, 0,
+  		  v1.x, v1.y, v1.z, 0,
+  		  v2.x, v2.y, v2.z, 0,
+  		  p.x,p.y,p.z,1 };
+  // float m[16] = { v0.x, v1.x, v2.x, 0,
+  // 		  v0.y, v1.y, v2.y, 0,
+  // 		  v0.z, v1.z, v2.z, 0,
+  // 		  p.x,p.y,p.z,1 };
   glMultMatrixf( m );
 
   Object *obj = node->GetNodeObj();
@@ -475,9 +485,9 @@ void MtlBlinn::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
   ColorA c;
-  c = ColorA(diffuse);
+  c = ColorA(diffuse,1.f);
   glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
-  c = ColorA(specular);
+  c = ColorA(specular,1.f);
   glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
   glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
 #endif
@@ -486,9 +496,9 @@ void MtlPhong::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
   ColorA c;
-  c = ColorA(diffuse);
+  c = ColorA(diffuse,1.f);
   glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
-  c = ColorA(specular);
+  c = ColorA(specular,1.f);
   glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
   glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
 #endif
