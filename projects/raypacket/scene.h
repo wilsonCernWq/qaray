@@ -427,15 +427,17 @@ public:
 class RenderImage
 {
 private:
+  uchar *mask;
   Color24 *img;
   float	*zbuffer;
   uchar	*zbufferImg;
   int	 width, height;
   std::atomic<int> numRenderedPixels;
 public:
-  RenderImage() : img(NULL), zbuffer(NULL), zbufferImg(NULL), width(0), height(0), numRenderedPixels(0) {}
+  RenderImage() : mask(NULL), img(NULL), zbuffer(NULL), zbufferImg(NULL), width(0), height(0), numRenderedPixels(0) {}
   ~RenderImage() 
   {
+    if (mask) delete[] mask;
     if (img) delete [] img;
     if (zbuffer) delete [] zbuffer;
     if (zbufferImg) delete [] zbufferImg;
@@ -444,6 +446,8 @@ public:
   {
     width=w;
     height=h;
+    if (mask) delete[] mask;
+    mask = new uchar[width*height]();
     if (img) delete [] img;
     img = new Color24[width*height];
     if (zbuffer) delete [] zbuffer;
@@ -456,10 +460,15 @@ public:
   int			GetWidth() const	{ return width; }
   int			GetHeight() const	{ return height; }
   Color24*	        GetPixels()		{ return img; }
+  uchar*                GetMasks()              { return mask; }  
   float*		GetZBuffer()		{ return zbuffer; }
   uchar*		GetZBufferImage()	{ return zbufferImg; }
-
-  void	ResetNumRenderedPixels()	{ numRenderedPixels=0; }
+  
+  void  ResetNumRenderedPixels()        {
+    if (mask) delete[] mask;
+    mask = new uchar[width*height]();
+    numRenderedPixels=0;
+  }
   int	GetNumRenderedPixels() const	{ return numRenderedPixels; }
   void	IncrementNumRenderPixel(int n)	{ numRenderedPixels+=n; }
   bool	IsRenderDone() const		{ return numRenderedPixels >= width*height; }

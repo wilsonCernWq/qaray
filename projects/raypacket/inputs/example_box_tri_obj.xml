@@ -28,6 +28,11 @@
         <translate x="15"/>
       </object>
     </object>
+    <object type="obj" name="wooddoll.obj" material="mtl2">
+      <scale value="15.0"/>
+      <rotate angle="90" x="1"/>
+      <translate x="-9" y="-4" z="7"/>
+    </object>
     <object type="obj" name="dragon.obj" material="mtl1">
       <scale value="10.0"/>
       <rotate angle="0" z="1"/>
@@ -36,7 +41,17 @@
     <object type="obj" name="bunny.obj" material="mtl1">
       <scale value="50"/>
       <rotate angle="90" x="1"/>
-      <translate x="5" y="-6" z="-2"/>
+      <translate x="3" y="-6" z="-2"/>
+    </object>
+    <object type="obj" name="suzanne.obj" material="mtl1">
+      <scale value="3"/>
+      <rotate angle="90" x="1"/>
+      <translate x="11" y="-6" z="2"/>
+    </object>
+    <object type="obj" name="SciFi_Fighter_MK6.obj" material="mtl2">
+      <scale value="0.02"/>
+      <rotate angle="120" x="1"/>
+      <translate x="5" y="-6" z="14"/>
     </object>
     <object type="sphere" name="sphere2" material="mtl2">
       <scale value="4"/>

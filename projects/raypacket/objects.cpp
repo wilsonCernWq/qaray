@@ -218,7 +218,9 @@ bool TriObj::IntersectRay
 bool TriObj::TraceBVHNode
 (const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int nodeID) const
 {
-  std::stack<unsigned int> localstack;
+  //std::stack<unsigned int> localstack;
+  unsigned int stack_array[40];
+  unsigned int stack_idx = 0;
   
   const float threshold = 0.001f;
   const float  dx = ray.dir.x;
@@ -229,12 +231,14 @@ bool TriObj::TraceBVHNode
   
   bool hasHit = false;
   
-  localstack.push(nodeID); // initialize local stack array
+  //localstack.push(nodeID); // initialize local stack array
+  stack_array[stack_idx++] = nodeID;
   
-  while (!localstack.empty())
+  while (!/*localstack.empty()*/stack_idx == 0)
   {
     // get working node ID
-    const unsigned int currNodeID = localstack.top(); localstack.pop();
+    //const unsigned int currNodeID = localstack.top(); localstack.pop();
+    const unsigned int currNodeID = stack_array[--stack_idx];
     
     if (bvh.IsLeafNode(currNodeID)) { // intersect triangle
       
@@ -301,16 +305,26 @@ bool TriObj::TraceBVHNode
       
       if (hasBoxHit0 && hasBoxHit1)
       {
-        if (entry0 < entry1) { localstack.push(child1); localstack.push(child0); }
-        else { localstack.push(child0); localstack.push(child1); }
+        if (entry0 < entry1) {
+	  //localstack.push(child1); localstack.push(child0);
+	  stack_array[stack_idx++] = child1;
+	  stack_array[stack_idx++] = child0;
+	}
+	else {
+	  //localstack.push(child0); localstack.push(child1);
+	  stack_array[stack_idx++] = child0;
+	  stack_array[stack_idx++] = child1;	    
+	}
       }
       else if (hasBoxHit0 && !hasBoxHit1)
       {
-        localstack.push(child0);
+        //localstack.push(child0);
+	stack_array[stack_idx++] = child0;
       }
       else if (hasBoxHit1 && !hasBoxHit0)
       {
-        localstack.push(child1);
+        //localstack.push(child1);
+	stack_array[stack_idx++] = child1;
       }
       
     }

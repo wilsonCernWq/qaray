@@ -41,12 +41,13 @@ static float  screenW, screenH, aspect;
 static Point3 screenU, screenV, screenA;
 static Color24* colorBuffer = NULL; // RGB uchar
 static float*   depthBuffer = NULL;
+static uchar*   maskBuffer  = NULL;
 static size_t pixelW, pixelH;       // global size in pixel
 static size_t pixelRegion[4] = {0}; // local image offset [x y]
 static size_t pixelSize[2]   = {0}; // local image size
 //-------------------------------------------------------------------------
 // Parameters used for multi-threading
-static const size_t tileSize = 4; // this value should be platform dependent
+static const size_t tileSize = 32; // this value should be platform dependent
 static size_t tileDimX = 0, tileDimY = 0;
 static std::atomic<bool> threadStop(false);
 static std::thread*      threadMain = nullptr;
@@ -94,24 +95,30 @@ void ThreadRender()
   // Start timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
-  double t1 = MPI_Wtime(); 
+  double t1, t2;
+  if (mpiSize == 1) { TimeFrame(START_FRAME); }
+  else {
+    t1 = MPI_Wtime();
+  }  
 #else
   TimeFrame(START_FRAME);
 #endif
 
   // Rendering
-  if (mpiRank == 0) { 
-  printf("\nRunning with %d threads on rank %d\n", threadSize, mpiRank); 
+  if (mpiRank == 0) {
+    printf("\nRunning with %d threads on rank %d\n", threadSize, mpiRank);
   }
+  const size_t tileSta = size_t(mpiRank);
+  const size_t tileNum = size_t(tileDimX*tileDimY);
+  const size_t tileStp = size_t(mpiSize);
 #if defined(USE_TBB) && MULTITHREAD
-  tbb::task_scheduler_init init(threadSize); // Explicit number of threads 
-  tbb::parallel_for(size_t(0), size_t(tileDimX*tileDimY), [=] (size_t k) {
+  tbb::task_scheduler_init init(threadSize); // Explicit number of threads
+  tbb::parallel_for(tileSta, tileNum, tileStp, [=] (size_t k) {
 #else
 # if MULTITHREAD
   omp_set_num_threads(threadSize);
-#  pragma omp parallel for 
 # endif
-  for (size_t k = size_t(0); k < size_t(tileDimX*tileDimY); ++k) {
+  for (size_t k = tileSta; k < tileNum; k += tileStp) {
 #endif
     const size_t tileX = k % tileDimX;
     const size_t tileY = k / tileDimX;
@@ -123,24 +130,37 @@ void ThreadRender()
       MIN(pixelRegion[2], (tileX + 1) * tileSize + pixelRegion[0]);
     const size_t jEnd = 
       MIN(pixelRegion[3], (tileY + 1) * tileSize + pixelRegion[1]);
-    for (size_t j = jStart; j < jEnd; ++j) {
-      for (size_t i = iStart; i < iEnd; ++i) {
-        if (!threadStop) { PixelRender(i, j); }
-      }
+    const size_t numPixels = (iEnd - iStart) * (jEnd - jStart);
+#if defined(USE_TBB) && MULTITHREAD
+    tbb::parallel_for(size_t(0), numPixels, [=] (size_t idx) {
+#else
+# if MULTITHREAD
+#   pragma omp parallel for
+# endif
+    for (size_t idx = size_t(0); idx < numPixels; ++idx) {
+#endif
+      const size_t j = jStart + idx / (iEnd - iStart);
+      const size_t i = iStart + idx % (iEnd - iStart);      
+      if (!threadStop) { PixelRender(i, j); }
+#if defined(USE_TBB) && MULTITHREAD
+    });
+#else
     }
-    const size_t numRenderedPixel = (iEnd - iStart) * (jEnd - jStart);
-    renderImage.IncrementNumRenderPixel(numRenderedPixel); // thread safe
+#endif
+    renderImage.IncrementNumRenderPixel(numPixels); // thread safe    
 #if defined(USE_TBB) && MULTITHREAD
   });
 #else
-  }
+  };
 #endif
-
   // End timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
-  double t2 = MPI_Wtime(); 
-  if (mpiRank == 0) printf("\nElapsed time is %f\n", t2 - t1); 
+  if (mpiSize == 1) { TimeFrame(STOP_FRAME); }
+  else {
+    t2 = MPI_Wtime();
+    if (mpiRank == 0) printf("\nElapsed time is %f\n", t2 - t1);
+  }
 #else
   TimeFrame(STOP_FRAME);
 #endif
@@ -180,23 +200,15 @@ void ComputeScene()
     + Y * screenH / 2.f 
     - X * screenW / 2.f;
   // MPI setting
-#ifdef USE_MPI
-  const size_t mpiSizeX = mpiSize;
-  const size_t mpiSizeY = 1;
-  const size_t mpiIdxX = mpiRank % mpiSizeX;
-  const size_t mpiIdxY = mpiRank / mpiSizeX;
-  DivideLength(pixelW, mpiSizeX, mpiIdxX, pixelRegion[0], pixelRegion[2]);
-  DivideLength(pixelH, mpiSizeY, mpiIdxY, pixelRegion[1], pixelRegion[3]);
-#else
   pixelRegion[0] = pixelRegion[1] = 0;
   pixelRegion[2] = pixelW;
   pixelRegion[3] = pixelH;
-#endif
   pixelSize[0] = pixelRegion[2] - pixelRegion[0];
   pixelSize[1] = pixelRegion[3] - pixelRegion[1];
   renderImage.Init(pixelSize[0], pixelSize[1]); /* re-initialize local image */
   colorBuffer = renderImage.GetPixels();
   depthBuffer = renderImage.GetZBuffer();
+  maskBuffer  = renderImage.GetMasks();
   // multi-threading
   tileDimX = CEIL(static_cast<float>(pixelSize[0]) / 
 		  static_cast<float>(tileSize));
@@ -242,7 +254,10 @@ void KillRender()
 }
 void OnlineRender() { 
 #ifdef USE_GUI
-  ShowViewport();
+  if (mpiSize == 1) { ShowViewport(); }
+  else {
+    std::cerr << "Warning: Trying to use GUI window in mpi mode" << std::endl;
+  }
 #else
   std::cerr << 
     "Warning: GUI Mode is not enabled. "
@@ -253,7 +268,8 @@ void OnlineRender() {
 //-------------------------------------------------------------------------
 //
 template<typename T>
-void PlaceImage(int srcext[4], size_t dstW, size_t dstH, const T* src, T* dst)
+void PlaceImage
+(int srcext[4], size_t dstW, size_t dstH, const uchar* mask, const T* src, T* dst)
 {
   const size_t xstart = CLAMP(srcext[0], 0, dstW);
   const size_t ystart = CLAMP(srcext[1], 0, dstH);
@@ -266,7 +282,7 @@ void PlaceImage(int srcext[4], size_t dstW, size_t dstH, const T* src, T* dst)
     for (size_t i = xstart; i < xend; ++i) {
       const size_t srcidx = (j - ystart) * srcW + i - xstart;
       const size_t dstidx = j * dstW + i;
-      dst[dstidx] = src[srcidx];
+      if (mask[srcidx] != 0) { dst[dstidx] = src[srcidx]; }
     }
   }
 }
@@ -284,16 +300,16 @@ void BatchRender()
   //-- gather data in rank 0
   MPI_Barrier(MPI_COMM_WORLD);
   size_t master = 0;
-  int tag[3] = {100, 200, 300};
+  int tag[3] = {100, 200, 300, 400};
   if (mpiRank == master) { // reveive data
     RenderImage finalImage; finalImage.Init(pixelW, pixelH);
     for (int target = 0; target < mpiSize; ++target) {
       if (target == master) {
 	int imgext[4] = {(int)pixelRegion[0], (int)pixelRegion[1], 
 			 (int)pixelRegion[2], (int)pixelRegion[3]};
-	PlaceImage<Color24>(imgext, pixelW, pixelH, colorBuffer, 
+	PlaceImage<Color24>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
 			    finalImage.GetPixels());
-	PlaceImage<float>  (imgext, pixelW, pixelH, depthBuffer, 
+	PlaceImage<float>  (imgext, pixelW, pixelH, maskBuffer, depthBuffer, 
 			    finalImage.GetZBuffer());
       }
       else {
@@ -303,19 +319,16 @@ void BatchRender()
 	int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
 	Color24* cbuff = new Color24[buffsize];
 	float*   zbuff = new float  [buffsize];
+	uchar*   mbuff = new uchar  [buffsize];	
 	MPI_Recv(cbuff, buffsize * sizeof(Color24), MPI_BYTE, 
 		 target, tag[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	// printf("Receive ColorBuffer from rank %d \n", target);
 	MPI_Recv(zbuff, buffsize, MPI_FLOAT, target, 
 		 tag[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	// printf("Receive ZBuffer from rank %d \n", target);
-	// debug(imgext[0]);
-	// debug(imgext[1]);
-	// debug(imgext[2]);
-	// debug(imgext[3]);
-	PlaceImage<Color24>(imgext, pixelW, pixelH, cbuff, 
+	MPI_Recv(mbuff, buffsize * sizeof(uchar), MPI_BYTE, target,
+		 tag[3], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	PlaceImage<Color24>(imgext, pixelW, pixelH, mbuff, cbuff,
 			    finalImage.GetPixels());
-	PlaceImage<float>  (imgext, pixelW, pixelH, zbuff, 
+	PlaceImage<float>  (imgext, pixelW, pixelH, mbuff, zbuff, 
 			    finalImage.GetZBuffer());
       }
     }
@@ -328,7 +341,9 @@ void BatchRender()
     int imgext[4] = {(int)pixelRegion[0], (int)pixelRegion[1], 
 		     (int)pixelRegion[2], (int)pixelRegion[3]};
     MPI_Send(&imgext, 4, MPI_INT, master, tag[0], MPI_COMM_WORLD);
-    int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);    
+    int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
+    MPI_Send(maskBuffer,  buffsize * sizeof(uchar), MPI_BYTE,
+	     master, tag[3], MPI_COMM_WORLD);
     MPI_Send(colorBuffer, buffsize * sizeof(Color24), MPI_BYTE, 
              master, tag[1], MPI_COMM_WORLD);
     MPI_Send(depthBuffer, buffsize, MPI_FLOAT, 
@@ -353,10 +368,8 @@ int main(int argc, char **argv)
   // Get the name of the processor
   char processor_name[MPI_MAX_PROCESSOR_NAME]; int name_len;
   MPI_Get_processor_name(processor_name, &name_len);
-  // Print off a hello world message
-  // printf("\nStarting processor %s, rank %d out of %d processors\n",
-  //   processor_name, mpiRank, mpiSize);
   // Setup parameters
+  if (mpiRank == 0) { fprintf(stdout, "Number of MPI Ranks: %i\n", mpiSize); }  
   mpiPrefix = std::string("rank_") + std::to_string(mpiRank) + "_";
 #endif
 
