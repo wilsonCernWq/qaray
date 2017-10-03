@@ -300,7 +300,7 @@ void BatchRender()
   //-- gather data in rank 0
   MPI_Barrier(MPI_COMM_WORLD);
   size_t master = 0;
-  int tag[3] = {100, 200, 300, 400};
+  int tag[4] = {100, 200, 300, 400};
   if (mpiRank == master) { // reveive data
     RenderImage finalImage; finalImage.Init(pixelW, pixelH);
     for (int target = 0; target < mpiSize; ++target) {
