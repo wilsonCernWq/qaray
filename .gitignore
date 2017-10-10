@@ -4,3 +4,5 @@ build/
 build*/
 *.zip
 external/blender/
+cmake-build-debug/
+.idea
