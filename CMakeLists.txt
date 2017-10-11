@@ -35,9 +35,10 @@ FOREACH(child ${children})
 ENDFOREACH()
 #
 # deploy mesh
-file(GLOB MESHES   ${CMAKE_CURRENT_LIST_DIR}/assets/*.obj)
+file(GLOB OBJS     ${CMAKE_CURRENT_LIST_DIR}/assets/*.obj)
+file(GLOB MTLS     ${CMAKE_CURRENT_LIST_DIR}/assets/*.mtl)
 file(GLOB TEXTURES ${CMAKE_CURRENT_LIST_DIR}/assets/*.png)
-set(ASSETS ${TEXTURES} ${MESHES})
+set(ASSETS ${TEXTURES} ${MTLS} ${OBJS})
 if(EXECUTABLE_OUTPUT_PATH)
   DeployRepo("${ASSETS}" "${EXECUTABLE_OUTPUT_PATH}")
 else()
