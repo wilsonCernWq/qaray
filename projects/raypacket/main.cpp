@@ -409,7 +409,7 @@ int main(int argc, char **argv)
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }
     }
     else {
-      xmlfile = argv[1];
+      xmlfile = argv[i];
     }
   }
  
