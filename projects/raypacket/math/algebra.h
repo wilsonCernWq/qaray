@@ -19,6 +19,7 @@
 # include <glm/gtc/matrix_transform.hpp>
 # include <glm/gtc/matrix_access.hpp>
 # include <glm/gtc/type_ptr.hpp>
+# include <glm/gtx/norm.hpp>
 #endif
 
 //------------------------------------------------------------------------------ 
@@ -64,3 +65,7 @@ typedef qw::Color3f Color;
 typedef qw::Color4f ColorA;
 typedef qw::Color3c Color24;
 typedef unsigned char uchar;
+
+inline Color ToColor(const Color24& c) {
+  return Color(c.r/255.0f,c.g/255.0f,c.b/255.0f);
+}

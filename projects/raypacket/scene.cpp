@@ -11,12 +11,17 @@
 
 #include "scene.h"
 
+const float DiffRay::dx = 0.01f;
+const float DiffRay::dy = 0.01f;
+const float DiffRay::rdx = 1.f/DiffRay::dx;
+const float DiffRay::rdy = 1.f/DiffRay::dy;
+
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children
 //------------------------------------------------------------------------------
 
 bool TraceNodeShadow
-(Node& node, Ray& ray, HitInfo& hInfo) 
+    (Node& node, Ray& ray, HitInfo& hInfo)
 {
   Ray nodeRay = node.ToNodeCoords(ray);
   if (node.GetNodeObj() != NULL) {
@@ -31,24 +36,50 @@ bool TraceNodeShadow
 //------------------------------------------------------------------------------
 
 bool TraceNodeNormal
-(Node& node, Ray& ray, HitInfo& hInfo /* it stores results */) 
+    (Node& node, DiffRay& ray, DiffHitInfo& hInfo /* it stores results */)
 {
   bool hasHit = false;
   // We first check if this ray will intersect with the object held by
   // this node
-  Ray nodeRay = node.ToNodeCoords(ray);
+  DiffRay nodeRay = node.ToNodeCoords(ray);
   if (node.GetNodeObj() != NULL) {
-    if (node.GetNodeObj()->IntersectRay(nodeRay, hInfo, HIT_FRONT_AND_BACK)) {
-      hInfo.node = &node; hasHit = true;
+    if (node.GetNodeObj()->IntersectRay(nodeRay.c, hInfo.c, HIT_FRONT_AND_BACK,
+                                        &nodeRay, &hInfo))
+    {
+      hInfo.c.node = &node; hasHit = true;
     }
-  }  
+  }
   // Now we still need to check all the childs contained by this node
-  for (size_t c = 0; c < node.GetNumChild(); ++c) {
+  for (int c = 0; c < node.GetNumChild(); ++c) {
     // Reaches here means this node has at lease one child
-    if (TraceNodeNormal(*(node.GetChild(c)), nodeRay, hInfo)) { hasHit = true; }   
+    if (TraceNodeNormal(*(node.GetChild(c)), nodeRay, hInfo)) { hasHit = true; }
   }
   if (hasHit) { node.FromNodeCoords(hInfo); }
   return hasHit;
 }
 
 //------------------------------------------------------------------------------
+
+SuperSamplerHalton::SuperSamplerHalton(const Color th, const int sppMin, const int sppMax) 
+  : th(th), sppMin(sppMin), sppMax(sppMax) {}
+const Color& SuperSamplerHalton::GetColor() const { return color; }
+const int SuperSamplerHalton::GetSampleID() const { return s; }
+bool SuperSamplerHalton::Loop() const {
+  return (s < sppMin ||
+	  (s >= sppMin && s <  sppMax &&
+	   (color_std.r > th.r || color_std.g > th.g || color_std.b > th.b)));
+}
+Point3 SuperSamplerHalton::NewSample() {
+  return Point3(Halton(s, 2), Halton(s, 3), 0.f);
+}
+void SuperSamplerHalton::Accumulate(const Color& localColor) {
+  const Color dc  = (localColor - color) / static_cast<float>(s + 1);
+  color += dc;  
+  color_std += s > 0 ?
+    dc * dc * static_cast<float>(s+1) - color_std / static_cast<float>(s) :
+    Color(0.0f);
+  // debug(color_std.r);
+  // debug(color_std.g);
+  // debug(color_std.b);
+}
+void SuperSamplerHalton::Increment() { ++s; }

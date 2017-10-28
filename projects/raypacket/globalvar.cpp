@@ -10,7 +10,6 @@
 //------------------------------------------------------------------------------
 
 #include "globalvar.h"
-
 #include <iostream>
 #include <chrono>      /* C11 */
 
@@ -37,13 +36,16 @@ void TimeFrame(TimeState state) {
 }
 //------------------------------------------------------------------------------
 // unique
-Node rootNode;
-Camera camera;
-RenderImage renderImage;
-MaterialList materials;
-LightList lights;
-ObjFileList objList;
+Node          rootNode;
+Camera        camera;
+RenderImage   renderImage;
+MaterialList  materials;
+LightList     lights;
+ObjFileList   objList;
+TexturedColor background;
+TexturedColor environment;
+TextureList   textureList;
 // objects
 Sphere theSphere;
-Plane thePlane;
+Plane  thePlane;
 //------------------------------------------------------------------------------

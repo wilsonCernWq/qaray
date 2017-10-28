@@ -17,7 +17,7 @@
 #include "objects.h"
 #include "materials.h"
 #include "lights.h"
-
+#include "texture.h"
 enum TimeState {START_FRAME, STOP_FRAME, KILL_FRAME};
 
 //------------------------------------------------------------------------------
@@ -30,6 +30,9 @@ extern RenderImage renderImage;
 extern MaterialList materials;
 extern LightList lights;
 extern ObjFileList objList;
+extern TexturedColor background;
+extern TexturedColor environment;
+extern TextureList textureList;
 // objects
 extern Sphere theSphere;
 extern Plane thePlane;
