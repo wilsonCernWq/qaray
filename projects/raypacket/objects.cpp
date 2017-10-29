@@ -20,8 +20,8 @@ const float RCP_2PI = 1.f / (2.f*M_PI);
 
 // Helper functions
 inline bool CheckHitSide(const int& hitSide, const bool& front) {
-  return (((hitSide & ~ HIT_FRONT) && front) ||
-          ((hitSide & ~ HIT_BACK)  && !front));
+  return (((hitSide & ~ (HIT_FRONT)) && front) ||
+          ((hitSide & ~ (HIT_BACK))  && !front));
 }
 
 inline float TriangleArea(size_t i, const Point3& A, const Point3& B, const Point3& C)
@@ -321,7 +321,7 @@ bool TriObj::TraceBVHNode(const Ray &ray, HitInfo &hInfo, int hitSide, unsigned 
   bool hasHit = false;
   // initialize local stack array
   stack_array[stack_idx++] = nodeID;
-  while (!stack_idx == 0) {
+  while (stack_idx != 0) {
     // get working node ID
     const unsigned int currNodeID = stack_array[--stack_idx];
     if (bvh.IsLeafNode(currNodeID)) { // intersect triangle
