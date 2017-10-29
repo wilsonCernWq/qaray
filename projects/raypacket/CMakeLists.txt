@@ -39,8 +39,14 @@ if(ENABLE_PACKET_PROJECT)
       set(lnk_list ${lnk_list} ${l}_${PID})
     endforeach()
     message(STATUS "link to ${lnk_list}")
+    # add library
     add_library(${name}_${PID} ${${src_list}})
     target_link_libraries(${name}_${PID} ${lnk_list} ${COMMON_LIBS})    
+    set_target_properties(${name}_${PID}  PROPERTIES
+      COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
+      LINK_FLAGS    "${COMMON_LINK_FLAGS}"      
+      CXX_STANDARD 11)
+    # register library
     set(ALL_LIBS ${ALL_LIBS} ${name}_${PID})
   endmacro()
   #
@@ -53,6 +59,8 @@ if(ENABLE_PACKET_PROJECT)
   target_link_libraries(raytracer_${PID} ${ALL_LIBS} ${COMMON_LIBS})
   set_target_properties(raytracer_${PID}
     PROPERTIES
+    COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
+    LINK_FLAGS    "${COMMON_LINK_FLAGS}"      
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
