@@ -10,11 +10,24 @@
 //------------------------------------------------------------------------------
 
 #include "scene.h"
+#include <random>
 
 const float DiffRay::dx = 0.01f;
 const float DiffRay::dy = 0.01f;
 const float DiffRay::rdx = 1.f/DiffRay::dx;
 const float DiffRay::rdy = 1.f/DiffRay::dy;
+
+struct UniformRNG {
+  std::mt19937 rng;
+  std::uniform_real_distribution<float> dist; // distribution in range [0, 1]
+  UniformRNG() {
+    rng.seed(std::random_device()());
+    dist = std::uniform_real_distribution<float>(0.0,1.0);
+  }
+  double Get() { return dist(rng); }
+};
+
+static UniformRNG rng;
 
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children
@@ -73,8 +86,8 @@ Point3 SuperSamplerHalton::NewPixelSample() {
   return Point3(Halton(s, 2), Halton(s, 3), 0.f);
 }
 Point3 SuperSamplerHalton::NewDofSample(const float R) {
-  const float r = R * SQRT(Halton(s, 5));
-  const float t = Halton(s, 7) * 2.f * M_PI;
+  const float r = R * SQRT(rng.Get());
+  const float t = rng.Get() * 2.f * M_PI;
   return Point3(r * cos(t), r * sin(t), 0.f);
 }
 void SuperSamplerHalton::Accumulate(const Color& localColor) {

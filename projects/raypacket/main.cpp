@@ -32,10 +32,11 @@
 // Parameters
 static const float PI = std::acos(-1.f);
 static int bounce = 5;
-static int sppMax = 4, sppMin = 16;
+static int sppMax = 64, sppMin = 8;
 // Camera parameters
 static float nearClip = 10.0f, dof = 0.0f;
 static float  screenW, screenH, aspect;
+static Point3 screenX, screenY, screenZ;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
 static Color24 *colorBuffer = NULL; // RGB uchar
@@ -73,11 +74,10 @@ void PixelRender(const int i, const int j)
     const Point3 cpt = screenA + texpos.x * screenU + texpos.y * screenV;
     const Point3 xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
     const Point3 ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
-    Point3 campos;
-    if (dof < 0.001f) {
-      campos = camera.pos;
-    } else { 
-      campos = camera.pos + sampler.NewDofSample(dof);
+    Point3 campos = camera.pos;
+    if (dof > 0.1f) {
+      const Point3 dofSample = sampler.NewDofSample(dof);
+      campos += dofSample.x * screenX + dofSample.y * screenY;
     }
     DiffRay ray(campos, cpt - campos,
                 campos, xpt - campos,
@@ -108,6 +108,7 @@ void PixelRender(const int i, const int j)
   depthBuffer[idx] = depth;
   sampleCountBuffer[idx] = sampler.GetSampleID();
   maskBuffer[idx] = 1;
+  //debug(sampler.GetSampleID());
 }
 
 void ThreadRender()
@@ -220,6 +221,7 @@ void ComputeScene() {
             - Z * nearClip
             + Y * screenH / 2.f
             - X * screenW / 2.f;
+  screenX = X; screenY = Y; screenZ = Z;
   // MPI range
   pixelRegion[0] = pixelRegion[1] = 0;
   pixelRegion[2] = pixelW;
@@ -446,6 +448,9 @@ int main(int argc, char **argv)
     std::string str(argv[i]);
     if (str.compare("-batch") == 0) {
       batchmode = true;
+    } else if (str.compare("-spp") == 0) {
+      sppMin = std::atoi(argv[++i]);
+      sppMax = sppMin;
     } else if (str.compare("-sppMin") == 0) {
       sppMin = std::atoi(argv[++i]);
     } else if (str.compare("-sppMax") == 0) {
