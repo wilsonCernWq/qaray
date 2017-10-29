@@ -2,8 +2,8 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    5.0
-/// \date       September 18, 2017
+/// \version    9.0
+/// \date       October 23, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -64,8 +64,11 @@ static MouseMode mouseMode	= MOUSEMODE_NONE;	// Mouse mode
 static int mouseX=0, mouseY=0;
 static float  viewAngle1=0, viewAngle2=0;
 static GLuint viewTexture;
+static int dofDrawCount = 0;
+static Color*dofImage = NULL;
+static Color24*dofBuffer = NULL;
+#define MAX_DOF_DRAW 32
 #endif
-
 //------------------------------------------------------------------------------
 
 void GlutDisplay();
@@ -106,6 +109,13 @@ void ShowViewport()
   glLightModelfv( GL_LIGHT_MODEL_AMBIENT, zero );
   glEnable(GL_NORMALIZE);
   glLineWidth(2);
+
+  if ( camera.dof > 0 ) {
+    dofBuffer = new Color24[ camera.imgWidth * camera.imgHeight ];
+    dofImage = new Color[ camera.imgWidth * camera.imgHeight ];
+    memset( dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color) );
+  }
+  
   glGenTextures(1,&viewTexture);
   glBindTexture(GL_TEXTURE_2D, viewTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -209,8 +219,14 @@ void DrawScene()
   glEnable( GL_DEPTH_TEST );
   glPushMatrix();
   Point3 p = camera.pos;
-  Point3 t = camera.pos + camera.dir;
+  Point3 t = camera.pos + camera.dir*camera.focaldist;
   Point3 u = camera.up;
+  if ( camera.dof > 0 ) {
+    Point3 v = camera.dir ^ camera.up;
+    float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
+    float a = float(M_PI) * 2.0f * float(rand())/RAND_MAX;
+    p += r*cosf(a)*v + r*sinf(a)*u;
+  }
   gluLookAt( p.x, p.y, p.z,  t.x, t.y, t.z,  u.x, u.y, u.z );
   glRotatef( viewAngle1, 1, 0, 0 );
   glRotatef( viewAngle2, 0, 0, 1 );
@@ -301,7 +317,27 @@ void GlutDisplay()
 #ifdef USE_GUI
   switch ( viewMode ) {
   case VIEWMODE_OPENGL:
-    DrawScene();
+    if ( dofImage ) {
+      if ( dofDrawCount < MAX_DOF_DRAW ) {
+	DrawScene();
+	glReadPixels( 0, 0, camera.imgWidth, camera.imgHeight, GL_RGB, GL_UNSIGNED_BYTE, dofBuffer );
+	for ( int i=0, y=0; y<camera.imgHeight; y++ ) {
+	  int j = (camera.imgHeight-y-1)*camera.imgWidth;
+	  for ( int x=0; x<camera.imgWidth; x++, i++, j++ ) {
+	    dofImage[i] = (dofImage[i]*float(dofDrawCount) + ToColor(dofBuffer[j]))/float(dofDrawCount+1);
+	  }
+	}
+	dofDrawCount++;
+      }
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+      DrawImage( dofImage, GL_FLOAT, GL_RGB );
+      if ( dofDrawCount < MAX_DOF_DRAW ) {
+	DrawProgressBar(float(dofDrawCount)/MAX_DOF_DRAW);
+	glutPostRedisplay();
+      }
+    } else {
+      DrawScene();
+    }
     break;
   case VIEWMODE_IMAGE:
     DrawImage( renderImage.GetPixels(), GL_UNSIGNED_BYTE, GL_RGB );
@@ -346,16 +382,20 @@ void GlutKeyboard(unsigned char key, int x, int y)
     case MODE_READY: 
       mode = MODE_RENDERING;
       viewMode = VIEWMODE_IMAGE;
-      DrawScene();
-      glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), 
-		    GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
-      {
-	Color24 *c = renderImage.GetPixels();
-	for ( int y0=0, y1=renderImage.GetHeight()-1; y0<y1; y0++, y1-- ) {
-	  int i0 = y0 * renderImage.GetWidth();
-	  int i1 = y1 * renderImage.GetWidth();
-	  for ( int x=0; x<renderImage.GetWidth(); x++, i0++, i1++ ) {
-	    Color24 t=c[i0]; c[i0]=c[i1]; c[i1]=t;
+      if ( dofImage ) {
+	Color24 *p = renderImage.GetPixels();
+	for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) p[i] = Color24(dofImage[i]);
+      } else {
+	DrawScene();
+	glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
+	{
+	  Color24 *c = renderImage.GetPixels();
+	  for ( int y0=0, y1=renderImage.GetHeight()-1; y0<y1; y0++, y1-- ) {
+	    int i0 = y0 * renderImage.GetWidth();
+	    int i1 = y1 * renderImage.GetWidth();
+	    for ( int x=0; x<renderImage.GetWidth(); x++, i0++, i1++ ) {
+	      Color24 t=c[i0]; c[i0]=c[i1]; c[i1]=t;
+	    }
 	  }
 	}
       }
