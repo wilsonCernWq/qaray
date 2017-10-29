@@ -32,9 +32,9 @@
 // Parameters
 static const float PI = std::acos(-1.f);
 static int bounce = 5;
-static int sppMax = 64, sppMin = 4;
+static int sppMax = 16, sppMin = 16;
 // Camera parameters
-static const float nearClip = 10.0f;
+static float nearClip = 10.0f, dof = 0.0f;
 static float  screenW, screenH, aspect;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
@@ -69,13 +69,22 @@ void PixelRender(const int i, const int j)
   while (sampler.Loop())
   {
     // calculate one sample
-    const Point3 texpos = sampler.NewSample() + Point3(i, j, 0.f);
+    const Point3 texpos = sampler.NewPixelSample() + Point3(i, j, 0.f);
     const Point3 cpt = screenA + texpos.x * screenU + texpos.y * screenV;
     const Point3 xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
     const Point3 ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
-    DiffRay ray(camera.pos, cpt - camera.pos,
-                camera.pos, xpt - camera.pos,
-                camera.pos, ypt - camera.pos);
+    Point3 campos;
+    if (dof < 0.001f) {
+      campos = camera.pos;
+    } else { 
+      campos = camera.pos + sampler.NewDofSample(dof);
+    }
+    debug(campos.x);
+    debug(campos.y);
+    debug(campos.z);
+    DiffRay ray(campos, cpt - camera.pos,
+                campos, xpt - camera.pos,
+                campos, ypt - camera.pos);
     ray.Normalize();
     DiffHitInfo hInfo;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
@@ -196,6 +205,8 @@ void DivideLength
 
 void ComputeScene() {
   // rendering
+  nearClip = camera.focaldist;
+  dof = camera.dof;
   pixelW = camera.imgWidth;
   pixelH = camera.imgHeight;
   aspect =

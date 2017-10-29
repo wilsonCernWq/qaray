@@ -49,6 +49,7 @@
 
 inline float Halton(int index, int base)
 {
+
   float r = 0;
   float f = 1.0f / (float)base;
   for ( int i=index; i>0; i/=base ) {
@@ -75,7 +76,8 @@ public:
   virtual const Color& GetColor() const = 0;
   virtual const int GetSampleID() const = 0;
   virtual bool Loop() const = 0;
-  virtual Point3 NewSample() = 0;
+  virtual Point3 NewPixelSample() = 0;
+  virtual Point3 NewDofSample(const float) = 0;
   virtual void Accumulate(const Color& localColor) = 0;
   virtual void Increment() = 0;
 };
@@ -92,7 +94,8 @@ public:
   const Color& GetColor() const;
   const int GetSampleID() const;
   bool Loop() const;
-  Point3 NewSample();
+  Point3 NewPixelSample();
+  Point3 NewDofSample(const float);
   void Accumulate(const Color& localColor);
   void Increment();
 };

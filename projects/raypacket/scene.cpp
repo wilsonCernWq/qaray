@@ -69,8 +69,13 @@ bool SuperSamplerHalton::Loop() const {
 	  (s >= sppMin && s <  sppMax &&
 	   (color_std.r > th.r || color_std.g > th.g || color_std.b > th.b)));
 }
-Point3 SuperSamplerHalton::NewSample() {
+Point3 SuperSamplerHalton::NewPixelSample() {
   return Point3(Halton(s, 2), Halton(s, 3), 0.f);
+}
+Point3 SuperSamplerHalton::NewDofSample(const float R) {
+  const float r = R * SQRT(Halton(s, 5));
+  const float t = Halton(s, 7) * 2.f * M_PI;
+  return Point3(r * cos(t), r * sin(t), 0.f);
 }
 void SuperSamplerHalton::Accumulate(const Color& localColor) {
   const Color dc  = (localColor - color) / static_cast<float>(s + 1);
@@ -78,8 +83,5 @@ void SuperSamplerHalton::Accumulate(const Color& localColor) {
   color_std += s > 0 ?
     dc * dc * static_cast<float>(s+1) - color_std / static_cast<float>(s) :
     Color(0.0f);
-  // debug(color_std.r);
-  // debug(color_std.g);
-  // debug(color_std.b);
 }
 void SuperSamplerHalton::Increment() { ++s; }
