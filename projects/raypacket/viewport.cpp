@@ -222,7 +222,7 @@ void DrawScene()
   Point3 t = camera.pos + camera.dir*camera.focaldist;
   Point3 u = camera.up;
   if ( camera.dof > 0 ) {
-    Point3 v = camera.dir ^ camera.up;
+    Point3 v = glm::cross(camera.dir, camera.up);
     float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
     float a = float(M_PI) * 2.0f * float(rand())/RAND_MAX;
     p += r*cosf(a)*v + r*sinf(a)*u;

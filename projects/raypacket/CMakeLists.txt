@@ -16,9 +16,6 @@ if(ENABLE_PACKET_PROJECT)
   #
   # include sources
   file(GLOB_RECURSE MATH_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
-  #file(GLOB_RECURSE FB_SRC     "${CMAKE_CURRENT_SOURCE_DIR}/fb/*")
-  #file(GLOB_RECURSE COMMON_SRC "${CMAKE_CURRENT_SOURCE_DIR}/common/*")
-  #file(GLOB_RECURSE SCENE_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/scene/*")
   file(GLOB GLOB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*")
   file(GLOB MAIN     "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
   foreach(f ${MAIN})
@@ -43,19 +40,21 @@ if(ENABLE_PACKET_PROJECT)
     endforeach()
     message(STATUS "link to ${lnk_list}")
     add_library(${name}_${PID} ${${src_list}})
-    target_link_libraries(${name}_${PID} ${lnk_list} ${COMMON_LIBS})
+    target_link_libraries(${name}_${PID} ${lnk_list} ${COMMON_LIBS})    
     set(ALL_LIBS ${ALL_LIBS} ${name}_${PID})
   endmacro()
   #
   # add library
   qw_add_library(math)
-  #qw_add_library(fb math)
-  #qw_add_library(common math)
-  #qw_add_library(scene common fb math)
-  #qw_add_library(glob scene common fb math)
   qw_add_library(glob math)
   #
   # add executable
   add_executable(raytracer_${PID} ${MAIN})
   target_link_libraries(raytracer_${PID} ${ALL_LIBS} ${COMMON_LIBS})
+  set_target_properties(raytracer_${PID}
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    CXX_STANDARD 11)
 endif(ENABLE_PACKET_PROJECT)
