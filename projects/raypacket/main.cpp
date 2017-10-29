@@ -32,7 +32,7 @@
 // Parameters
 static const float PI = std::acos(-1.f);
 static int bounce = 5;
-static int sppMax = 16, sppMin = 16;
+static int sppMax = 4, sppMin = 16;
 // Camera parameters
 static float nearClip = 10.0f, dof = 0.0f;
 static float  screenW, screenH, aspect;
@@ -79,12 +79,9 @@ void PixelRender(const int i, const int j)
     } else { 
       campos = camera.pos + sampler.NewDofSample(dof);
     }
-    debug(campos.x);
-    debug(campos.y);
-    debug(campos.z);
-    DiffRay ray(campos, cpt - camera.pos,
-                campos, xpt - camera.pos,
-                campos, ypt - camera.pos);
+    DiffRay ray(campos, cpt - campos,
+                campos, xpt - campos,
+                campos, ypt - campos);
     ray.Normalize();
     DiffHitInfo hInfo;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
