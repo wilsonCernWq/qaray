@@ -10,6 +10,7 @@ zip -r prj${N}.zip \
     cmake/ \
     CMakeLists.txt \
     external/cyCodeBase \
+    external/glm \
     external/lodepng \
     external/tinyxml \
     projects/Prj${N}
