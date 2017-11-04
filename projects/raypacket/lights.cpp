@@ -26,3 +26,17 @@ float GenLight::Shadow(Ray ray, float t_max)
 }
 
 //------------------------------------------------------------------------------
+
+Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
+{
+  Point3 dp;
+  do {
+    dp.x = rng->Get() * size;
+    dp.y = rng->Get() * size;
+    dp.z = rng->Get() * size;	
+  } while (glm::length(dp) > size);  
+  Ray ray(p,position+dp-p); ray.Normalize();
+  return Shadow(ray,glm::length(position+dp-p)) * intensity;
+}
+
+//------------------------------------------------------------------------------

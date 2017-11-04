@@ -2,8 +2,8 @@
 ///
 /// \file       lights.h 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    3.0
-/// \date       September 4, 2017
+/// \version    10.0
+/// \date       October 30, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -66,20 +66,21 @@ private:
 class PointLight : public GenLight
 {
 public:
-  PointLight() : intensity(0,0,0), position(0,0,0) {}
-  virtual Color Illuminate(const Point3 &p, const Point3 &N) const {
-    Ray ray(p,position-p); ray.Normalize();
-    return Shadow(ray,glm::length(position-p)) * intensity;
+  PointLight() : intensity(0,0,0), position(0,0,0), size(0) {}
+  virtual Color Illuminate(const Point3 &p, const Point3 &N) const;
+  virtual Point3 Direction(const Point3 &p) const {
+    return glm::normalize(p-position);
   }
-  virtual Point3 Direction(const Point3 &p) const { return glm::normalize(p-position); }
   virtual void SetViewportLight(int lightID) const {
-    SetViewportParam(lightID,ColorA(0.0f),ColorA(intensity,1.f),Point4(position,1.0f));
+    SetViewportParam(lightID,ColorA(0.0f),ColorA(intensity,1.f),Point4(position,1.f));
   }
   void SetIntensity(Color intens) { intensity=intens; }
   void SetPosition(Point3 pos) { position=pos; }
+  void SetSize(float s) { size=s; }
 private:
   Color intensity;
   Point3 position;
+  float size;
 };
 
 //------------------------------------------------------------------------------

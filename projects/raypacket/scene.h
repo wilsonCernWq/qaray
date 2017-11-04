@@ -49,7 +49,6 @@
 
 inline float Halton(int index, int base)
 {
-
   float r = 0;
   float f = 1.0f / (float)base;
   for ( int i=index; i>0; i/=base ) {
@@ -58,6 +57,9 @@ inline float Halton(int index, int base)
   }
   return r;
 }
+
+struct UniformRandom { virtual double Get() = 0; };
+extern UniformRandom* rng;
 
 //-----------------------------------------------------------------------------
 

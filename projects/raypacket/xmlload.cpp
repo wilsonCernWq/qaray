@@ -28,6 +28,9 @@
 #define COMPARE(a,b) (strcasecmp(a,b)==0)
 #endif
 
+bool silentmode = false;
+#define PRINTF if(!silentmode) printf
+
 //-----------------------------------------------------------------------------
 
 void LoadScene(TiXmlElement *element);
@@ -42,8 +45,6 @@ TextureMap* ReadTexture(TiXmlElement *element);
 Texture* ReadTexture(const char *filename);
 
 //-----------------------------------------------------------------------------
-
-bool silentmode = false;
 
 void LoadSceneInSilentMode(bool flag) { silentmode = flag; }
 
@@ -63,33 +64,25 @@ int LoadScene(const char *filename)
 {
   TiXmlDocument doc(filename);
   if ( ! doc.LoadFile() ) {
-    if (!silentmode) {
-      printf("Failed to load the file \"%s\"\n", filename);
-    }
+    PRINTF("Failed to load the file \"%s\"\n", filename);    
     return 0;
   }
 
   TiXmlElement *xml = doc.FirstChildElement("xml");
   if ( ! xml ) {
-    if (!silentmode) {
-      printf("No \"xml\" tag found.\n");
-    }
+    PRINTF("No \"xml\" tag found.\n");    
     return 0;
   }
 
   TiXmlElement *scene = xml->FirstChildElement("scene");
   if ( ! scene ) {
-    if (!silentmode) {
-      printf("No \"scene\" tag found.\n");
-    }
+    PRINTF("No \"scene\" tag found.\n");    
     return 0;
   }
 
   TiXmlElement *cam = xml->FirstChildElement("camera");
   if ( ! cam ) {
-    if (!silentmode) {
-      printf("No \"camera\" tag found.\n");
-    }
+    PRINTF("No \"camera\" tag found.\n");    
     return 0;
   }
 
@@ -139,9 +132,7 @@ int LoadScene(const char *filename)
 //-----------------------------------------------------------------------------
 
 void PrintIndent(int level) { 
-  if (!silentmode) {
-    for ( int i=0; i<level; i++) printf("   "); 
-  }
+  for ( int i=0; i<level; i++) PRINTF("   ");   
 }
 
 //-----------------------------------------------------------------------------
@@ -156,13 +147,13 @@ void LoadScene(TiXmlElement *element)
       Color c(1,1,1);
       ReadColor( child, c );
       background.SetColor(c);
-      printf("Background %f %f %f\n",c.r,c.g,c.b);
+      PRINTF("Background %f %f %f\n",c.r,c.g,c.b);
       background.SetTexture( ReadTexture(child) );
     } else if ( COMPARE( child->Value(), "environment" ) ) {
       Color c(1,1,1);
       ReadColor( child, c );
       environment.SetColor(c);
-      printf("Environment %f %f %f\n",c.r,c.g,c.b);
+      PRINTF("Environment %f %f %f\n",c.r,c.g,c.b);
       environment.SetTexture( ReadTexture(child) );
     } else if ( COMPARE( child->Value(), "object" ) ) {
       LoadNode( &rootNode, child );
@@ -184,14 +175,14 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
   const char* name = element->Attribute("name");
   node->SetName(name);
   PrintIndent(level);
-  printf("object [");
-  if ( name ) printf("%s",name);
-  printf("]");
+  PRINTF("object [");
+  if ( name ) PRINTF("%s",name);
+  PRINTF("]");
 
   // material
   const char* mtlName = element->Attribute("material");
   if ( mtlName ) {
-    printf(" <%s>", mtlName);
+    PRINTF(" <%s>", mtlName);
     NodeMtl nm;
     nm.node = node;
     nm.mtlName = mtlName;
@@ -203,17 +194,17 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
   if ( type ) {
     if ( COMPARE(type,"sphere") ) {
       node->SetNodeObj( &theSphere );
-      printf(" - Sphere");
+      PRINTF(" - Sphere");
     } else if ( COMPARE(type,"plane") ) {
       node->SetNodeObj( &thePlane );
-      printf(" - Plane");
+      PRINTF(" - Plane");
     } else if ( COMPARE(type,"obj") ) {
-      printf(" - OBJ");
+      PRINTF(" - OBJ");
       Object *obj = objList.Find(name);
       if ( obj == NULL ) {// object is not on the list, so we should load it now
 	TriObj *tobj = new TriObj;
 	if ( ! tobj->Load( name, mtlName==NULL ) ) {
-	  printf(" -- ERROR: Cannot load file \"%s.\"", name);
+	  PRINTF(" -- ERROR: Cannot load file \"%s.\"", name);
 	  delete tobj;
 	} else {
 	  objList.Append(tobj,name);// add to the list
@@ -256,10 +247,10 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
       }
       node->SetNodeObj( obj );
     } else {
-      printf(" - UNKNOWN TYPE");
+      PRINTF(" - UNKNOWN TYPE");
     }
   }
-  printf("\n");
+  PRINTF("\n");
   for ( TiXmlElement *child = element->FirstChildElement();
 	child!=NULL; child = child->NextSiblingElement() )
   {
@@ -282,7 +273,7 @@ void LoadTransform( Transformation *trans, TiXmlElement *element, int level )
       ReadVector( child, s );
       trans->Scale(s.x,s.y,s.z);
       PrintIndent(level);
-      if (!silentmode) printf("   scale %f %f %f\n",s.x,s.y,s.z);
+      PRINTF("   scale %f %f %f\n",s.x,s.y,s.z);
     } else if ( COMPARE( child->Value(), "rotate" ) ) {
       Point3 s(0,0,0);
       ReadVector( child, s );
@@ -291,13 +282,13 @@ void LoadTransform( Transformation *trans, TiXmlElement *element, int level )
       ReadFloat(child,a,"angle");
       trans->Rotate(s,a);
       PrintIndent(level);
-      if (!silentmode) printf("   rotate %f degrees around %f %f %f\n", a, s.x, s.y, s.z);
+      PRINTF("   rotate %f degrees around %f %f %f\n", a, s.x, s.y, s.z);
     } else if ( COMPARE( child->Value(), "translate" ) ) {
       Point3 t(0,0,0);
       ReadVector(child,t);
       trans->Translate(t);
       PrintIndent(level);
-      if (!silentmode) printf("   translate %f %f %f\n",t.x,t.y,t.z);
+      PRINTF("   translate %f %f %f\n",t.x,t.y,t.z);
     }
   }
 }
@@ -310,17 +301,15 @@ void LoadMaterial(TiXmlElement *element)
 
   // name
   const char* name = element->Attribute("name");
-  if (!silentmode) {
-    printf("Material [");
-    if ( name ) printf("%s",name);
-    printf("]");
-  }
+  PRINTF("Material [");
+  if ( name ) PRINTF("%s",name);
+  PRINTF("]");  
 
   // type
   const char* type = element->Attribute("type");
   if ( type ) {
     if ( COMPARE(type,"blinn") ) {
-      if (!silentmode) printf(" - Blinn\n");
+      PRINTF(" - Blinn\n");
       MtlBlinn *m = new MtlBlinn();
       mtl = m;
       for ( TiXmlElement *child = element->FirstChildElement();
@@ -331,39 +320,49 @@ void LoadMaterial(TiXmlElement *element)
 	if ( COMPARE( child->Value(), "diffuse" ) ) {
 	  ReadColor( child, c );
 	  m->SetDiffuse(c);
-	  if (!silentmode) printf("   diffuse %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   diffuse %f %f %f\n",c.r,c.g,c.b);
 	  m->SetDiffuseTexture( ReadTexture(child) );
 	} else if ( COMPARE( child->Value(), "specular" ) ) {
 	  ReadColor( child, c );
 	  m->SetSpecular(c);
-	  if (!silentmode) printf("   specular %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   specular %f %f %f\n",c.r,c.g,c.b);
 	  m->SetSpecularTexture( ReadTexture(child) );
 	} else if ( COMPARE( child->Value(), "glossiness" ) ) {
 	  ReadFloat( child, f );
 	  m->SetGlossiness(f);
-	  if (!silentmode) printf("   glossiness %f\n",f);
+	  PRINTF("   glossiness %f\n",f);
 	} else if ( COMPARE( child->Value(), "reflection" ) ) {
 	  ReadColor( child, c );
 	  m->SetReflection(c);
-	  if (!silentmode) printf("   reflection %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   reflection %f %f %f\n",c.r,c.g,c.b);
 	  m->SetReflectionTexture( ReadTexture(child) );
+	  f = 0;
+	  ReadFloat( child, f, "glossiness" );
+	  m->SetReflectionGlossiness(f);
+	  if ( f > 0 ) PRINTF(" (glossiness %f)",f);
+	  PRINTF("\n");	  
 	} else if ( COMPARE( child->Value(), "refraction" ) ) {
 	  ReadColor( child, c );
 	  m->SetRefraction(c);
 	  ReadFloat( child, f, "index" );
 	  m->SetRefractionIndex(f);
-	  if (!silentmode) printf("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
+	  PRINTF("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
 	  m->SetRefractionTexture( ReadTexture(child) );
+	  f = 0;
+	  ReadFloat( child, f, "glossiness" );
+	  m->SetRefractionGlossiness(f);
+	  if ( f > 0 ) printf(" (glossiness %f)",f);
+	  PRINTF("\n");	  
 	} else if ( COMPARE( child->Value(), "absorption" ) ) {
 	  ReadColor( child, c );
 	  m->SetAbsorption(c);
-	  if (!silentmode) printf("   absorption %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   absorption %f %f %f\n",c.r,c.g,c.b);
 	}
       }
 
     } 
     else if ( COMPARE(type,"phong") ) {
-      if (!silentmode) printf(" - Phong\n");
+      PRINTF(" - Phong\n");
       MtlPhong *m = new MtlPhong();
       mtl = m;
       for ( TiXmlElement *child = element->FirstChildElement();
@@ -374,35 +373,35 @@ void LoadMaterial(TiXmlElement *element)
 	if ( COMPARE( child->Value(), "diffuse" ) ) {
 	  ReadColor( child, c );
 	  m->SetDiffuse(c);
-	  if (!silentmode) printf("   diffuse %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   diffuse %f %f %f\n",c.r,c.g,c.b);
 	} else if ( COMPARE( child->Value(), "specular" ) ) {
 	  ReadColor( child, c );
 	  m->SetSpecular(c);
-	  if (!silentmode) printf("   specular %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   specular %f %f %f\n",c.r,c.g,c.b);
 	} else if ( COMPARE( child->Value(), "glossiness" ) ) {
 	  ReadFloat( child, f );
 	  m->SetGlossiness(f);
-	  if (!silentmode) printf("   glossiness %f\n",f);
+	  PRINTF("   glossiness %f\n",f);
 	} else if ( COMPARE( child->Value(), "reflection" ) ) {
 	  ReadColor( child, c );
 	  m->SetReflection(c);
-	  if (!silentmode) printf("   reflection %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   reflection %f %f %f\n",c.r,c.g,c.b);
 	} else if ( COMPARE( child->Value(), "refraction" ) ) {
 	  ReadColor( child, c );
 	  m->SetRefraction(c);
 	  ReadFloat( child, f, "index" );
 	  m->SetRefractionIndex(f);
-	  if (!silentmode) printf("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
+	  PRINTF("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
 	} else if ( COMPARE( child->Value(), "absorption" ) ) {
 	  ReadColor( child, c );
 	  m->SetAbsorption(c);
-	  if (!silentmode) printf("   absorption %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   absorption %f %f %f\n",c.r,c.g,c.b);
 
 	}
       }
     } 
     else {
-      if (!silentmode) printf(" - UNKNOWN\n");
+      PRINTF(" - UNKNOWN\n");
     }	
   }
 
@@ -420,17 +419,15 @@ void LoadLight(TiXmlElement *element)
 
   // name
   const char* name = element->Attribute("name");
-  if (!silentmode) {
-    printf("Light [");
-    if ( name ) printf("%s",name);
-    printf("]");
-  }
+  PRINTF("Light [");
+  if ( name ) PRINTF("%s",name);
+  PRINTF("]");  
 
   // type
   const char* type = element->Attribute("type");
   if ( type ) {
     if ( COMPARE(type,"ambient") ) {
-      if (!silentmode) printf(" - Ambient\n");
+      PRINTF(" - Ambient\n");
       AmbientLight *l = new AmbientLight();
       light = l;
       for ( TiXmlElement *child = element->FirstChildElement();
@@ -440,11 +437,11 @@ void LoadLight(TiXmlElement *element)
 	  Color c(1,1,1);
 	  ReadColor( child, c );
 	  l->SetIntensity(c);
-	  if (!silentmode) printf("   intensity %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   intensity %f %f %f\n",c.r,c.g,c.b);
 	}
       }
     } else if ( COMPARE(type,"direct") ) {
-      if (!silentmode) printf(" - Direct\n");
+      PRINTF(" - Direct\n");
       DirectLight *l = new DirectLight();
       light = l;
       for ( TiXmlElement *child = element->FirstChildElement();
@@ -454,16 +451,16 @@ void LoadLight(TiXmlElement *element)
 	  Color c(1,1,1);
 	  ReadColor( child, c );
 	  l->SetIntensity(c);
-	  if (!silentmode) printf("   intensity %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   intensity %f %f %f\n",c.r,c.g,c.b);
 	} else if ( COMPARE( child->Value(), "direction" ) ) {
 	  Point3 v(1,1,1);
 	  ReadVector( child, v );
 	  l->SetDirection(v);
-	  if (!silentmode) printf("   direction %f %f %f\n",v.x,v.y,v.z);
+	  PRINTF("   direction %f %f %f\n",v.x,v.y,v.z);
 	}
       }
     } else if ( COMPARE(type,"point") ) {
-      if (!silentmode) printf(" - Point\n");
+      PRINTF(" - Point\n");
       PointLight *l = new PointLight();
       light = l;
       for ( TiXmlElement *child = element->FirstChildElement();
@@ -473,16 +470,21 @@ void LoadLight(TiXmlElement *element)
 	  Color c(1,1,1);
 	  ReadColor( child, c );
 	  l->SetIntensity(c);
-	  if (!silentmode) printf("   intensity %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   intensity %f %f %f\n",c.r,c.g,c.b);
 	} else if ( COMPARE( child->Value(), "position" ) ) {
 	  Point3 v(0,0,0);
 	  ReadVector( child, v );
 	  l->SetPosition(v);
-	  if (!silentmode) printf("   position %f %f %f\n",v.x,v.y,v.z);
+	  PRINTF("   position %f %f %f\n",v.x,v.y,v.z);
+	} else if ( COMPARE( child->Value(), "size" ) ) {
+	  float f = 0;
+	  ReadFloat( child, f );
+	  l->SetSize(f);
+	  PRINTF("   size %f\n",f);
 	}
       }
     } else {
-      if (!silentmode) printf(" - UNKNOWN\n");
+      PRINTF(" - UNKNOWN\n");
     }
   }
 
@@ -552,7 +554,7 @@ TextureMap* ReadTexture(TiXmlElement *element)
   if ( COMPARE(texName,"checkerboard") ) {
     TextureChecker *ctex = new TextureChecker;
     tex = ctex;
-    printf("      Texture: Checker Board\n");
+    PRINTF("      Texture: Checker Board\n");
     for ( TiXmlElement *child = element->FirstChildElement();
 	  child!=NULL; child = child->NextSiblingElement() )
     {
@@ -560,12 +562,12 @@ TextureMap* ReadTexture(TiXmlElement *element)
 	Color c(0,0,0);
 	ReadColor( child, c );
 	ctex->SetColor1(c);
-	printf("         color1 %f %f %f\n",c.r,c.g,c.b);
+	PRINTF("         color1 %f %f %f\n",c.r,c.g,c.b);
       } else if ( COMPARE( child->Value(), "color2" ) ) {
 	Color c(0,0,0);
 	ReadColor( child, c );
 	ctex->SetColor2(c);
-	printf("         color2 %f %f %f\n",c.r,c.g,c.b);
+	PRINTF("         color2 %f %f %f\n",c.r,c.g,c.b);
       }
     }
     textureList.Append( tex, texName );
@@ -582,21 +584,21 @@ TextureMap* ReadTexture(TiXmlElement *element)
 
 Texture* ReadTexture(const char *texName)
 {
-  printf("      Texture: File \"%s\"",texName);
+  PRINTF("      Texture: File \"%s\"",texName);
   Texture *tex = textureList.Find( texName );
   if ( tex == NULL ) {
     TextureFile *ftex = new TextureFile;
     tex = ftex;
     ftex->SetName(texName);
     if ( ! ftex->Load() ) {
-      printf(" -- Error loading file!");
+      PRINTF(" -- Error loading file!");
       delete tex;
       tex = NULL;
     } else {
       textureList.Append( tex, texName );
     }
   }
-  printf("\n");
+  PRINTF("\n");
 
   return tex;
 }

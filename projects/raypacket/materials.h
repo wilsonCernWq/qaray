@@ -2,8 +2,8 @@
 ///
 /// \file       materials.h
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    7.0
-/// \date       October 6, 2015
+/// \version    10.0
+/// \date       November 4, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -24,7 +24,10 @@ public:
     glossiness(20.0f),
     reflection(0,0,0),
     refraction(0,0,0),
-    absorption(0,0,0), ior(1) {}
+    absorption(0,0,0),
+    ior(1) ,
+    reflectionGlossiness(0),
+    refractionGlossiness(0) {}
 
   virtual Color Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
 		      const LightList &lights, int bounceCount) const;
@@ -42,14 +45,17 @@ public:
   void SetSpecularTexture (TextureMap *map){ specular.SetTexture(map); }
   void SetReflectionTexture(TextureMap *map){ reflection.SetTexture(map); }
   void SetRefractionTexture(TextureMap *map){ refraction.SetTexture(map); }
+  void SetReflectionGlossiness(float gloss){ reflectionGlossiness=gloss; }
+  void SetRefractionGlossiness(float gloss){ refractionGlossiness=gloss; }
   
-  virtual void SetViewportMaterial(int subMtlID=0) const;	// used for OpenGL display
+  virtual void SetViewportMaterial(int subMtlID=0) const; // used for OpenGL display
 
 private:
   TexturedColor diffuse, specular, reflection, refraction;
   float glossiness;
   Color absorption;
   float ior;	// index of refraction
+  float reflectionGlossiness, refractionGlossiness;
 };
 
 //------------------------------------------------------------------------------
