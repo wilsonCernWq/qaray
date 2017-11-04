@@ -88,21 +88,6 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	 (glm::dot(rDir, Y) < -0.001f) ||
 	 (glm::dot(rxDir,Y) < -0.001f) ||
 	 (glm::dot(ryDir,Y) < -0.001f));
-
-  // if ((glm::dot(tDir, Y) >  0.001f) ||
-  //     (glm::dot(txDir,Y) >  0.001f) ||
-  //     (glm::dot(tyDir,Y) >  0.001f) ||
-  //     (glm::dot(rDir, Y) < -0.001f) ||
-  //     (glm::dot(rxDir,Y) < -0.001f) ||
-  //     (glm::dot(ryDir,Y) < -0.001f))
-  // {
-  //   debug(glm::dot(tDir, Y));
-  //   debug(glm::dot(txDir, Y));
-  //   debug(glm::dot(tyDir, Y));
-  //   debug(glm::dot(rDir, Y));
-  //   debug(glm::dot(rxDir, Y));
-  //   debug(glm::dot(ryDir, Y));
-  // }
     
   // reflection and transmission coefficients  
   const float C0 = (n1 - n2) * (n1 - n2) / (n1 + n2) / (n1 + n2);
