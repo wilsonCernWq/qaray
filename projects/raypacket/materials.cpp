@@ -14,6 +14,8 @@
 
 extern Node rootNode;
 
+//------------------------------------------------------------------------------
+
 Color Attenuation(const Color& absorption, const float l) {
   const float R = exp(-absorption.r * l);
   const float G = exp(-absorption.g * l);
@@ -21,15 +23,20 @@ Color Attenuation(const Color& absorption, const float l) {
   return Color(R, G, B); // attenuation
 }
 
-Color MtlBlinn::Shade
-    (const DiffRay &ray, const DiffHitInfo &hInfo, const LightList &lights, int bounceCount)
-const
+//------------------------------------------------------------------------------
+
+Color MtlBlinn::Shade(const DiffRay &ray,
+		      const DiffHitInfo &hInfo,
+		      const LightList &lights,
+		      int bounceCount)
+  const
 {
+  // glossiness
   Color color(0.f,0.f,0.f);
   const auto p = hInfo.c.p;                  // surface position in world coordinate
-  const auto N = glm::normalize(hInfo.c.N);  // surface normal in world coordinate
   const auto V = glm::normalize(-ray.c.dir); // ray incoming direction
-
+  const auto N = glm::normalize(hInfo.c.N);  // surface normal in world coordinate
+  
   const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
   const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
@@ -60,13 +67,16 @@ const
   assert(rC <= 1.f); assert(tC <= 1.f);
 
   const bool totReflection = (n1 * sinI / n2) > 1.001f;
-  const Color sampleRefraction = hInfo.c.hasTexture ?
-                                 refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
-  const Color sampleReflection = hInfo.c.hasTexture ?
-                                 reflection.Sample(hInfo.c.uvw, hInfo.c.duvw) : reflection.GetColor();
+  const Color sampleRefraction =
+    hInfo.c.hasTexture ?
+    refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
+  const Color sampleReflection =
+    hInfo.c.hasTexture ?
+    reflection.Sample(hInfo.c.uvw, hInfo.c.duvw) : reflection.GetColor();
   const auto tK = totReflection ? Color(0.f) : sampleRefraction * tC;
   const auto rK = totReflection ?
-                  (sampleReflection + sampleRefraction) : (sampleReflection + sampleRefraction * rC);
+    (sampleReflection + sampleRefraction) :
+    (sampleReflection + sampleRefraction * rC);
 
   const float threshold = 0.001f;
   //!--- refraction ---
@@ -122,10 +132,14 @@ const
   }
 
   //!--- normal shading ---
-  const Color sampleDiffuse  = hInfo.c.hasTexture ?
-                               diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) : diffuse.GetColor();
-  const Color sampleSpecular = hInfo.c.hasTexture ?
-                               specular.Sample(hInfo.c.uvw, hInfo.c.duvw) : specular.GetColor();
+  const Color sampleDiffuse  =
+    hInfo.c.hasTexture ?
+    diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+    diffuse.GetColor();
+  const Color sampleSpecular =
+    hInfo.c.hasTexture ?
+    specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+    specular.GetColor();
   if (hInfo.c.hasFrontHit) {
     for (auto& light : lights) {
       auto Intensity = light->Illuminate(p, N);
@@ -150,9 +164,13 @@ const
   return color;
 }
 
-Color MtlPhong::Shade
-    (const DiffRay &ray, const DiffHitInfo &hInfo, const LightList &lights, int bounceCount)
-const
+//------------------------------------------------------------------------------
+
+Color MtlPhong::Shade(const DiffRay &ray,
+		      const DiffHitInfo &hInfo,
+		      const LightList &lights,
+		      int bounceCount)
+  const
 {
   Color color(0.f,0.f,0.f);
   auto p = hInfo.c.p;                  // surface position in world coordinate

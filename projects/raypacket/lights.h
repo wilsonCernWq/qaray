@@ -18,6 +18,9 @@
 
 class GenLight : public Light
 {
+public:
+  static int shadow_spp_min;
+  static int shadow_spp_max;
 protected:
   void SetViewportParam(int lightID, ColorA ambient, ColorA intensity, Point4 pos) const;
   static float Shadow(Ray ray, float t_max=BIGFLOAT);

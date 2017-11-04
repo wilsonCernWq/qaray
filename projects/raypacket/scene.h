@@ -58,7 +58,18 @@ inline float Halton(int index, int base)
   return r;
 }
 
-struct UniformRandom { virtual double Get() = 0; };
+struct UniformRandom {
+  virtual double Get() = 0;
+  Point3 GetCirclePoint(float size) {
+    Point3 p;
+    do {
+      p.x = Get() * size;
+      p.y = Get() * size;
+      p.z = Get() * size;	
+    } while (glm::length(p) > size);
+    return p;
+  }
+};
 extern UniformRandom* rng;
 
 //-----------------------------------------------------------------------------

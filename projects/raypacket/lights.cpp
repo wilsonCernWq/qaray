@@ -15,6 +15,9 @@ extern Node rootNode;
 
 //------------------------------------------------------------------------------
 
+int GenLight::shadow_spp_min = 16;
+int GenLight::shadow_spp_max = 64;
+
 float GenLight::Shadow(Ray ray, float t_max)
 {
   HitInfo hInfo; hInfo.z = t_max;
@@ -29,14 +32,17 @@ float GenLight::Shadow(Ray ray, float t_max)
 
 Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
 {
-  Point3 dp;
-  do {
-    dp.x = rng->Get() * size;
-    dp.y = rng->Get() * size;
-    dp.z = rng->Get() * size;	
-  } while (glm::length(dp) > size);  
-  Ray ray(p,position+dp-p); ray.Normalize();
-  return Shadow(ray,glm::length(position+dp-p)) * intensity;
+  int spp = GenLight::shadow_spp_min, s = 0;
+  float inshadow = 0.0f;
+  while (s < spp) {
+    Point3 dir = position + rng->GetCirclePoint(size) - p; 
+    Ray ray(p, dir);
+    ray.Normalize();
+    inshadow += (Shadow(ray, glm::length(dir)) - inshadow) / (float)(s + 1);
+    s++;
+    if (inshadow > 0.f && inshadow < 1.f) { spp = GenLight::shadow_spp_max; }
+  };  
+  return inshadow * intensity;
 }
 
 //------------------------------------------------------------------------------
