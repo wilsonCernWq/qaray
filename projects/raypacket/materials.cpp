@@ -31,41 +31,55 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 		      int bounceCount)
   const
 {
-  // glossiness
+  // input parameters
   Color color(0.f,0.f,0.f);
-  const auto p = hInfo.c.p;                  // surface position in world coordinate
-  const auto V = glm::normalize(-ray.c.dir); // ray incoming direction
-  const auto N = glm::normalize(hInfo.c.N);  // surface normal in world coordinate
-  
+  auto N = glm::normalize(hInfo.c.N); // surface normal in world coordinate
+  const auto V  = glm::normalize(-ray.c.dir); // ray incoming direction
   const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
   const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
+  const auto p  = hInfo.c.p;                  // surface position in world coordinate
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
 
-  if (ABS(px.x) > 1e20 || ABS(px.y) > 1e20 || ABS(px.z) > 1e20 ||
-      ABS(py.x) > 1e20 || ABS(py.x) > 1e20 || ABS(py.z) > 1e20) {
-    std::cout << "debug pixel" << std::endl;
-  }
+  // coordinate
+  const auto X = glm::normalize(glm::cross(glm::cross(N,V),N)); // Vx
+  const auto Y = glm::normalize(N * glm::dot(N, V));            // Vy
 
-  const float cosI = glm::dot(N,V);
-  const float sinI = SQRT(1 - cosI * cosI);
-
+  // index of refraction
+  const float n1 = hInfo.c.hasFrontHit ? 1.f : ior;
+  const float n2 = hInfo.c.hasFrontHit ? ior : 1.f;
+  
+  // incidence angle
+  const float cosI  = glm::dot(N,V);
+  const float sinI  = SQRT(1 - cosI * cosI);
   const float cosIx = glm::dot(N,Vx);
   const float sinIx = SQRT(1 - cosIx * cosIx);
   const float cosIy = glm::dot(N,Vy);
   const float sinIy = SQRT(1 - cosIy * cosIy);
 
-  const auto X = glm::normalize(V - N * cosI); // Vx
-  const auto Y = glm::normalize(N * cosI);     // Vy
+  // refraction angle
+  const float sinO  = MAX(0.f, MIN(1.f, sinI  * n1 / n2));
+  const float cosO  = SQRT(1.f - sinO * sinO);  
+  const float sinOx = MAX(0.f, MIN(1.f, sinIx * n1 / n2));
+  const float cosOx = SQRT(1.f - sinOx * sinOx);
+  const float sinOy = MAX(0.f, MIN(1.f, sinIy * n1 / n2));
+  const float cosOy = SQRT(1.f - sinOy * sinOy);
 
-  const float n1 = hInfo.c.hasFrontHit ? 1.f : ior;
-  const float n2 = hInfo.c.hasFrontHit ? ior : 1.f;
-
+  // ray directions
+  const Point3 tDir  = -X * sinO  - Y * cosO;
+  const Point3 txDir = -X * sinOx - Y * cosOx;
+  const Point3 tyDir = -X * sinOy - Y * cosOy;
+  const Point3 rDir  = 2.f*N*(glm::dot(N,V ))-V;
+  const Point3 rxDir = 2.f*N*(glm::dot(N,Vx))-Vx;
+  const Point3 ryDir = 2.f*N*(glm::dot(N,Vy))-Vy;
+  
+  // reflection and transmission coefficients  
   const float C0 = (n1 - n2) * (n1 - n2) / (n1 + n2) / (n1 + n2);
   const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
   const float tC = 1.f - rC;
   assert(rC <= 1.f); assert(tC <= 1.f);
 
+  // reflection and transmission colors
   const bool totReflection = (n1 * sinI / n2) > 1.001f;
   const Color sampleRefraction =
     hInfo.c.hasTexture ?
@@ -83,17 +97,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   if (bounceCount > 0 && 
       (tK.x > threshold || tK.y > threshold || tK.z > threshold)) 
   {
-    const float sinO = MAX(0.f, MIN(1.f, sinI * n1 / n2));
-    const float cosO = SQRT(1.f - sinO * sinO);
-
-    const float sinOx = MAX(0.f, MIN(1.f, sinIx * n1 / n2));
-    const float cosOx = SQRT(1.f - sinOx * sinOx);
-    const float sinOy = MAX(0.f, MIN(1.f, sinIy * n1 / n2));
-    const float cosOy = SQRT(1.f - sinOy * sinOy);
-
-    DiffRay tRay(p,  -X * sinO  - Y * cosO,
-                 px, -X * sinOx - Y * cosOx,
-                 py, -X * sinOy - Y * cosOy);
+    DiffRay tRay(p, tDir, px, txDir, py, tyDir);
     DiffHitInfo tHit;
     tHit.c.z = BIGFLOAT;
     tRay.Normalize();
@@ -113,9 +117,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   if (bounceCount > 0 && 
       (rK.x > threshold || rK.y > threshold || rK.z > threshold))  
   {
-    DiffRay rRay(p,  2.f*N*(glm::dot(N,V ))-V,
-		 px, 2.f*N*(glm::dot(N,Vx))-Vx,
-		 py, 2.f*N*(glm::dot(N,Vy))-Vy);    
+    DiffRay rRay(p, rDir, px, rxDir, py, ryDir);
     DiffHitInfo rHit; 
     rRay.Normalize();
     rHit.c.z = BIGFLOAT;
