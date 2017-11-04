@@ -33,7 +33,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 {
   // input parameters
   Color color(0.f,0.f,0.f);
-  auto N = glm::normalize(hInfo.c.N); // surface normal in world coordinate
+  const auto N = glm::normalize(hInfo.c.N);   // surface normal in world coordinate
   const auto V  = glm::normalize(-ray.c.dir); // ray incoming direction
   const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
   const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
@@ -49,30 +49,61 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const float n1 = hInfo.c.hasFrontHit ? 1.f : ior;
   const float n2 = hInfo.c.hasFrontHit ? ior : 1.f;
   
-  // incidence angle
-  const float cosI  = glm::dot(N,V);
-  const float sinI  = SQRT(1 - cosI * cosI);
-  const float cosIx = glm::dot(N,Vx);
-  const float sinIx = SQRT(1 - cosIx * cosIx);
-  const float cosIy = glm::dot(N,Vy);
-  const float sinIy = SQRT(1 - cosIy * cosIy);
+  // refrection and reflection
+  float cosI, sinI, cosIx, sinIx, cosIy, sinIy;
+  float cosO, sinO, cosOx, sinOx, cosOy, sinOy;
+  Point3 tDir, rDir, txDir, rxDir, tyDir, ryDir;
+  do {
+    // jitter normal
+    const auto tjN = glm::normalize(N + rng->GetCirclePoint(refractionGlossiness));
+    const auto rjN = glm::normalize(N + rng->GetCirclePoint(reflectionGlossiness));
+    
+    // incidence angle
+    cosI  = glm::dot(tjN,V);
+    sinI  = SQRT(1 - cosI * cosI);
+    cosIx = glm::dot(tjN,Vx);
+    sinIx = SQRT(1 - cosIx * cosIx);
+    cosIy = glm::dot(tjN,Vy);
+    sinIy = SQRT(1 - cosIy * cosIy);
 
-  // refraction angle
-  const float sinO  = MAX(0.f, MIN(1.f, sinI  * n1 / n2));
-  const float cosO  = SQRT(1.f - sinO * sinO);  
-  const float sinOx = MAX(0.f, MIN(1.f, sinIx * n1 / n2));
-  const float cosOx = SQRT(1.f - sinOx * sinOx);
-  const float sinOy = MAX(0.f, MIN(1.f, sinIy * n1 / n2));
-  const float cosOy = SQRT(1.f - sinOy * sinOy);
+    // refraction angle
+    sinO  = MAX(0.f, MIN(1.f, sinI  * n1 / n2));
+    cosO  = SQRT(1.f - sinO * sinO);  
+    sinOx = MAX(0.f, MIN(1.f, sinIx * n1 / n2));
+    cosOx = SQRT(1.f - sinOx * sinOx);
+    sinOy = MAX(0.f, MIN(1.f, sinIy * n1 / n2));
+    cosOy = SQRT(1.f - sinOy * sinOy);
 
-  // ray directions
-  const Point3 tDir  = -X * sinO  - Y * cosO;
-  const Point3 txDir = -X * sinOx - Y * cosOx;
-  const Point3 tyDir = -X * sinOy - Y * cosOy;
-  const Point3 rDir  = 2.f*N*(glm::dot(N,V ))-V;
-  const Point3 rxDir = 2.f*N*(glm::dot(N,Vx))-Vx;
-  const Point3 ryDir = 2.f*N*(glm::dot(N,Vy))-Vy;
-  
+    // ray directions
+    tDir  = -X * sinO  - Y * cosO;
+    txDir = -X * sinOx - Y * cosOx;
+    tyDir = -X * sinOy - Y * cosOy;
+    rDir  = 2.f*rjN*(glm::dot(rjN,V ))-V;
+    rxDir = 2.f*rjN*(glm::dot(rjN,Vx))-Vx;
+    ryDir = 2.f*rjN*(glm::dot(rjN,Vy))-Vy;
+  }
+  while ((glm::dot(tDir, Y) >  0.001f) ||
+	 (glm::dot(txDir,Y) >  0.001f) ||
+	 (glm::dot(tyDir,Y) >  0.001f) ||
+	 (glm::dot(rDir, Y) < -0.001f) ||
+	 (glm::dot(rxDir,Y) < -0.001f) ||
+	 (glm::dot(ryDir,Y) < -0.001f));
+
+  // if ((glm::dot(tDir, Y) >  0.001f) ||
+  //     (glm::dot(txDir,Y) >  0.001f) ||
+  //     (glm::dot(tyDir,Y) >  0.001f) ||
+  //     (glm::dot(rDir, Y) < -0.001f) ||
+  //     (glm::dot(rxDir,Y) < -0.001f) ||
+  //     (glm::dot(ryDir,Y) < -0.001f))
+  // {
+  //   debug(glm::dot(tDir, Y));
+  //   debug(glm::dot(txDir, Y));
+  //   debug(glm::dot(tyDir, Y));
+  //   debug(glm::dot(rDir, Y));
+  //   debug(glm::dot(rxDir, Y));
+  //   debug(glm::dot(ryDir, Y));
+  // }
+    
   // reflection and transmission coefficients  
   const float C0 = (n1 - n2) * (n1 - n2) / (n1 + n2) / (n1 + n2);
   const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
