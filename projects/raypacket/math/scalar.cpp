@@ -10,4 +10,4 @@
 #include "scalar.h"
 
 //! Explicit instantiation
-namespace qw {};
+namespace qaray {};
