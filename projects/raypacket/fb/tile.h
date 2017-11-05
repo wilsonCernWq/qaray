@@ -13,7 +13,7 @@
 
 #define TILE_SIZE 64
 
-namespace qw 
+namespace qaray
 {
   //! \brief Tile class is similar to OSPRay tile, which defines a block of 
   //! images rendered by a single thread. We separate r, g, b, a channels into
