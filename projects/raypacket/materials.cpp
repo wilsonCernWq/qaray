@@ -14,6 +14,13 @@
 
 extern Node rootNode;
 
+const float glossy_threshold = 0.001f;
+const float total_reflection_threshold = 1.01f;
+const float refraction_angle_threshold = 0.01f;
+const float reflection_angle_threshold = 0.01f;
+const float refraction_color_threshold = 0.01f;
+const float reflection_color_threshold = 0.01f;
+
 //------------------------------------------------------------------------------
 
 Color Attenuation(const Color& absorption, const float l) {
@@ -46,33 +53,31 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const auto Y = glm::normalize(N * glm::dot(N, V));            // Vy
 
   // index of refraction
-  const float n1 = hInfo.c.hasFrontHit ? 1.f : ior;
-  const float n2 = hInfo.c.hasFrontHit ? ior : 1.f;
+  const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
   
-  // refrection and reflection
-  float cosI, sinI, cosIx, sinIx, cosIy, sinIy;
-  float cosO, sinO, cosOx, sinOx, cosOy, sinOy;
+  // refraction and reflection
+  float cosI, sinI;
   Point3 tDir, rDir, txDir, rxDir, tyDir, ryDir;
-  do {
+  do {    
     // jitter normal
-    const auto tjN = glm::normalize(N + rng->GetCirclePoint(refractionGlossiness));
-    const auto rjN = glm::normalize(N + rng->GetCirclePoint(reflectionGlossiness));
+    const auto tjN = refractionGlossiness > glossy_threshold ?
+      glm::normalize(N + rng->GetCirclePoint(refractionGlossiness)) : N;
+    const auto rjN = reflectionGlossiness > glossy_threshold ?
+      glm::normalize(N + rng->GetCirclePoint(reflectionGlossiness)) : N;
     
-    // incidence angle
+    // incidence angle & refraction angle
     cosI  = glm::dot(tjN,V);
     sinI  = SQRT(1 - cosI * cosI);
-    cosIx = glm::dot(tjN,Vx);
-    sinIx = SQRT(1 - cosIx * cosIx);
-    cosIy = glm::dot(tjN,Vy);
-    sinIy = SQRT(1 - cosIy * cosIy);
-
-    // refraction angle
-    sinO  = MAX(0.f, MIN(1.f, sinI  * n1 / n2));
-    cosO  = SQRT(1.f - sinO * sinO);  
-    sinOx = MAX(0.f, MIN(1.f, sinIx * n1 / n2));
-    cosOx = SQRT(1.f - sinOx * sinOx);
-    sinOy = MAX(0.f, MIN(1.f, sinIy * n1 / n2));
-    cosOy = SQRT(1.f - sinOy * sinOy);
+    const float cosIx = glm::dot(tjN,Vx);
+    const float sinIx = SQRT(1 - cosIx * cosIx);
+    const float cosIy = glm::dot(tjN,Vy);
+    const float sinIy = SQRT(1 - cosIy * cosIy);
+    const float sinO  = MAX(0.f, MIN(1.f, sinI  * nIOR));
+    const float cosO  = SQRT(1.f - sinO * sinO);  
+    const float sinOx = MAX(0.f, MIN(1.f, sinIx * nIOR));
+    const float cosOx = SQRT(1.f - sinOx * sinOx);
+    const float sinOy = MAX(0.f, MIN(1.f, sinIy * nIOR));
+    const float cosOy = SQRT(1.f - sinOy * sinOy);
 
     // ray directions
     tDir  = -X * sinO  - Y * cosO;
@@ -81,22 +86,27 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     rDir  = 2.f*rjN*(glm::dot(rjN,V ))-V;
     rxDir = 2.f*rjN*(glm::dot(rjN,Vx))-Vx;
     ryDir = 2.f*rjN*(glm::dot(rjN,Vy))-Vy;
+
+    // loop early termination
+    if (refractionGlossiness > glossy_threshold ||
+	reflectionGlossiness > glossy_threshold)
+    { break; }
   }
-  while ((glm::dot(tDir, Y) >  0.001f) ||
-	 (glm::dot(txDir,Y) >  0.001f) ||
-	 (glm::dot(tyDir,Y) >  0.001f) ||
-	 (glm::dot(rDir, Y) < -0.001f) ||
-	 (glm::dot(rxDir,Y) < -0.001f) ||
-	 (glm::dot(ryDir,Y) < -0.001f));
+  while ((glm::dot(tDir, Y) >  refraction_angle_threshold) ||
+	 (glm::dot(txDir,Y) >  refraction_angle_threshold) ||
+	 (glm::dot(tyDir,Y) >  refraction_angle_threshold) ||
+	 (glm::dot(rDir, Y) < -reflection_angle_threshold) ||
+	 (glm::dot(rxDir,Y) < -reflection_angle_threshold) ||
+	 (glm::dot(ryDir,Y) < -reflection_angle_threshold));
     
   // reflection and transmission coefficients  
-  const float C0 = (n1 - n2) * (n1 - n2) / (n1 + n2) / (n1 + n2);
+  const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
   const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
   const float tC = 1.f - rC;
   assert(rC <= 1.f); assert(tC <= 1.f);
 
   // reflection and transmission colors
-  const bool totReflection = (n1 * sinI / n2) > 1.001f;
+  const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
   const Color sampleRefraction =
     hInfo.c.hasTexture ?
     refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
@@ -108,10 +118,11 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     (sampleReflection + sampleRefraction) :
     (sampleReflection + sampleRefraction * rC);
 
-  const float threshold = 0.001f;
   //!--- refraction ---
   if (bounceCount > 0 && 
-      (tK.x > threshold || tK.y > threshold || tK.z > threshold)) 
+      (tK.x > refraction_color_threshold ||
+       tK.y > refraction_color_threshold ||
+       tK.z > refraction_color_threshold)) 
   {
     DiffRay tRay(p, tDir, px, txDir, py, tyDir);
     DiffHitInfo tHit;
@@ -131,7 +142,9 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 
   //!--- reflection ---
   if (bounceCount > 0 && 
-      (rK.x > threshold || rK.y > threshold || rK.z > threshold))  
+      (rK.x > reflection_color_threshold ||
+       rK.y > reflection_color_threshold ||
+       rK.z > reflection_color_threshold))  
   {
     DiffRay rRay(p, rDir, px, rxDir, py, ryDir);
     DiffHitInfo rHit; 

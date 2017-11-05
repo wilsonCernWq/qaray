@@ -14,7 +14,9 @@
 
 //------------------------------------------------------------------------------
 
-struct UniformRandom_mt19937 : public UniformRandom {
+// rendering example_project9.xml takes 23.224073 s
+struct UniformRandom_mt19937 : public UniformRandom
+{
   std::mt19937 rng;
   std::uniform_real_distribution<float> dist; // distribution in range [0, 1]
   UniformRandom_mt19937 () {
@@ -25,6 +27,7 @@ struct UniformRandom_mt19937 : public UniformRandom {
 };
 
 // reference https://en.wikipedia.org/wiki/Xorshift
+// rendering example_project9.xml takes 20.582386 s
 struct UniformRandom_Marsaglia : public UniformRandom {
   static uint32_t seed;
   /* The state word must be initialized to non-zero */
@@ -45,7 +48,7 @@ uint32_t UniformRandom_Marsaglia::seed=123456789;
 
 //------------------------------------------------------------------------------
 
-UniformRandom* rng = new UniformRandom_Marsaglia;
+UniformRandom* rng = new UniformRandom_Marsaglia; 
 
 //------------------------------------------------------------------------------
 
