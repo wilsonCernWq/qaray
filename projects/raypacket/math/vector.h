@@ -12,3 +12,4 @@
 
 #include "scalar.h"
 
+namespace qaray {};

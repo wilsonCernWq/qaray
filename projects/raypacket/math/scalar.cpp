@@ -10,4 +10,11 @@
 #include "scalar.h"
 
 //! Explicit instantiation
-namespace qaray {};
+namespace qaray {
+
+  template class vScalar<bool, PACKET_SIZE>;
+  template class vScalar<int, PACKET_SIZE>;
+  template class vScalar<float, PACKET_SIZE>;
+  template class vScalar<double, PACKET_SIZE>;
+
+};
