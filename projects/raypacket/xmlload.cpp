@@ -350,7 +350,7 @@ void LoadMaterial(TiXmlElement *element)
 	  f = 0;
 	  ReadFloat( child, f, "glossiness" );
 	  m->SetRefractionGlossiness(f);
-	  if ( f > 0 ) printf(" (glossiness %f)\n",f);
+	  if ( f > 0 ) PRINTF(" (glossiness %f)\n",f);
 	} else if ( COMPARE( child->Value(), "absorption" ) ) {
 	  ReadColor( child, c );
 	  m->SetAbsorption(c);
