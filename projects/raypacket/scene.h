@@ -529,12 +529,10 @@ public:
   Color SampleEnvironment(const Point3 &dir) const
   {
     float z = asinf(-dir.z)/float(M_PI)+0.5f;
-    float den = sqrtf(dir.x*dir.x + dir.y*dir.y)+1e-10f;
-    float x = dir.x / den;
-    float y = dir.y / den;
+    float x = dir.x / (fabs(dir.x)+fabs(dir.y));
+    float y = dir.y / (fabs(dir.x)+fabs(dir.y));
     return Sample(Point3(0.5f,0.5f,0.0f)+z*(x*Point3(0.5f,0.5f,0)+y*Point3(-0.5f,0.5f,0)));
   }
-
 };
 
 //-----------------------------------------------------------------------------

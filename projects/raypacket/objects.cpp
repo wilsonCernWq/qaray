@@ -75,7 +75,7 @@ bool Box::IntersectRay(const Ray &r, float t_max) const
 // Function return true only if the HitInfo has been updated!
 inline Point3 Sphere_TexCoord(const Point3& p, const float rcp_l = 1.f)
 {
-  return Point3(0.5f-atan2(p.x,p.y)*RCP_2PI,0.5f-asin(p.z*rcp_l)*RCP_PI,0.f);
+  return Point3(0.5f-atan2(p.x,p.y)*RCP_2PI,0.5f+asin(p.z*rcp_l)*RCP_PI,0.f);
 }
 bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
                           DiffRay* diffray, DiffHitInfo* diffhit) const
@@ -156,7 +156,7 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
 //-------------------------------------------------------------------------------
 inline Point3 Plane_TexCoord(const Point3& p)
 {
-  return Point3(0.5f+p.x*0.5f, 0.5f-p.y*0.5f, 0.f);
+  return Point3((p.x+1.f)*0.5f, (p.y+1.f)*0.5f, 0.f);
 }
 bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
                          DiffRay* diffray, DiffHitInfo* diffhit) const
@@ -284,10 +284,6 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
           hInfo.uvw = Point3(tmp_uvw.x, tmp_uvw.y, tmp_uvw.z);
           hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
           hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
-	  // fix openGL convension
-	  hInfo.uvw.y = 1.f - hInfo.uvw.y;
-	  hInfo.duvw[0].y *= -1;
-	  hInfo.duvw[1].y *= -1;
         }
       }
       return true;

@@ -108,7 +108,6 @@ void PixelRender(const int i, const int j)
   depthBuffer[idx] = depth;
   sampleCountBuffer[idx] = sampler.GetSampleID();
   maskBuffer[idx] = 1;
-  //debug(sampler.GetSampleID());
 }
 
 void ThreadRender()
