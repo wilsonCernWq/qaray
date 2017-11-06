@@ -6,13 +6,13 @@ if(ENABLE_PACKET_PROJECT)
   string(TOLOWER ${PID} PID)
   #
   # install dlls or shader
-  file(GLOB SHADERS "*.glsl")
-  set(COPYLIST ${COMMON_DLLS} ${SHADERS})
-  if(EXECUTABLE_OUTPUT_PATH)
-    DeployRepo("${COPYLIST}" "${EXECUTABLE_OUTPUT_PATH}")
-  else()
-    DeployRepo("${COPYLIST}" "${CMAKE_BINARY_DIR}")
-  endif()
+  # file(GLOB SHADERS "*.glsl")
+  # set(COPYLIST ${COMMON_DLLS} ${SHADERS})
+  # if(EXECUTABLE_OUTPUT_PATH)
+  #   DeployRepo("${COPYLIST}" "${EXECUTABLE_OUTPUT_PATH}")
+  # else()
+  #   DeployRepo("${COPYLIST}" "${CMAKE_BINARY_DIR}")
+  # endif()
   #
   # include sources
   file(GLOB_RECURSE MATH_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
