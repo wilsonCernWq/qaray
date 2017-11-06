@@ -96,7 +96,8 @@ Color TextureFile::Sample(const Point3 &uvw) const
 {
   if ( width + height == 0 ) return Color(0,0,0);
 
-  Point3 u = TileClamp(uvw);
+  Point3 fliped_uvw(uvw.x, 1.f-uvw.y, uvw.z);
+  Point3 u = TileClamp(fliped_uvw);
   float x = width * u.x;
   float y = height * u.y;
   int ix = (int)x;

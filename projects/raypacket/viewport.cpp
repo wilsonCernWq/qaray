@@ -608,9 +608,18 @@ bool TextureFile::SetViewportTexture() const
 {
 #ifdef USE_GUI
   if ( viewportTextureID == 0 ) {
+    std::vector<uchar> flip(width * height * 3, 0);
+    for (int y = 0; y < height; ++y) {
+      const auto dst_idx = 3 * ((height - y - 1) * width + 0);
+      const auto src_idx = y * width + 0;
+      std::memcpy(&flip[dst_idx],
+		  &(data[src_idx].r),
+		  3 * width * sizeof(uchar));
+    }
     glGenTextures(1,&viewportTextureID);
     glBindTexture(GL_TEXTURE_2D,viewportTextureID);
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, &data[0].r);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,
+		      GL_RGB, GL_UNSIGNED_BYTE, flip.data());
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
