@@ -35,11 +35,18 @@
       <scale value="2"/>
       <translate x="22" y="-30" z="2"/>
     </object>
-    <object type="obj" name="teapot-high.obj" material="red">
-      <scale value="0.5"/>
-      <rotate angle="-50" z="1"/>
-      <translate x="13" y="-21" z="0"/>
+    <object type="obj" name="SciFi_Fighter_MK6.obj">
+      <scale value="0.03"/>
+      <rotate angle="90" x="1"/>
+      <rotate angle="30" z="1"/>
+      <translate x="13" y="-20" z="3"/>
     </object>
+    <object type="obj" name="wooddoll_00.obj">
+      <scale value="10"/>
+      <rotate angle="90" x="1"/>
+      <rotate angle="60" z="1"/>
+      <translate x="25" y="-20" z="-0.2"/>
+    </object>   
 
     <!-- Materials -->
     <material type="blinn" name="ground">
