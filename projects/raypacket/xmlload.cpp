@@ -212,6 +212,7 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
 	  // generate multi-material
 	  if ( tobj->NM() > 0 ) {
 	    if ( materials.Find(name) == NULL ) {
+	      PRINTF("\n - OBJ Multi-Material\n");
 	      MultiMtl *mm = new MultiMtl;
 	      for ( unsigned int i=0; i<tobj->NM(); i++ ) {
 		MtlBlinn *m = new MtlBlinn;

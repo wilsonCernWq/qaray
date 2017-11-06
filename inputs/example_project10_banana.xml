@@ -31,14 +31,14 @@
       <scale value="6"/>
       <translate x="14" y="0" z="6"/>
     </object>
+    <object type="obj" name="banana.obj">
+      <scale value="1"/>      
+      <rotate angle="90" z="1"/>
+      <translate x="15" y="-20" z="5"/>
+    </object>
     <object type="sphere" name="sphere5" material="glossy4">
       <scale value="2"/>
       <translate x="22" y="-30" z="2"/>
-    </object>
-    <object type="obj" name="teapot-high.obj" material="red">
-      <scale value="0.5"/>
-      <rotate angle="-50" z="1"/>
-      <translate x="13" y="-21" z="0"/>
     </object>
 
     <!-- Materials -->
