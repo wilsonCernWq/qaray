@@ -63,9 +63,9 @@ struct UniformRandom {
   Point3 GetCirclePoint(float size) {
     Point3 p;
     do {
-      p.x = Get() * size;
-      p.y = Get() * size;
-      p.z = Get() * size;	
+      p.x = (2.f * Get() - 1.f) * size;
+      p.y = (2.f * Get() - 1.f) * size;
+      p.z = (2.f * Get() - 1.f) * size;	
     } while (glm::length(p) > size);
     return p;
   }
