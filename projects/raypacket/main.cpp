@@ -106,7 +106,7 @@ void PixelRender(const int i, const int j)
   colorBuffer[idx].g = static_cast<uchar>(round(sampler.GetColor().g * 255.f));
   colorBuffer[idx].b = static_cast<uchar>(round(sampler.GetColor().b * 255.f));
   depthBuffer[idx] = depth;
-  sampleCountBuffer[idx] = sampler.GetSampleID();
+  sampleCountBuffer[idx] = 255.f * sampler.GetSampleID() / (float)sppMax;
   maskBuffer[idx] = 1;
 }
 
