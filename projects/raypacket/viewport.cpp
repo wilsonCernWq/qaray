@@ -2,8 +2,8 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    9.0
-/// \date       October 23, 2017
+/// \version    9.1
+/// \date       November 6, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -64,9 +64,9 @@ static MouseMode mouseMode	= MOUSEMODE_NONE;	// Mouse mode
 static int mouseX=0, mouseY=0;
 static float  viewAngle1=0, viewAngle2=0;
 static GLuint viewTexture;
-static int dofDrawCount = 0;
-static Color*dofImage = NULL;
-static Color24*dofBuffer = NULL;
+static int      dofDrawCount = 0;
+static Color*   dofImage = NULL;
+static Color24* dofBuffer = NULL;
 #define MAX_DOF_DRAW 32
 #endif
 //------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ void DrawScene()
   Point3 u = camera.up;
   if ( camera.dof > 0 ) {
     Point3 v = glm::cross(camera.dir, camera.up);
-    float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
+    float r = SQRT(float(rand())/RAND_MAX)*camera.dof;
     float a = float(M_PI) * 2.0f * float(rand())/RAND_MAX;
     p += r*cosf(a)*v + r*sinf(a)*u;
   }
@@ -538,7 +538,6 @@ void Plane::ViewportDisplay(const Material *mtl) const
 void TriObj::ViewportDisplay(const Material *mtl) const
 {
 #ifdef USE_GUI
-  glBegin(GL_TRIANGLES);
   unsigned int nextMtlID = 0;
   unsigned int nextMtlSwith = NF();
   if ( mtl && NM() > 0 ) {
@@ -546,13 +545,16 @@ void TriObj::ViewportDisplay(const Material *mtl) const
     nextMtlSwith = GetMaterialFaceCount(0);
     nextMtlID = 1;
   }
+  glBegin(GL_TRIANGLES);
   for ( unsigned int i=0; i<NF(); i++ ) {
     while ( i >= nextMtlSwith ) {
       if ( nextMtlID >= NM() ) nextMtlSwith = NF();
       else {
+	glEnd();
 	nextMtlSwith += GetMaterialFaceCount(nextMtlID);
 	mtl->SetViewportMaterial(nextMtlID);
 	nextMtlID++;
+	glBegin(GL_TRIANGLES);
       }
     }
     for ( int j=0; j<3; j++ ) {
