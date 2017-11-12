@@ -284,7 +284,7 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
           hInfo.uvw = Point3(tmp_uvw.x, tmp_uvw.y, tmp_uvw.z);
           hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
           hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
-	  hInfo.mtlID = GetMaterialIndex(faceID);
+          hInfo.mtlID = GetMaterialIndex(faceID);
         }
       }
       return true;

@@ -12,7 +12,6 @@
 #include "lights.h"
 
 extern Node rootNode;
-
 //------------------------------------------------------------------------------
 
 int GenLight::shadow_spp_min = 16;

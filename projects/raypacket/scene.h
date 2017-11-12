@@ -195,12 +195,15 @@ struct Ray
 struct DiffRay {
   static const float dx, dy, rdx, rdy; 
   Ray c, x, y;
+  bool hasDiffRay = true;
   DiffRay() = default;
+  DiffRay(const Point3 &p, const Point3 &d) :
+    c(p, d), x(p, d), y(p, d), hasDiffRay(false) {}
   DiffRay(const Point3 &pc, const Point3 &dc,
 	  const Point3 &px, const Point3 &dx,
 	  const Point3 &py, const Point3 &dy) : 
-    c(pc, dc), x(px, dx), y(py, dy) {}
-  DiffRay(const DiffRay &r) : c(r.c), x(r.x), y(r.y) {}
+    c(pc, dc), x(px, dx), y(py, dy), hasDiffRay(true) {}
+  DiffRay(const DiffRay &r) : c(r.c), x(r.x), y(r.y), hasDiffRay(r.hasDiffRay) {}
   void Normalize() { 
     c.Normalize(); x.Normalize(); y.Normalize(); 
   }
@@ -391,10 +394,10 @@ typedef ItemFileList<Object> ObjFileList;
 class Light : public ItemBase
 {
 public:
-  virtual Color	Illuminate(const Point3 &p, const Point3 &N) const=0;
-  virtual Point3	Direction (const Point3 &p) const=0;
-  virtual bool	IsAmbient () const { return false; }
-  virtual void	SetViewportLight(int lightID) const {}	// used for OpenGL display
+  virtual Color	 Illuminate(const Point3 &p, const Point3 &N) const=0;
+  virtual Point3 Direction (const Point3 &p) const=0;
+  virtual bool	 IsAmbient () const { return false; }
+  virtual void	 SetViewportLight(int lightID) const {}	// used for OpenGL display
 };
 
 class LightList : public ItemList<Light> {};
