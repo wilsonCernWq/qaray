@@ -2,7 +2,7 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    9.1
+/// \version    11.0
 /// \date       November 6, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
@@ -48,7 +48,8 @@ enum ViewMode
   VIEWMODE_OPENGL,
   VIEWMODE_IMAGE,
   VIEWMODE_Z,
-  VIEWMODE_SAMPLECOUNT
+  VIEWMODE_SAMPLECOUNT,
+  VIEWMODE_IRRADCOMP,
 };
 
 enum MouseMode {
@@ -351,6 +352,11 @@ void GlutDisplay()
     if ( ! renderImage.GetSampleCountImage() ) renderImage.ComputeSampleCountImage();
     DrawImage( renderImage.GetSampleCountImage(), GL_UNSIGNED_BYTE, GL_LUMINANCE );
     break;
+  case VIEWMODE_IRRADCOMP:
+    if ( renderImage.GetIrradianceComputationImage() ) {
+      DrawImage( renderImage.GetIrradianceComputationImage(), GL_UNSIGNED_BYTE, GL_LUMINANCE );
+    }
+    break;
   }
   glutSwapBuffers();
 #endif
@@ -366,6 +372,7 @@ void GlutIdle()
     }
     glutPostRedisplay();   
   }
+  if ( viewMode == VIEWMODE_IRRADCOMP ) { glutPostRedisplay(); }
 #endif
 }
 //------------------------------------------------------------------------------
@@ -428,6 +435,10 @@ void GlutKeyboard(unsigned char key, int x, int y)
     break;
   case '4':
     viewMode = VIEWMODE_SAMPLECOUNT;
+    glutPostRedisplay();
+    break;
+  case '5':
+    viewMode = VIEWMODE_IRRADCOMP;
     glutPostRedisplay();
     break;
   }
@@ -575,6 +586,8 @@ void MtlBlinn::SetViewportMaterial(int subMtlID) const
   c = ColorA(specular.GetColor(),1.f);
   glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
   glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
+  c = ColorA(emission.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
   const TextureMap *dm = diffuse.GetTexture();
   if ( dm && dm->SetViewportTexture() ) {
     glEnable( GL_TEXTURE_2D );
@@ -665,8 +678,7 @@ bool TextureChecker::SetViewportTexture() const
   return false;
 #endif
 }
-void GenLight::SetViewportParam
-(int lightID, ColorA ambient, ColorA intensity, Point4 pos ) const
+void GenLight::SetViewportParam(int lightID, ColorA ambient, ColorA intensity, Point4 pos) const
 {
 #ifdef USE_GUI
   glEnable ( GL_LIGHT0 + lightID );

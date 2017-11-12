@@ -2,8 +2,8 @@
 ///
 /// \file       xmlload.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    5.0
-/// \date       September 24, 2015
+/// \version    11.0
+/// \date       November 6, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -332,6 +332,11 @@ void LoadMaterial(TiXmlElement *element)
 	  ReadFloat( child, f );
 	  m->SetGlossiness(f);
 	  PRINTF("   glossiness %f\n",f);
+	} else if ( COMPARE( child->Value(), "emission" ) ) {
+	  ReadColor( child, c );
+	  m->SetEmission(c);
+	  printf("   emission %f %f %f\n",c.r,c.g,c.b);
+	  m->SetEmissionTexture( ReadTexture(child) );	  
 	} else if ( COMPARE( child->Value(), "reflection" ) ) {
 	  ReadColor( child, c );
 	  m->SetReflection(c);
