@@ -33,6 +33,7 @@
 static const float PI = std::acos(-1.f);
 static int& bounce   = Material::maxBounce;
 static int& bounceMC = Material::maxBounceMC;
+static int& sampleMC = Material::maxMCSample;
 static int  sppMax = 64, sppMin = 4;
 // Camera parameters
 static float nearClip = 10.0f, dof = 0.0f;
@@ -457,6 +458,10 @@ int main(int argc, char **argv)
       sppMax = std::atoi(argv[++i]);
     } else if (str.compare("-bounce") == 0) {
       bounce = std::atoi(argv[++i]);
+    } else if (str.compare("-bounceMC") == 0) {
+      bounceMC = std::atoi(argv[++i]);
+    } else if (str.compare("-sampleMC") == 0) {
+      sampleMC = std::atoi(argv[++i]);
     } else if (str.compare("-threads") == 0) {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }

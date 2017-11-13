@@ -698,6 +698,7 @@ public:
     zbufferImg(NULL),
     sampleCount(NULL),
     sampleCountImg(NULL),
+    irradComp(NULL),
     width(0),
     height(0),
     numRenderedPixels(0)
@@ -708,6 +709,7 @@ public:
     if (img) delete [] img;
     if (zbuffer) delete [] zbuffer;
     if (zbufferImg) delete [] zbufferImg;
+    if (irradComp) delete [] irradComp;
   }
   void Init(int w, int h)
   {

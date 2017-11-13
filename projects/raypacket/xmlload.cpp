@@ -335,7 +335,7 @@ void LoadMaterial(TiXmlElement *element)
 	} else if ( COMPARE( child->Value(), "emission" ) ) {
 	  ReadColor( child, c );
 	  m->SetEmission(c);
-	  printf("   emission %f %f %f\n",c.r,c.g,c.b);
+	  PRINTF("   emission %f %f %f\n",c.r,c.g,c.b);
 	  m->SetEmissionTexture( ReadTexture(child) );	  
 	} else if ( COMPARE( child->Value(), "reflection" ) ) {
 	  ReadColor( child, c );

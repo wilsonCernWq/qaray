@@ -21,9 +21,9 @@ const float reflection_angle_threshold = 0.01f;
 const float refraction_color_threshold = 0.01f;
 const float reflection_color_threshold = 0.01f;
 
-int Material::maxBounce   = 5;
+int Material::maxBounce   = 3;
 int Material::maxBounceMC = 1;
-int Material::maxMCSample = 128;
+int Material::maxMCSample = 8;
 
 //------------------------------------------------------------------------------
 
@@ -195,7 +195,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     // Monte Carlo GI
     if (bounceCount > 0) {
       const int numMCSample =
-	(Material::maxBounce - Material::maxBounceMC - bounceCount > 0) ?
+	(Material::maxBounce - Material::maxBounceMC - bounceCount >= 0) ?
 	1 : Material::maxMCSample;
       const float normMC = (float)M_PI / 2 / numMCSample;
       for (int i = 0; i < numMCSample; ++i) {
