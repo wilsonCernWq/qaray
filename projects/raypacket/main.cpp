@@ -31,8 +31,9 @@
 //-------------------------------------------------------------------------
 // Parameters
 static const float PI = std::acos(-1.f);
-static int bounce = 2;
-static int sppMax = 64, sppMin = 4;
+static int& bounce   = Material::maxBounce;
+static int& bounceMC = Material::maxBounceMC;
+static int  sppMax = 64, sppMin = 4;
 // Camera parameters
 static float nearClip = 10.0f, dof = 0.0f;
 static float  screenW, screenH, aspect;

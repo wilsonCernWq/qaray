@@ -407,6 +407,10 @@ class LightList : public ItemList<Light> {};
 class Material : public ItemBase
 {
 public:
+  static int maxBounce;
+  static int maxBounceMC;
+  static int maxMCSample;
+public:
   // The main method that handles the shading by calling all the lights in the list.
   // ray: incoming ray,
   // hInfo: hit information for the point that is being shaded, lights: the light list,

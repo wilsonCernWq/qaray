@@ -21,6 +21,10 @@ const float reflection_angle_threshold = 0.01f;
 const float refraction_color_threshold = 0.01f;
 const float reflection_color_threshold = 0.01f;
 
+int Material::maxBounce   = 5;
+int Material::maxBounceMC = 1;
+int Material::maxMCSample = 128;
+
 //------------------------------------------------------------------------------
 
 Color Attenuation(const Color& absorption, const float l) {
@@ -190,7 +194,9 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     }
     // Monte Carlo GI
     if (bounceCount > 0) {
-      const int numMCSample = 5;
+      const int numMCSample =
+	(Material::maxBounce - Material::maxBounceMC - bounceCount > 0) ?
+	1 : Material::maxMCSample;
       const float normMC = (float)M_PI / 2 / numMCSample;
       for (int i = 0; i < numMCSample; ++i) {
         // determine ray direction
@@ -217,7 +223,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         Color mc_intensity;
         if (TraceNodeNormal(rootNode, mc_ray, mc_hit)) {
           mc_intensity =
-    	    mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, 0);
+    	    mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, bounceCount - 1);
         } else {
           mc_intensity = environment.SampleEnvironment(mc_ray.c.dir);
         }
