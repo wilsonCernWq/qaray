@@ -1,4 +1,4 @@
-option(ENABLE_PACKET_PROJECT "Build Ray Packet Project" OFF)
+option(ENABLE_PACKET_PROJECT "Build Ray Packet Project" ON)
 if(ENABLE_PACKET_PROJECT)
   #
   # get ptoject info

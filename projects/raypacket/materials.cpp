@@ -50,10 +50,10 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
 
   // coordinate
-  const auto X = glm::normalize(glm::cross(glm::cross(N,V),N)); // Vx
-  const auto Y = glm::normalize(N * glm::dot(N, V));            // Vy
-  const auto Z = glm::cross(X, Y);
-  
+  const auto Y = glm::dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Z = glm::cross(V, Y);
+  const auto X = glm::normalize(glm::cross(Y, Z)); // Vx
+
   // index of refraction
   const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
   
@@ -190,15 +190,25 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     }
     // Monte Carlo GI
     if (bounceCount > 0) {
-      for (int i = 0; i < 10; ++i) {
+      const int numMCSample = 5;
+      const float normMC = (float)M_PI / 2 / numMCSample;
+      for (int i = 0; i < numMCSample; ++i) {
         // determine ray direction
         Point3 mc_coe;
         do {
           mc_coe.x = (2.f * rng->Get() - 1.f);
-          mc_coe.y = rng->Get();
-          mc_coe.z = (2.f * rng->Get() - 1.f);
-        } while (glm::length(mc_coe) > 0.1f && glm::length(mc_coe) < 0.999f);
-        Point3 mc_dir = mc_coe.x * X + mc_coe.y * Y + mc_coe.z * Z;
+          mc_coe.y = (2.f * rng->Get() - 1.f);
+          mc_coe.z = rng->Get();
+        } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
+	mc_coe = glm::normalize(mc_coe);
+	Point3 new_z = N;
+	Point3 new_y = (glm::dot(Point3(1.f,0.f,0.f), N) < 0.5f) ? 
+	  glm::cross(N, Point3(1.f,0.f,0.f)) : 
+	  ((glm::dot(Point3(0.f,0.f,1.f), N) < 0.5f) ? 
+	   glm::cross(N, Point3(0.f,0.f,1.f)) :
+	   glm::cross(N, Point3(0.f,1.f,0.f)));
+	Point3 new_x = glm::cross(new_y, new_z);
+        Point3 mc_dir = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
         DiffRay mc_ray(p, mc_dir);
         DiffHitInfo mc_hit;
@@ -207,12 +217,12 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         Color mc_intensity;
         if (TraceNodeNormal(rootNode, mc_ray, mc_hit)) {
           mc_intensity =
-                  mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, 0);
+    	    mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, 0);
         } else {
           mc_intensity = environment.SampleEnvironment(mc_ray.c.dir);
         }
         auto cosNL = MAX(0.f, glm::dot(N, mc_dir));
-        color += sampleDiffuse * mc_intensity * cosNL;
+        color += normMC * sampleDiffuse * mc_intensity * cosNL;
       }
     }
   }
