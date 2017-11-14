@@ -24,8 +24,14 @@ const float diffuse_color_threshold    = 0.001f;
 int Material::maxBounce   = 3;
 int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
-float Material::gamma = 1.8;
+float Material::gamma = 1.0;
 //------------------------------------------------------------------------------
+
+float sRGB(const float c) {
+  const float a = 0.055;
+  if (c < 0.0031308f) { return 12.92 * c; }
+  else { return (1.f + a) * POW(c, 0.41666667f) - a; }
+}
 
 Point3 UniformSampleHemiSphere(const float &r1, const float &r2) 
 { 
@@ -225,7 +231,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         //   mc_coe.z = rng->Get();
         // } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
 	// mc_coe = glm::normalize(mc_coe);
-	Point3 mc_coe = UniformSampleHemiSphere(rng->Get(), rng->Get());
+	Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
 	// Point3 new_z = Y;
 	// auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
 	// auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
@@ -256,17 +262,26 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
+	auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-        indirectShadecolor += cosNL * Intensity;
+	auto cosNH = MAX(0.f, glm::dot(N,H));
+        indirectShadecolor += cosNL * Intensity * 
+	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
       }
-      indirectShadecolor *= normCoeGI * sampleDiffuse;
+      indirectShadecolor *= normCoeGI;
     }
     color += (indirectShadecolor + directShadecolor);
   }
   //!--- process color ---
-  color.r = POW(MAX(0.f, MIN(1.f, color.r)),1.f/Material::gamma);
-  color.g = POW(MAX(0.f, MIN(1.f, color.g)),1.f/Material::gamma);
-  color.b = POW(MAX(0.f, MIN(1.f, color.b)),1.f/Material::gamma);
+  color.r = sRGB(MAX(0.f, MIN(1.f, color.r)));
+  color.g = sRGB(MAX(0.f, MIN(1.f, color.g)));
+  color.b = sRGB(MAX(0.f, MIN(1.f, color.b)));
+
+  if (Material::gamma != 1.f) {
+    color.r = POW(color.r,1.f/Material::gamma);
+    color.g = POW(color.g,1.f/Material::gamma);
+    color.b = POW(color.b,1.f/Material::gamma);
+  }
   return color;
 }
 
