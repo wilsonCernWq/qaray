@@ -22,10 +22,21 @@ const float refraction_color_threshold = 0.001f;
 const float reflection_color_threshold = 0.001f;
 
 int Material::maxBounce   = 5;
-int Material::maxBounceMC = 2;
+int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
 
+const float M_2PI = 2.f * (float)M_PI;
+const float M_RCP_PI = 1.f / (float)M_PI;
 //------------------------------------------------------------------------------
+
+Point3 UniformSampleHemiSphere(const float &r1, const float &r2) 
+{ 
+  const float sinTheta = sqrtf(1 - r1 * r1); 
+  const float phi = 2 * M_PI * r2; 
+  const float x = sinTheta * cosf(phi); 
+  const float z = sinTheta * sinf(phi); 
+  return Point3(x, r1, z); 
+} 
 
 Color Attenuation(const Color& absorption, const float l) {
   const float R = exp(-absorption.r * l);
@@ -169,7 +180,8 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   }
 
   //!--- normal shading ---
-  Color shadecolor = Color(0.f);
+  Color directShadeColor   = Color(0.f);
+  Color indirectShadeColor = Color(0.f);
   const Color sampleDiffuse  =
     hInfo.c.hasTexture ?
     diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
@@ -178,59 +190,60 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     hInfo.c.hasTexture ?
     specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
     specular.GetColor();
-  const int numSampleMC =
+  const int numMCSample =
     ((Material::maxBounce - Material::maxBounceMC - bounceCount >= 0) ?
      1 : Material::maxMCSample);
-  const int numSample = lights.size() + numSampleMC;
-  const float normCoe = 1.f / numSample;
   if (hInfo.c.hasFrontHit) {
     // Directional Lights
     for (auto& light : lights) {
-      auto Intensity = light->Illuminate(p, N);
-      auto L = glm::normalize(-light->Direction(p));
-      auto cosNL = MAX(0.f, glm::dot(N,L));
-      shadecolor += Intensity * cosNL;      
+      if (light->IsAmbient()) {
+        // color += sampleDiffuse * Intensity;
+      }
+      else {
+	auto intensity = light->Illuminate(p, N);
+	auto L = glm::normalize(-light->Direction(p));
+	auto H = glm::normalize(V + L);
+	auto cosNL = MAX(0.f, glm::dot(N,L));
+	auto cosNH = MAX(0.f, glm::dot(N,H));
+	directShadeColor += sampleDiffuse * intensity * cosNL;
+	directShadeColor += sampleSpecular * intensity * POW(cosNH , glossiness);
+      }
     }
     // Monte Carlo GI
     if (bounceCount > 0) {
-      for (int i = 0; i < numSampleMC; ++i) {
+      for (int i = 0; i < numMCSample; ++i) {
         // determine ray direction
-        Point3 mc_coe;
-        do {
-          mc_coe.x = (2.f * rng->Get() - 1.f);
-          mc_coe.y = (2.f * rng->Get() - 1.f);
-          mc_coe.z = rng->Get();
-        } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
-	mc_coe = glm::normalize(mc_coe);
-	Point3 new_z = Y;
-	auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
-	auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
-	auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
-	Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ? 				 
-	  glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
-	  (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
-	                     glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
-	Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
-        Point3 mc_dir = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
+	const Point3 sample = UniformSampleHemiSphere(rng->Get(), 
+						      rng->Get());
+	Point3 Nt, Nb;
+	if (ABS(N.x) > ABS(N.y)) {
+	  Nt = Point3(N.z, 0, -N.x) / SQRT(N.x * N.x + N.z * N.z); 
+	} else { 
+	  Nt = Point3(0, -N.z, N.y) / SQRT(N.y * N.y + N.z * N.z); 
+	}
+	Nb = glm::cross(N,Nt); 
+	const Point3 dirMC(sample.x * Nb.x + sample.y * N.x + sample.z * Nt.x, 
+			   sample.x * Nb.y + sample.y * N.y + sample.z * Nt.y, 
+			   sample.x * Nb.z + sample.y * N.z + sample.z * Nt.z); 
         // generate ray
-        DiffRay mc_ray(p, mc_dir);
-        DiffHitInfo mc_hit;
-        mc_hit.c.z = BIGFLOAT;
-        mc_ray.Normalize();
-        Color mc_intensity;
-        if (TraceNodeNormal(rootNode, mc_ray, mc_hit)) {
-          mc_intensity =
-    	    mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, bounceCount - 1);
+        DiffRay rayMC(p, dirMC);
+        DiffHitInfo hInfoMC;
+        hInfoMC.c.z = BIGFLOAT;
+        rayMC.Normalize();
+        Color intensity;
+        if (TraceNodeNormal(rootNode, rayMC, hInfoMC)) {
+          intensity =
+    	    hInfoMC.c.node->GetMaterial()->Shade(rayMC, hInfo, lights, bounceCount - 1);
         } else {
-          mc_intensity = environment.SampleEnvironment(mc_ray.c.dir);
+          intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-        auto cosNL = MAX(0.f, glm::dot(N, mc_dir));
-        shadecolor += mc_intensity * cosNL;
+        auto cosNL = MAX(0.f, glm::dot(N,dirMC));
+        indirectShadeColor += sampleDiffuse * intensity * cosNL;
       }
+      indirectShadeColor *= M_2PI / numMCSample;
     }
-    shadecolor *= normCoe * sampleDiffuse;
   }
-  color += shadecolor;
+  color += indirectShadeColor + directShadeColor;
   //!--- process color ---
   color.r = MAX(0.f, MIN(1.f, color.r));
   color.g = MAX(0.f, MIN(1.f, color.g));
