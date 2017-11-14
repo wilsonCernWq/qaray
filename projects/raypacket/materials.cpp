@@ -198,13 +198,13 @@ Color MtlBlinn::Shade(const DiffRay &ray,
       if (light->IsAmbient()) {
         // color += sampleDiffuse * Intensity;
       } else {
-	auto Intensity = light->Illuminate(p, N);
+	auto Intensity = light->Illuminate(p, N) * normCoeDI;
 	auto L = glm::normalize(-light->Direction(p));
 	auto H = glm::normalize(V + L);
 	auto cosNL = MAX(0.f, glm::dot(N,L));
 	auto cosNH = MAX(0.f, glm::dot(N,H));
-	directShadecolor += sampleDiffuse * Intensity * cosNL * normCoeDI;
-	directShadecolor += sampleSpecular * Intensity * POW(cosNH , glossiness) * normCoeDI;
+	directShadecolor += (sampleDiffuse + sampleSpecular * POW(cosNH , glossiness)) * 
+	  Intensity * cosNL;
       }
     }
     // Monte Carlo GI
@@ -242,7 +242,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	else {
 	  new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
 	}
-	new_x = glm::cross(new_y, new_z);
+	new_x = glm::normalize(glm::cross(new_y, new_z));
         Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
         DiffRay rayMC(p, dirMC);

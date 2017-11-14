@@ -35,19 +35,21 @@ Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
     int spp = GenLight::shadow_spp_min, s = 0;
     float inshadow = 0.0f;
     while (s < spp) {
-      Point3 dir = position + rng->GetCirclePoint(size) - p; 
-      Ray ray(p, dir);
-      ray.Normalize();
-      inshadow += (Shadow(ray, glm::length(dir)) - inshadow) / (float)(s + 1);
+      const Point3 dir = position + rng->GetCirclePoint(size) - p; 
+      const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
+      Ray ray(p, dir); ray.Normalize();
+      inshadow += (Shadow(ray, glm::length(dir)) - inshadow) * decay / 
+	(float)(s + 1);
       s++;
       if (inshadow > 0.f && inshadow < 1.f) { spp = GenLight::shadow_spp_max; }
     };  
     return inshadow * intensity;
   }
   else {
-    Point3 dir = position - p; 
+    const Point3 dir = position - p; 
+    const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
     Ray ray(p, dir); ray.Normalize();
-    return Shadow(ray, glm::length(dir)) * intensity;
+    return Shadow(ray, glm::length(dir)) * intensity * decay;
   }
 }
 
