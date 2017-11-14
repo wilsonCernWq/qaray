@@ -34,8 +34,8 @@ Point3 UniformSampleHemiSphere(const float &r1, const float &r2)
   const float sinTheta = sqrtf(1 - r1 * r1); 
   const float phi = 2 * M_PI * r2; 
   const float x = sinTheta * cosf(phi); 
-  const float z = sinTheta * sinf(phi); 
-  return Point3(x, r1, z); 
+  const float y = sinTheta * sinf(phi); 
+  return Point3(x, y, r1); 
 } 
 
 Color Attenuation(const Color& absorption, const float l) {
@@ -202,29 +202,28 @@ Color MtlBlinn::Shade(const DiffRay &ray,
       else {
 	auto intensity = light->Illuminate(p, N);
 	auto L = glm::normalize(-light->Direction(p));
-	auto H = glm::normalize(V + L);
+	//auto H = glm::normalize(V + L);
 	auto cosNL = MAX(0.f, glm::dot(N,L));
-	auto cosNH = MAX(0.f, glm::dot(N,H));
+	//auto cosNH = MAX(0.f, glm::dot(N,H));
 	directShadeColor += sampleDiffuse * intensity * cosNL;
-	directShadeColor += sampleSpecular * intensity * POW(cosNH , glossiness);
+	//directShadeColor += sampleSpecular * intensity * POW(cosNH , glossiness);
       }
     }
     // Monte Carlo GI
     if (bounceCount > 0) {
       for (int i = 0; i < numMCSample; ++i) {
         // determine ray direction
-	const Point3 sample = UniformSampleHemiSphere(rng->Get(), 
-						      rng->Get());
-	Point3 Nt, Nb;
-	if (ABS(N.x) > ABS(N.y)) {
-	  Nt = Point3(N.z, 0, -N.x) / SQRT(N.x * N.x + N.z * N.z); 
-	} else { 
-	  Nt = Point3(0, -N.z, N.y) / SQRT(N.y * N.y + N.z * N.z); 
-	}
-	Nb = glm::cross(N,Nt); 
-	const Point3 dirMC(sample.x * Nb.x + sample.y * N.x + sample.z * Nt.x, 
-			   sample.x * Nb.y + sample.y * N.y + sample.z * Nt.y, 
-			   sample.x * Nb.z + sample.y * N.z + sample.z * Nt.z); 
+	const Point3 mc_coe = UniformSampleHemiSphere(rng->Get(), rng->Get());	
+	Point3 new_z = Y;
+	auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
+	auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
+	auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
+	Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ?
+	  glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
+	  (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) :
+	                     glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
+	Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
+	Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
         DiffRay rayMC(p, dirMC);
         DiffHitInfo hInfoMC;
@@ -243,7 +242,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
       indirectShadeColor *= M_2PI / numMCSample;
     }
   }
-  color += indirectShadeColor + directShadeColor;
+  color += (indirectShadeColor + M_RCP_PI * directShadeColor);
   //!--- process color ---
   color.r = MAX(0.f, MIN(1.f, color.r));
   color.g = MAX(0.f, MIN(1.f, color.g));
