@@ -24,7 +24,7 @@ const float diffuse_color_threshold    = 0.001f;
 int Material::maxBounce   = 3;
 int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
-
+float Material::gamma = 1.8;
 //------------------------------------------------------------------------------
 
 Point3 UniformSampleHemiSphere(const float &r1, const float &r2) 
@@ -264,9 +264,9 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     color += (indirectShadecolor + directShadecolor);
   }
   //!--- process color ---
-  color.r = POW(MAX(0.f, MIN(1.f, color.r)),1.f/1.8f);
-  color.g = POW(MAX(0.f, MIN(1.f, color.g)),1.f/1.8f);
-  color.b = POW(MAX(0.f, MIN(1.f, color.b)),1.f/1.8f);
+  color.r = POW(MAX(0.f, MIN(1.f, color.r)),1.f/Material::gamma);
+  color.g = POW(MAX(0.f, MIN(1.f, color.g)),1.f/Material::gamma);
+  color.b = POW(MAX(0.f, MIN(1.f, color.b)),1.f/Material::gamma);
   return color;
 }
 
