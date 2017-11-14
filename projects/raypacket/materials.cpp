@@ -20,9 +20,9 @@ const float refraction_angle_threshold = 0.001f;
 const float reflection_angle_threshold = 0.001f;
 const float refraction_color_threshold = 0.001f;
 const float reflection_color_threshold = 0.001f;
-
-int Material::maxBounce   = 5;
-int Material::maxBounceMC = 2;
+const float diffuse_color_threshold    = 0.001f;
+int Material::maxBounce   = 3;
+int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
 
 //------------------------------------------------------------------------------
@@ -169,7 +169,6 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   }
 
   //!--- normal shading ---
-  Color shadecolor = Color(0.f);
   const Color sampleDiffuse  =
     hInfo.c.hasTexture ?
     diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
@@ -181,18 +180,29 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const int numSampleMC =
     ((Material::maxBounce - Material::maxBounceMC - bounceCount >= 0) ?
      1 : Material::maxMCSample);
-  const int numSample = lights.size() + numSampleMC;
-  const float normCoe = 1.f / numSample;
   if (hInfo.c.hasFrontHit) {
     // Directional Lights
+    Color directShadecolor = Color(0.f);
+    //const float normCoeDI =  1.f / (float)M_PI;     
+    const float normCoeDI =  1.f;     
     for (auto& light : lights) {
       auto Intensity = light->Illuminate(p, N);
       auto L = glm::normalize(-light->Direction(p));
+      auto H = glm::normalize(V + L);
       auto cosNL = MAX(0.f, glm::dot(N,L));
-      shadecolor += Intensity * cosNL;      
+      auto cosNH = MAX(0.f, glm::dot(N,H));
+      directShadecolor += sampleDiffuse * Intensity * cosNL * normCoeDI;
+      directShadecolor += sampleSpecular * Intensity * POW(cosNH , glossiness) * normCoeDI;
     }
     // Monte Carlo GI
-    if (bounceCount > 0) {
+    Color indirectShadecolor = Color(0.f);
+    //const float normCoeGI = 2.f / numSampleMC;
+    const float normCoeGI = 1.f / numSampleMC;
+    if (bounceCount > 0 &&
+	(sampleDiffuse.x > diffuse_color_threshold ||
+	 sampleDiffuse.y > diffuse_color_threshold ||
+	 sampleDiffuse.z > diffuse_color_threshold)) 
+    {
       for (int i = 0; i < numSampleMC; ++i) {
         // determine ray direction
         Point3 mc_coe;
@@ -211,30 +221,30 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	  (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
 	                     glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
 	Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
-        Point3 mc_dir = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
+        Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
-        DiffRay mc_ray(p, mc_dir);
-        DiffHitInfo mc_hit;
-        mc_hit.c.z = BIGFLOAT;
-        mc_ray.Normalize();
-        Color mc_intensity;
-        if (TraceNodeNormal(rootNode, mc_ray, mc_hit)) {
-          mc_intensity =
-    	    mc_hit.c.node->GetMaterial()->Shade(mc_ray, mc_hit, lights, bounceCount - 1);
+        DiffRay rayMC(p, dirMC);
+        DiffHitInfo hitMC;
+        hitMC.c.z = BIGFLOAT;
+        rayMC.Normalize();
+        Color Intensity;
+        if (TraceNodeNormal(rootNode, rayMC, hitMC)) {
+          Intensity = /*MIN(1.f, 1.f / hitMC.c.z / hitMC.c.z) **/
+    	    hitMC.c.node->GetMaterial()->Shade(rayMC, hitMC, lights, bounceCount - 1);
         } else {
-          mc_intensity = environment.SampleEnvironment(mc_ray.c.dir);
+          Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-        auto cosNL = MAX(0.f, glm::dot(N, mc_dir));
-        shadecolor += mc_intensity * cosNL;
+	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
+        indirectShadecolor += cosNL * Intensity;
       }
+      indirectShadecolor *= normCoeGI * sampleDiffuse;
     }
-    shadecolor *= normCoe * sampleDiffuse;
+    color += (indirectShadecolor + directShadecolor);
   }
-  color += shadecolor;
   //!--- process color ---
-  color.r = MAX(0.f, MIN(1.f, color.r));
-  color.g = MAX(0.f, MIN(1.f, color.g));
-  color.b = MAX(0.f, MIN(1.f, color.b));
+  color.r = POW(MAX(0.f, MIN(1.f, color.r)),1.f/1.8f);
+  color.g = POW(MAX(0.f, MIN(1.f, color.g)),1.f/1.8f);
+  color.b = POW(MAX(0.f, MIN(1.f, color.b)),1.f/1.8f);
   return color;
 }
 
