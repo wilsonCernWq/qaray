@@ -36,7 +36,9 @@ Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
     float inshadow = 0.0f;
     while (s < spp) {
       const Point3 dir = position + rng->GetCirclePoint(size) - p; 
-      const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
+      // inverse square fall off
+      // const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
+      const float decay = 1.f;
       Ray ray(p, dir); ray.Normalize();
       inshadow += (Shadow(ray, glm::length(dir)) - inshadow) * decay / 
 	(float)(s + 1);
@@ -47,7 +49,9 @@ Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
   }
   else {
     const Point3 dir = position - p; 
-    const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
+    // inverse square fall off
+    // const float decay = MIN(1.f, 1.f / glm::length2(dir * rcp_range));
+    const float decay = 1.f;
     Ray ray(p, dir); ray.Normalize();
     return Shadow(ray, glm::length(dir)) * intensity * decay;
   }
