@@ -69,7 +69,7 @@ private:
 class PointLight : public GenLight
 {
 public:
-  PointLight() : intensity(0,0,0), position(0,0,0), size(0), rcp_range(0.05f) {}
+  PointLight() : intensity(0,0,0), position(0,0,0), size(0) {}
   virtual Color Illuminate(const Point3 &p, const Point3 &N) const;
   virtual Point3 Direction(const Point3 &p) const {
     return glm::normalize(p-position);
@@ -80,12 +80,10 @@ public:
   void SetIntensity(Color intens) { intensity=intens; }
   void SetPosition(Point3 pos) { position=pos; }
   void SetSize(float s) { size=s; }
-  void SetRange(float r) { rcp_range=1.f/r; }
 private:
   Color intensity;
   Point3 position;
-  float size;
-  float rcp_range;
+  float  size;
 };
 
 //------------------------------------------------------------------------------

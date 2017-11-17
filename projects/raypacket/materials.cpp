@@ -198,7 +198,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const int numSampleMC =
     ((Material::maxBounce - Material::maxBounceMC - bounceCount >= 0) ?
      1 : Material::maxMCSample);
-  if (hInfo.c.hasFrontHit) {
+  if (true /*hInfo.c.hasFrontHit*/) {
     // Directional Lights
     Color directShadecolor = Color(0.f);
     const float normCoeDI = 1.f;     
@@ -242,7 +242,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	//   (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
 	//                      glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
 	// Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
-	Point3 new_x, new_y, new_z = Y;
+	Point3 new_x, new_y, new_z = N;
 	if (ABS(new_z.x) > ABS(new_z.y)) { 
 	  new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
 	}
@@ -263,11 +263,11 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-	auto H = glm::normalize(V + dirMC);
+	//auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-	auto cosNH = MAX(0.f, glm::dot(N,H));
+	//auto cosNH = MAX(0.f, glm::dot(N,H));
         indirectShadecolor += cosNL * Intensity * 
-	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
+	  (/*sampleSpecular * POW(cosNH , glossiness) +*/ sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }

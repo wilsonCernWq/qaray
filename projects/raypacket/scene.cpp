@@ -120,7 +120,7 @@ Point3 SuperSamplerHalton::NewDofSample(const float R) {
 }
 void SuperSamplerHalton::Accumulate(const Color& localColor) {
   const Color dc  = (localColor - color) / static_cast<float>(s + 1);
-  color += dc;  
+  color += dc;
   color_std += s > 0 ?
     dc * dc * static_cast<float>(s+1) - color_std / static_cast<float>(s) :
     Color(0.0f);
