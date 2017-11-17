@@ -466,8 +466,8 @@ int main(int argc, char **argv)
       sampleMC = std::atoi(argv[++i]);
     } else if (str.compare("-gamma") == 0) {
       gammaCorrection = std::atof(argv[++i]);
-    } else if (str.compare("-nosrgb") == 0) {      
-      sRGBCorrection = false;
+    } else if (str.compare("-srgb") == 0) {      
+      sRGBCorrection = true;
     } else if (str.compare("-threads") == 0) {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }

@@ -12,6 +12,8 @@
 #include "materials.h"
 #include "globalvar.h"
 
+static std::atomic<int> idx_halton(1);
+
 extern Node rootNode;
 const float glossy_threshold = 0.001f;
 const float total_reflection_threshold = 1.001f;
@@ -24,10 +26,10 @@ int Material::maxBounce   = 1;
 int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
 float Material::gamma = 1.0;
-bool Material::sRGB = true;
+bool Material::sRGB = false;
 //------------------------------------------------------------------------------
 
-float LinearToSRGB(const float c) {
+inline float LinearToSRGB(const float c) {
   if (!Material::sRGB) { return c; }
   const float a = 0.055f;
   if (c < 0.0031308f) { return 12.92f * c; }
@@ -227,24 +229,27 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         //   mc_coe.z = rng->Get();
         // } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
 	// mc_coe = glm::normalize(mc_coe);
-	Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
-	Point3 new_z = Y;
-	auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
-	auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
-	auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
-	Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ?
-	  glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
-	  (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
-	                     glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
-	Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
-	// Point3 new_x, new_y, new_z = Y;
-	// if (ABS(new_z.x) > ABS(new_z.y)) { 
-	//   new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
-	// }
-	// else {
-	//   new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
-	// }
-	// new_x = glm::normalize(glm::cross(new_y, new_z));
+	//Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
+	Point3 mc_coe = 
+	  glm::normalize(UniformSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
+	++idx_halton;
+	// Point3 new_z = Y;
+	// auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
+	// auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
+	// auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
+	// Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ?
+	//   glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
+	//   (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
+	//                      glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
+	// Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
+	Point3 new_x, new_y, new_z = Y;
+	if (ABS(new_z.x) > ABS(new_z.y)) { 
+	  new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
+	}
+	else {
+	  new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
+	}
+	new_x = glm::normalize(glm::cross(new_y, new_z));
         Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
         DiffRay rayMC(p, dirMC);
