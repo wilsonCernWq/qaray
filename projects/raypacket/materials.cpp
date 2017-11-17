@@ -20,7 +20,7 @@ const float reflection_angle_threshold = 0.001f;
 const float refraction_color_threshold = 0.001f;
 const float reflection_color_threshold = 0.001f;
 const float diffuse_color_threshold    = 0.001f;
-int Material::maxBounce   = 3;
+int Material::maxBounce   = 1;
 int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
 float Material::gamma = 1.0;
@@ -199,8 +199,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   if (hInfo.c.hasFrontHit) {
     // Directional Lights
     Color directShadecolor = Color(0.f);
-    const float normCoeDI =  1.f / (float)M_PI;     
-    //const float normCoeDI =  1.f;     
+    const float normCoeDI = 1.f;     
     for (auto& light : lights) {
       if (light->IsAmbient()) {
         // color += sampleDiffuse * Intensity;
@@ -210,14 +209,13 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	auto H = glm::normalize(V + L);
 	auto cosNL = MAX(0.f, glm::dot(N,L));
 	auto cosNH = MAX(0.f, glm::dot(N,H));
-	directShadecolor += (sampleDiffuse + sampleSpecular * POW(cosNH , glossiness)) * 
-	  Intensity * cosNL;
+	directShadecolor += (sampleDiffuse * cosNL + sampleSpecular * POW(cosNH , glossiness)) * 
+	  Intensity;
       }
     }
     // Monte Carlo GI
     Color indirectShadecolor = Color(0.f);
-    const float normCoeGI = 2.f / numSampleMC;
-    //const float normCoeGI = 1.f / numSampleMC;
+    const float normCoeGI = 1.f / numSampleMC;
     if (bounceCount > 0)
     {
       for (int i = 0; i < numSampleMC; ++i) {
@@ -230,23 +228,23 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         // } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
 	// mc_coe = glm::normalize(mc_coe);
 	Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
-	// Point3 new_z = Y;
-	// auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
-	// auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
-	// auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
-	// Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ?
-	//   glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
-	//   (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
-	//                      glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
-	// Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
-	Point3 new_x, new_y, new_z = Y;
-	if (ABS(new_z.x) > ABS(new_z.y)) { 
-	  new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
-	}
-	else {
-	  new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
-	}
-	new_x = glm::normalize(glm::cross(new_y, new_z));
+	Point3 new_z = Y;
+	auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
+	auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
+	auto new_zz = ABS(glm::dot(Point3(0.f,0.f,1.f), new_z));
+	Point3 new_y = (new_zx < new_zy && new_zx < new_zz) ?
+	  glm::normalize(glm::cross(new_z, Point3(1.f,0.f,0.f))) :
+	  (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
+	                     glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
+	Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
+	// Point3 new_x, new_y, new_z = Y;
+	// if (ABS(new_z.x) > ABS(new_z.y)) { 
+	//   new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
+	// }
+	// else {
+	//   new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
+	// }
+	// new_x = glm::normalize(glm::cross(new_y, new_z));
         Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         // generate ray
         DiffRay rayMC(p, dirMC);
@@ -260,11 +258,11 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-	//auto H = glm::normalize(V + dirMC);
+	auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-	//auto cosNH = MAX(0.f, glm::dot(N,H));
+	auto cosNH = MAX(0.f, glm::dot(N,H));
         indirectShadecolor += cosNL * Intensity * 
-	  (/*sampleSpecular * POW(cosNH , glossiness) +*/ sampleDiffuse);
+	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }
