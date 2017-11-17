@@ -32,6 +32,7 @@
 // Parameters
 static const float PI = std::acos(-1.f);
 static float& gammaCorrection = Material::gamma;
+static bool&  sRGBCorrection = Material::sRGB;
 static int& bounce   = Material::maxBounce;
 static int& bounceMC = Material::maxBounceMC;
 static int& sampleMC = Material::maxMCSample;
@@ -464,7 +465,9 @@ int main(int argc, char **argv)
     } else if (str.compare("-sampleMC") == 0) {
       sampleMC = std::atoi(argv[++i]);
     } else if (str.compare("-gamma") == 0) {
-      gammaCorrection = std::atof(argv[++i]);      
+      gammaCorrection = std::atof(argv[++i]);
+    } else if (str.compare("-nosrgb") == 0) {      
+      sRGBCorrection = false;
     } else if (str.compare("-threads") == 0) {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }

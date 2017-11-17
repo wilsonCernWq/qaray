@@ -13,7 +13,6 @@
 #include "globalvar.h"
 
 extern Node rootNode;
-
 const float glossy_threshold = 0.001f;
 const float total_reflection_threshold = 1.001f;
 const float refraction_angle_threshold = 0.001f;
@@ -25,12 +24,14 @@ int Material::maxBounce   = 3;
 int Material::maxBounceMC = 1;
 int Material::maxMCSample = 8;
 float Material::gamma = 1.0;
+bool Material::sRGB = true;
 //------------------------------------------------------------------------------
 
-float sRGB(const float c) {
-  const float a = 0.055;
-  if (c < 0.0031308f) { return 12.92 * c; }
-  else { return (1.f + a) * POW(c, 0.41666667f) - a; }
+float LinearToSRGB(const float c) {
+  if (!Material::sRGB) { return c; }
+  const float a = 0.055f;
+  if (c < 0.0031308f) { return 12.92f * c; }
+  else { return (1.f + a) * POW(c, 1.f/2.4f) - a; }
 }
 
 Point3 UniformSampleHemiSphere(const float &r1, const float &r2) 
@@ -198,8 +199,8 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   if (hInfo.c.hasFrontHit) {
     // Directional Lights
     Color directShadecolor = Color(0.f);
-    //const float normCoeDI =  1.f / (float)M_PI;     
-    const float normCoeDI =  1.f;     
+    const float normCoeDI =  1.f / (float)M_PI;     
+    //const float normCoeDI =  1.f;     
     for (auto& light : lights) {
       if (light->IsAmbient()) {
         // color += sampleDiffuse * Intensity;
@@ -215,12 +216,9 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     }
     // Monte Carlo GI
     Color indirectShadecolor = Color(0.f);
-    //const float normCoeGI = 2.f / numSampleMC;
-    const float normCoeGI = 1.f / numSampleMC;
-    if (bounceCount > 0 &&
-	(sampleDiffuse.x > diffuse_color_threshold ||
-	 sampleDiffuse.y > diffuse_color_threshold ||
-	 sampleDiffuse.z > diffuse_color_threshold)) 
+    const float normCoeGI = 2.f / numSampleMC;
+    //const float normCoeGI = 1.f / numSampleMC;
+    if (bounceCount > 0)
     {
       for (int i = 0; i < numSampleMC; ++i) {
         // determine ray direction
@@ -262,20 +260,20 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-	auto H = glm::normalize(V + dirMC);
+	//auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-	auto cosNH = MAX(0.f, glm::dot(N,H));
+	//auto cosNH = MAX(0.f, glm::dot(N,H));
         indirectShadecolor += cosNL * Intensity * 
-	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
+	  (/*sampleSpecular * POW(cosNH , glossiness) +*/ sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }
     color += (indirectShadecolor + directShadecolor);
   }
   //!--- process color ---
-  color.r = sRGB(MAX(0.f, MIN(1.f, color.r)));
-  color.g = sRGB(MAX(0.f, MIN(1.f, color.g)));
-  color.b = sRGB(MAX(0.f, MIN(1.f, color.b)));
+  color.r = LinearToSRGB(MAX(0.f, MIN(1.f, color.r)));
+  color.g = LinearToSRGB(MAX(0.f, MIN(1.f, color.g)));
+  color.b = LinearToSRGB(MAX(0.f, MIN(1.f, color.b)));
 
   if (Material::gamma != 1.f) {
     color.r = POW(color.r,1.f/Material::gamma);

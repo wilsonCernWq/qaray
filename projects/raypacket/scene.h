@@ -411,6 +411,7 @@ public:
   static int maxBounceMC;
   static int maxMCSample;
   static float gamma;
+  static bool sRGB;
 public:
   // The main method that handles the shading by calling all the lights in the list.
   // ray: incoming ray,
