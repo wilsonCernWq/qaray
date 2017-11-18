@@ -12,7 +12,7 @@
 #include "materials.h"
 #include "globalvar.h"
 
-static std::atomic<int> idx_halton(1);
+//static std::atomic<int> idx_halton(1);
 
 extern Node rootNode;
 const float glossy_threshold = 0.001f;
@@ -220,8 +220,10 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     const float normCoeGI = 1.f / numSampleMC;
     if (bounceCount > 0)
     {
-      for (int i = 0; i < numSampleMC; ++i) {
-        // determine ray direction
+      for (int i = 0; i < numSampleMC; ++i) 
+      {
+        //-- Sampling Hemisphere
+	//-- Method 1
         // Point3 mc_coe;
         // do {
         //   mc_coe.x = (2.f * rng->Get() - 1.f);
@@ -229,10 +231,17 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         //   mc_coe.z = rng->Get();
         // } while (glm::length(mc_coe) < 0.001f || glm::length(mc_coe) > 0.999f);
 	// mc_coe = glm::normalize(mc_coe);
-	//Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
-	Point3 mc_coe = 
-	  glm::normalize(UniformSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
-	++idx_halton;
+	//
+	//-- Method 2
+	Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
+	//
+	//-- Method 3 (the idx_halton can go out of limit)
+	// Point3 mc_coe = 
+	//   glm::normalize(UniformSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
+	// ++idx_halton;
+	
+	//-- Compute local coordinate frame
+	//-- Method 1
 	// Point3 new_z = Y;
 	// auto new_zx = ABS(glm::dot(Point3(1.f,0.f,0.f), new_z));
 	// auto new_zy = ABS(glm::dot(Point3(0.f,1.f,0.f), new_z));
@@ -242,6 +251,8 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	//   (new_zy < new_zz ? glm::normalize(glm::cross(new_z, Point3(0.f,1.f,0.f))) : 
 	//                      glm::normalize(glm::cross(new_z, Point3(0.f,0.f,1.f))));
 	// Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
+	//
+	//-- Method 2
 	Point3 new_x, new_y, new_z = N;
 	if (ABS(new_z.x) > ABS(new_z.y)) { 
 	  new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
@@ -250,8 +261,9 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	  new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
 	}
 	new_x = glm::normalize(glm::cross(new_y, new_z));
-        Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
+
         // generate ray
+        Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         DiffRay rayMC(p, dirMC);
         DiffHitInfo hitMC;
         hitMC.c.z = BIGFLOAT;
@@ -263,11 +275,11 @@ Color MtlBlinn::Shade(const DiffRay &ray,
         } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
-	//auto H = glm::normalize(V + dirMC);
+	auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-	//auto cosNH = MAX(0.f, glm::dot(N,H));
+	auto cosNH = MAX(0.f, glm::dot(N,H));
         indirectShadecolor += cosNL * Intensity * 
-	  (/*sampleSpecular * POW(cosNH , glossiness) +*/ sampleDiffuse);
+	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }
