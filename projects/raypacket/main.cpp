@@ -1,30 +1,33 @@
-#include "globalvar.h"
-#include "xmlload.h"
-#include "viewport.h"
-
+#include <cstdlib>
+#include <iostream>
+#include <string>
 #include <thread>      /* C11 std::thread */
-
+#include <atomic>      /* C11 */
+#include <algorithm>
+ 
 #ifdef USE_TBB
-
 # include <tbb/task_arena.h>
-
+# include <tbb/task_scheduler_init.h>
+# include <tbb/parallel_for.h>
 #endif
-
+ 
 #ifdef USE_OMP
-
+# include <omp.h>
 #endif
 
 #ifdef USE_MPI
-
 # include <mpi.h>
-
 #endif
+
+#include "globalvar.h"
+#include "xmlload.h"
+#include "viewport.h"
 
 //#undef USE_TBB
 //#undef USE_OMP
 //#undef USE_MPI
 #pragma warning(disable: 588)
-#define MULTITHREAD 0
+#define MULTITHREAD 1
 //-------------------------------------------------------------------------
 // Parameters
 static const float PI = std::acos(-1.f);

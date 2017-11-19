@@ -28,8 +28,7 @@ Color Attenuation (const Color &absorption, const float l);
 
 //------------------------------------------------------------------------------
 
-using MtlBlinn = MtlBlinn_MonteCarloGI;
-//using MtlBlinn = MtlBlinn_PathTracing;
+using MtlBlinn = MtlBlinn_PathTracing;
 
 //------------------------------------------------------------------------------
 
