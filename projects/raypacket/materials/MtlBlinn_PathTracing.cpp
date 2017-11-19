@@ -51,17 +51,19 @@ const
   //
   // Direct Illumination
   const float coefNormalization = lights.size() == 0 ? 0.f : 1.f / lights.size();
-  for (auto &light : lights)
-  {
-    if (light->IsAmbient()) { continue; }
-    else
+  if (bounceCount == 0) {
+    for (auto &light : lights)
     {
-      auto incoming = light->Illuminate(P, N) * coefNormalization;
-      auto L = glm::normalize(-light->Direction(P));
-      auto H = glm::normalize(V + L);
-      auto cosNL = MAX(0.f, glm::dot(N, L));
-      auto cosNH = MAX(0.f, glm::dot(N, H));
-      color += (colorDiffuse * cosNL + colorSpecular * POW(cosNH, specularGlossiness)) * incoming;
+      if (light->IsAmbient()) { continue; }
+      else
+      {
+	auto incoming = light->Illuminate(P, N) * coefNormalization;
+	auto L = glm::normalize(-light->Direction(P));
+	auto H = glm::normalize(V + L);
+	auto cosNL = MAX(0.f, glm::dot(N, L));
+	auto cosNH = MAX(0.f, glm::dot(N, H));
+	color += (colorDiffuse * cosNL + colorSpecular * POW(cosNH, specularGlossiness)) * incoming;
+      }
     }
   }
 
@@ -105,10 +107,6 @@ const
     const float coefSpecular = weightSpecular / weightTotal;
     const float coefRefraction = weightRefraction / weightTotal;
     const float coefReflection = weightReflection / weightTotal;
-    // debug(coefDiffuse);
-    // debug(coefSpecular);
-    // debug(coefReflection);
-    // debug(coefRefraction);
     //
     // Indirect Illumination
     const float selection = rng->Get();
@@ -162,7 +160,8 @@ const
       const Point3 BRDF = colorDiffuse;
       //
       //-- Outgoing
-      color += incoming * BRDF * 2.f / coefDiffuse;
+      auto outgoing = incoming * BRDF * 2.f / coefDiffuse;
+      color += outgoing;
     } else if (selection < coefSpecular + coefDiffuse) /* Sample Specular */
     {
       //
@@ -215,7 +214,8 @@ const
       const Point3 BRDF = colorSpecular * POW(cosNH, specularGlossiness);
       //
       //-- Outgoing
-      color += incoming * BRDF * 2.f / coefSpecular;
+      auto outgoing = incoming * BRDF * 2.f / coefSpecular;
+      color += outgoing;
     } else /* Sample Reflection & Reflraction */
     {
       //
@@ -305,7 +305,7 @@ const
         const Point3 BRDF = colorRefraction;
         //
         //-- Outgoing
-        color += incoming * BRDF * 2.f / (coefRefraction + coefRefraction);
+        color += incoming * BRDF * 2.f / (coefRefraction + coefReflection);
       }
       //
       //-- Reflection
@@ -336,7 +336,7 @@ const
         const Point3 BRDF = colorReflection;
         //
         //-- Outgoing
-        color += incoming * BRDF * 2.f / (coefRefraction + coefRefraction);
+        color += incoming * BRDF * 2.f / (coefRefraction + coefReflection);
       }
     }
   }
