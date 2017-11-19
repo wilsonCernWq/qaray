@@ -10,6 +10,10 @@
 #include "scalar.h"
 
 //! Explicit instantiation
-namespace qw {
-  template class vScalar<simdpp::float32<PACKET_SIZE>, float>;
+namespace qw
+{
+  template
+  class vScalar<simdpp::float32 < PACKET_SIZE>
+
+  , float>;
 };

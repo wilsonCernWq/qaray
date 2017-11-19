@@ -4,19 +4,25 @@
 #include <thread>      /* C11 std::thread */
 #include <atomic>      /* C11 */
 #include <algorithm>
- 
+
 #ifdef USE_TBB
+
 # include <tbb/task_arena.h>
 # include <tbb/task_scheduler_init.h>
 # include <tbb/parallel_for.h>
+
 #endif
- 
+
 #ifdef USE_OMP
+
 # include <omp.h>
+
 #endif
 
 #ifdef USE_MPI
+
 # include <mpi.h>
+
 #endif
 
 #include "globalvar.h"
@@ -142,10 +148,10 @@ void ThreadRender ()
   tbb::parallel_for(tileSta, tileNum, tileStp, [=] (size_t k) {
 #else
 # if MULTITHREAD
-  omp_set_num_threads(threadSize);
+    omp_set_num_threads(threadSize);
 # endif
-  for (size_t k = tileSta; k < tileNum; k += tileStp)
-  {
+    for (size_t k = tileSta; k < tileNum; k += tileStp)
+    {
 #endif
     const int tileX = static_cast<int>(k % tileDimX);
     const int tileY = static_cast<int>(k / tileDimX);
@@ -164,20 +170,20 @@ void ThreadRender ()
 # if MULTITHREAD
 #   pragma omp parallel for 
 # endif
-    for (size_t idx(0); idx < numPixels; ++idx)
-    {
+      for (size_t idx(0); idx < numPixels; ++idx)
+      {
 #endif
       const size_t j = jStart + idx / (iEnd - iStart);
       const size_t i = iStart + idx % (iEnd - iStart);
       if (!threadStop) { PixelRender(i, j); }
 #if defined(USE_TBB) && MULTITHREAD
-      });
+    });
 #else
     }
 #endif
     renderImage.IncrementNumRenderPixel(numPixels); // thread safe
 #if defined(USE_TBB) && MULTITHREAD
-    });
+  });
 #else
   };
 #endif

@@ -16,27 +16,37 @@
 
 //------------------------------------------------------------------------------
 
-namespace qaray {
+namespace qaray
+{
 
-  template<typename TBase, int NBase> struct vScalar {
+  template<typename TBase, int NBase>
+  struct vScalar
+  {
 
   public:
-    friend vScalar operator+(const TBase a, const vScalar& b) { 
+    friend vScalar operator+ (const TBase a, const vScalar &b)
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = b.v[i] + a;
       return r;
     }
-    friend vScalar operator-(const TBase a, const vScalar& b) { 
+
+    friend vScalar operator- (const TBase a, const vScalar &b)
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = b.v[i] - a;
       return r;
     }
-    friend vScalar operator*(const TBase a, const vScalar& b) {
+
+    friend vScalar operator* (const TBase a, const vScalar &b)
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = b.v[i] * a;
       return r;
     }
-    friend vScalar operator/(const TBase a, const vScalar& b) {
+
+    friend vScalar operator/ (const TBase a, const vScalar &b)
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = b.v[i] / a;
       return r;
@@ -46,72 +56,95 @@ namespace qaray {
     TBase v[NBase];
 
   public:
-    ~vScalar() = default;
-    vScalar() = default;
-    vScalar(const vScalar& x) {
+    ~vScalar () = default;
+
+    vScalar () = default;
+
+    vScalar (const vScalar &x)
+    {
       for (int i = 0; i < NBase; ++i) v[i] = x.v[i];
     };
-    vScalar(const TBase    x) {
+
+    vScalar (const TBase x)
+    {
       for (int i = 0; i < NBase; ++i) v[i] = x;
     };
 
     // assignment operator
-    vScalar& operator=(const vScalar& x) { 
+    vScalar &operator= (const vScalar &x)
+    {
       if (&x == this) { return *this; }
       for (int i = 0; i < NBase; ++i) v[i] = x.v[i];
-      return *this; 
+      return *this;
     };
-    vScalar& operator=(const TBase  x) { 
+
+    vScalar &operator= (const TBase x)
+    {
       for (int i = 0; i < NBase; ++i) v[i] = x;
-      return *this; 
+      return *this;
     };
 
     // Basic operators with vScalar
-    vScalar operator+(const vScalar& x) const { 
+    vScalar operator+ (const vScalar &x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] + x.v[i];
       return r;
     };
-    vScalar operator-(const vScalar& x) const { 
+
+    vScalar operator- (const vScalar &x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] - x.v[i];
       return r;
     };
-    vScalar operator*(const vScalar& x) const {
+
+    vScalar operator* (const vScalar &x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] * x.v[i];
       return r;
     };
-    vScalar operator/(const vScalar& x) const { 
+
+    vScalar operator/ (const vScalar &x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] / x.v[i];
       return r;
     };
 
     // Basic operators with TBase
-    vScalar operator+(const TBase x) const { 
+    vScalar operator+ (const TBase x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] + x;
       return r;
     };
-    vScalar operator-(const TBase x) const { 
+
+    vScalar operator- (const TBase x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] - x;
       return r;
     };
-    vScalar operator*(const TBase x) const { 
+
+    vScalar operator* (const TBase x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] * x;
       return r;
     };
-    vScalar operator/(const TBase x) const { 
+
+    vScalar operator/ (const TBase x) const
+    {
       vScalar r;
       for (int i = 0; i < NBase; ++i) r.v[i] = v[i] / x;
       return r;
 
     };
 
-    void Print() {
+    void Print ()
+    {
       std::cout << "[";
       for (int i = 0; i < NBase; ++i) std::cout << v[i] << " ";
       std::cout << "]\n";
@@ -119,9 +152,9 @@ namespace qaray {
 
   };
 
-  typedef vScalar<bool,   PACKET_SIZE> vmask;
-  typedef vScalar<int,    PACKET_SIZE> vint;
-  typedef vScalar<float,  PACKET_SIZE> vfloat;
+  typedef vScalar<bool, PACKET_SIZE> vmask;
+  typedef vScalar<int, PACKET_SIZE> vint;
+  typedef vScalar<float, PACKET_SIZE> vfloat;
   typedef vScalar<double, PACKET_SIZE> vdouble;
 
 };

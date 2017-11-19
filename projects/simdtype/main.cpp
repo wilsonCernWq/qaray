@@ -1,14 +1,15 @@
 #include "math/math.h"
 #include <iostream>
 
-bool test() {
+bool test ()
+{
 
   using namespace qw;
-  
+
   float val[PACKET_SIZE];
 
   vfloat x, y, z;
-  vfloat arr[10] = { vfloat(20.0f) };
+  vfloat arr[10] = {vfloat(20.0f)};
 
   x = 1.0f;
   y = 2.0f;
@@ -41,7 +42,7 @@ bool test() {
   y = 2.0f;
   z = 3.0f;
   // Texting vector constructors
-  vec3fv v0(x,y,z);
+  vec3fv v0(x, y, z);
   vec3fv v1(x);
 
   v0.x.Stream(val);
@@ -54,8 +55,8 @@ bool test() {
 
 };
 
-int main() 
-{ 
+int main ()
+{
   test();
   return 0;
 }
