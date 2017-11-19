@@ -5,17 +5,10 @@ if(ENABLE_PACKET_PROJECT)
   get_filename_component(PID ${CMAKE_CURRENT_SOURCE_DIR} NAME)
   string(TOLOWER ${PID} PID)
   #
-  # install dlls or shader
-  # file(GLOB SHADERS "*.glsl")
-  # set(COPYLIST ${COMMON_DLLS} ${SHADERS})
-  # if(EXECUTABLE_OUTPUT_PATH)
-  #   DeployRepo("${COPYLIST}" "${EXECUTABLE_OUTPUT_PATH}")
-  # else()
-  #   DeployRepo("${COPYLIST}" "${CMAKE_BINARY_DIR}")
-  # endif()
-  #
   # include sources
-  file(GLOB_RECURSE MATH_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
+  file(GLOB_RECURSE MATH_SRC "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
+  file(GLOB_RECURSE FB_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/fb/*")
+  file(GLOB_RECURSE MATERIALS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/materials/*")
   file(GLOB GLOB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*")
   file(GLOB MAIN     "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
   foreach(f ${MAIN})
@@ -52,7 +45,9 @@ if(ENABLE_PACKET_PROJECT)
   #
   # add library
   qw_add_library(math)
-  qw_add_library(glob math)
+  qw_add_library(fb math)
+  qw_add_library(materials math)
+  qw_add_library(glob materials math)
   #
   # add executable
   add_executable(raytracer_${PID} ${MAIN})

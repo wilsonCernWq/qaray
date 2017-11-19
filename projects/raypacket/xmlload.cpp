@@ -363,46 +363,6 @@ void LoadMaterial(TiXmlElement *element)
 	  PRINTF("   absorption %f %f %f\n",c.r,c.g,c.b);
 	}
       }
-
-    } 
-    else if ( COMPARE(type,"phong") ) {
-      PRINTF(" - Phong\n");
-      MtlPhong *m = new MtlPhong();
-      mtl = m;
-      for ( TiXmlElement *child = element->FirstChildElement();
-	    child!=NULL; child = child->NextSiblingElement() )
-      {
-	Color c(1,1,1);
-	float f=1;
-	if ( COMPARE( child->Value(), "diffuse" ) ) {
-	  ReadColor( child, c );
-	  m->SetDiffuse(c);
-	  PRINTF("   diffuse %f %f %f\n",c.r,c.g,c.b);
-	} else if ( COMPARE( child->Value(), "specular" ) ) {
-	  ReadColor( child, c );
-	  m->SetSpecular(c);
-	  PRINTF("   specular %f %f %f\n",c.r,c.g,c.b);
-	} else if ( COMPARE( child->Value(), "glossiness" ) ) {
-	  ReadFloat( child, f );
-	  m->SetGlossiness(f);
-	  PRINTF("   glossiness %f\n",f);
-	} else if ( COMPARE( child->Value(), "reflection" ) ) {
-	  ReadColor( child, c );
-	  m->SetReflection(c);
-	  PRINTF("   reflection %f %f %f\n",c.r,c.g,c.b);
-	} else if ( COMPARE( child->Value(), "refraction" ) ) {
-	  ReadColor( child, c );
-	  m->SetRefraction(c);
-	  ReadFloat( child, f, "index" );
-	  m->SetRefractionIndex(f);
-	  PRINTF("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
-	} else if ( COMPARE( child->Value(), "absorption" ) ) {
-	  ReadColor( child, c );
-	  m->SetAbsorption(c);
-	  PRINTF("   absorption %f %f %f\n",c.r,c.g,c.b);
-
-	}
-      }
     } 
     else {
       PRINTF(" - UNKNOWN\n");

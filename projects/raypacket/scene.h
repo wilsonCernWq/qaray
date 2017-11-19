@@ -25,11 +25,6 @@
 #include <vector>
 #include <atomic>
 #include <algorithm>
-#include "lodepng.h"
-#include "cyPoint.h"
-#include "cyMatrix.h"
-#include "cyColor.h"
-
 #include "math/math.h"
 
 //-----------------------------------------------------------------------------
@@ -43,6 +38,8 @@
 #define SQRT(x) (std::sqrt(x))
 #define CEIL(x)  (std::ceil(x))
 #define FLOOR(x) (std::floor(x))
+#define SIN(x) (std::sin(x))
+#define COS(x) (std::cos(x))
 #define BIGFLOAT 1.0e30f
 
 //------------------------------------------------------------------------------
@@ -58,19 +55,66 @@ inline float Halton(int index, int base)
   return r;
 }
 
-struct UniformRandom {
-  virtual double Get() = 0;
-  Point3 GetCirclePoint(float size) {
-    Point3 p;
-    do {
-      p.x = (2.f * Get() - 1.f) * size;
-      p.y = (2.f * Get() - 1.f) * size;
-      p.z = (2.f * Get() - 1.f) * size;	
-    } while (glm::length(p) > size);
-    return p;
-  }
-};
+struct UniformRandom { virtual double Get() = 0; };
 extern UniformRandom* rng;
+
+inline Point3 GetCirclePoint(const float r1, const float r2, const float r3, float size) 
+{
+  Point3 p;
+  do {
+      p.x = (2.f * r1 - 1.f) * size;
+      p.y = (2.f * r2 - 1.f) * size;
+      p.z = (2.f * r3 - 1.f) * size;	
+  } while (glm::length(p) > size);
+  return p;
+}
+
+inline Point3 UniformSampleHemiSphere(const float r1, const float r2) 
+{ 
+  // Generate random direction on unit hemisphere proportional to solid angle
+  // PDF = 1 / 2PI 
+  const float cosTheta = r1;
+  const float sinTheta = SQRT(1 - r1 * r1); 
+  const float phi = 2 * M_PI * r2; 
+  const float x = sinTheta * COS(phi); 
+  const float y = sinTheta * SIN(phi); 
+  return Point3(x, y, cosTheta); 
+} 
+
+inline Point3 CosWeightedSampleHemiSphere(const float r1, const float r2) 
+{ 
+  // Generate random direction on unit hemisphere proportional to cosine-weighted solid angle
+  // PDF = cos(Theta) / PI
+  const float cosTheta = SQRT(r1);
+  const float sinTheta = SQRT(1 - r1); 
+  const float phi = 2 * M_PI * r2; 
+  const float x = sinTheta * COS(phi); 
+  const float y = sinTheta * SIN(phi); 
+  return Point3(x, y, cosTheta); 
+} 
+
+inline Point3 CosLobeWeightedSampleHemiSphere(const float r1, const float r2, 
+					      const int N, const int theta_max = 90)
+{
+  // Generate random direction on unit hemisphere proportional to cosine lobe around normal
+  if (theta_max == 90) {
+    // PDF = (N+1) * (cos(theta) ^ N) / 2PI
+    const float cosTheta = POW(r1, 1.f / (N+1));
+    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
+    const float phi = 2 * M_PI * r2;
+    const float x = sinTheta * COS(phi);
+    const float y = sinTheta * SIN(phi);
+    return Point3(x, y, cosTheta);
+  } else {
+    // PDF = (N+1) * (cos(theta) ^ N) / 2PI * (theta_max / 90)
+    const float cosTheta = POW(1.f - r1 * (1.f - POW(COS(theta_max),N+1)), 1.f / (N+1));
+    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
+    const float phi = 2 * M_PI * r2;
+    const float x = sinTheta * COS(phi);
+    const float y = sinTheta * SIN(phi);
+    return Point3(x, y, cosTheta);
+  }
+}
 
 //-----------------------------------------------------------------------------
 
@@ -680,150 +724,5 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class RenderImage
-{
-private:
-  uchar *mask;
-  Color24 *img;
-  float	*zbuffer;
-  uchar	*zbufferImg;
-  uchar* sampleCount;
-  uchar* sampleCountImg;
-  uchar* irradComp;
-  int	 width, height;
-  std::atomic<int> numRenderedPixels;
-public:
-  RenderImage() :
-    mask(NULL),
-    img(NULL),
-    zbuffer(NULL),
-    zbufferImg(NULL),
-    sampleCount(NULL),
-    sampleCountImg(NULL),
-    irradComp(NULL),
-    width(0),
-    height(0),
-    numRenderedPixels(0)
-    {}
-  ~RenderImage() 
-  {
-    if (mask) delete[] mask;
-    if (img) delete [] img;
-    if (zbuffer) delete [] zbuffer;
-    if (zbufferImg) delete [] zbufferImg;
-    if (irradComp) delete [] irradComp;
-  }
-  void Init(int w, int h)
-  {
-    width=w;
-    height=h;
-    if (mask) delete[] mask;
-    mask = new uchar[width*height]();
-    if (img) delete [] img;
-    img = new Color24[width*height];
-    if (zbuffer) delete [] zbuffer;
-    zbuffer = new float[width*height];
-    if (zbufferImg) delete [] zbufferImg;
-    zbufferImg = NULL;
-    if ( sampleCount ) delete [] sampleCount;
-    sampleCount = new uchar[width*height];
-    if ( sampleCountImg ) delete [] sampleCountImg;
-    sampleCountImg = NULL;
-    if ( irradComp ) delete [] irradComp;
-    irradComp = NULL;
-    ResetNumRenderedPixels();
-  }
-  void AllocateIrradianceComputationImage()
-  {
-    if ( ! irradComp ) irradComp = new uchar[width*height];
-    for ( int i=0; i<width*height; i++ ) irradComp[i] = 0;
-  }
-  
-  int		GetWidth() const	{ return width; }
-  int		GetHeight() const	{ return height; }
-  Color24*	GetPixels()		{ return img; }
-  uchar*	GetMasks()		{ return mask; }
-  float*	GetZBuffer()		{ return zbuffer; }
-  uchar*	GetZBufferImage()	{ return zbufferImg; }
-  uchar* GetSampleCount() { return sampleCount; }
-  uchar* GetSampleCountImage() { return sampleCountImg; }
-  uchar* GetIrradianceComputationImage() { return irradComp; }
-  
-  void	ResetNumRenderedPixels()	{ 
-    if (mask) delete[] mask;
-    mask = new uchar[width*height]();
-    numRenderedPixels=0; 
-  }
-  int	GetNumRenderedPixels() const	{ return numRenderedPixels; }
-  void	IncrementNumRenderPixel(int n)	{ numRenderedPixels+=n; }
-  bool	IsRenderDone() const		{ return numRenderedPixels >= width*height; }
-
-  void	ComputeZBufferImage()
-  {
-    int size = width * height;
-    if (zbufferImg) delete [] zbufferImg;
-    zbufferImg = new uchar[size];
-
-    float zmin=BIGFLOAT, zmax=0;
-    for ( int i=0; i<size; i++ ) {
-      if ( zbuffer[i] == BIGFLOAT ) continue;
-      if ( zmin > zbuffer[i] ) zmin = zbuffer[i];
-      if ( zmax < zbuffer[i] ) zmax = zbuffer[i];
-    }
-    for ( int i=0; i<size; i++ ) {
-      if ( zbuffer[i] == BIGFLOAT ) zbufferImg[i] = 0;
-      else {
-	float f = (zmax-zbuffer[i])/(zmax-zmin);
-	int c = int(f * 255);
-	if ( c < 0 ) c = 0;
-	if ( c > 255 ) c = 255;
-	zbufferImg[i] = c;
-      }
-    }
-  }
-  
-  int ComputeSampleCountImage()
-  {
-    int size = width * height;
-    if (sampleCountImg) delete [] sampleCountImg;
-    sampleCountImg = new uchar[size];
-    uchar smin=255, smax=0;
-    for ( int i=0; i<size; i++ ) {
-      if ( smin > sampleCount[i] ) smin = sampleCount[i];
-      if ( smax < sampleCount[i] ) smax = sampleCount[i];
-    }
-    if ( smax == smin ) {
-      for ( int i=0; i<size; i++ ) sampleCountImg[i] = 0;
-    } else {
-      for ( int i=0; i<size; i++ ) {
-	int c = (255*(sampleCount[i]-smin))/(smax-smin);
-	if ( c < 0 ) c = 0;
-	if ( c > 255 ) c = 255;
-	sampleCountImg[i] = c;
-      }
-    }
-    return smax;
-  }
-  
-  bool SaveImage (const char *filename) const { return SavePNG(filename,&img[0].r,3); }
-  bool SaveZImage(const char *filename) const { return SavePNG(filename,zbufferImg,1); }
-  bool SaveSampleCountImage(const char *filename) const { return SavePNG(filename,sampleCountImg,1); }
-  bool SaveIrradianceComputationImage(const char *filename) const { return SavePNG(filename,irradComp,1); }
-  
-private:
-  bool SavePNG(const char *filename, uchar *data, int compCount) const
-  {
-    LodePNGColorType colortype;
-    switch( compCount ) {
-    case 1: colortype = LCT_GREY; break;
-    case 3: colortype = LCT_RGB;  break;
-    default: return false;
-    }
-    unsigned int error = lodepng::encode(filename,data,width,height,colortype,8);
-    return error == 0;
-  }
-};
-
-//-----------------------------------------------------------------------------
 
 #endif

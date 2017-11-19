@@ -13,6 +13,7 @@
 #ifndef _GLOBALVAR_H_
 #define _GLOBALVAR_H_
 
+#include "fb/framebuffer.h"
 #include "scene.h"
 #include "objects.h"
 #include "materials.h"

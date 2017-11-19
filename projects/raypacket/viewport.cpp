@@ -577,7 +577,39 @@ void TriObj::ViewportDisplay(const Material *mtl) const
   glEnd();
 #endif
 }
-void MtlBlinn::SetViewportMaterial(int subMtlID) const
+//------------------------------------------------------------------------------
+void MtlBlinn_PathTracing::SetViewportMaterial(int subMtlID) const
+{
+#ifdef USE_GUI
+  ColorA c;
+  c = ColorA(diffuse.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
+  c = ColorA(specular.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
+  glMaterialf( GL_FRONT, GL_SHININESS, specularGlossiness*1.5f );
+  c = ColorA(emission.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
+  const TextureMap *dm = diffuse.GetTexture();
+  if ( dm && dm->SetViewportTexture() ) {
+    glEnable( GL_TEXTURE_2D );
+    glMatrixMode( GL_TEXTURE );
+    Matrix3 tm = dm->GetInverseTransform();
+    Point3 p = tm * dm->GetPosition();
+    Point3 v0 = glm::column(tm, 0);
+    Point3 v1 = glm::column(tm, 1);
+    Point3 v2 = glm::column(tm, 2);
+    float m[16] = { v0.x, v0.y, v0.z, 0,
+		    v1.x, v1.y, v1.z, 0,
+		    v2.x, v2.y, v2.z, 0,
+		    -p.x,-p.y,-p.z,1 };   
+    glLoadMatrixf( m );
+    glMatrixMode( GL_MODELVIEW );
+  } else {
+    glDisable( GL_TEXTURE_2D );
+  }
+#endif
+}
+void MtlBlinn_MonteCarloGI::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
   ColorA c;
@@ -608,17 +640,69 @@ void MtlBlinn::SetViewportMaterial(int subMtlID) const
   }
 #endif
 }
-void MtlPhong::SetViewportMaterial(int subMtlID) const
+void MtlBlinn_Basic::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
   ColorA c;
-  c = ColorA(diffuse,1.f);
+  c = ColorA(diffuse.GetColor(),1.f);
   glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
-  c = ColorA(specular,1.f);
+  c = ColorA(specular.GetColor(),1.f);
   glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
   glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
+  c = ColorA(emission.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
+  const TextureMap *dm = diffuse.GetTexture();
+  if ( dm && dm->SetViewportTexture() ) {
+    glEnable( GL_TEXTURE_2D );
+    glMatrixMode( GL_TEXTURE );
+    Matrix3 tm = dm->GetInverseTransform();
+    Point3 p = tm * dm->GetPosition();
+    Point3 v0 = glm::column(tm, 0);
+    Point3 v1 = glm::column(tm, 1);
+    Point3 v2 = glm::column(tm, 2);
+    float m[16] = { v0.x, v0.y, v0.z, 0,
+		    v1.x, v1.y, v1.z, 0,
+		    v2.x, v2.y, v2.z, 0,
+		    -p.x,-p.y,-p.z,1 };   
+    glLoadMatrixf( m );
+    glMatrixMode( GL_MODELVIEW );
+  } else {
+    glDisable( GL_TEXTURE_2D );
+  }
 #endif
 }
+void MtlPhong_Basic::SetViewportMaterial(int subMtlID) const
+{
+#ifdef USE_GUI
+  ColorA c;
+  c = ColorA(diffuse.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
+  c = ColorA(specular.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
+  glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
+  c = ColorA(emission.GetColor(),1.f);
+  glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
+  const TextureMap *dm = diffuse.GetTexture();
+  if ( dm && dm->SetViewportTexture() ) {
+    glEnable( GL_TEXTURE_2D );
+    glMatrixMode( GL_TEXTURE );
+    Matrix3 tm = dm->GetInverseTransform();
+    Point3 p = tm * dm->GetPosition();
+    Point3 v0 = glm::column(tm, 0);
+    Point3 v1 = glm::column(tm, 1);
+    Point3 v2 = glm::column(tm, 2);
+    float m[16] = { v0.x, v0.y, v0.z, 0,
+		    v1.x, v1.y, v1.z, 0,
+		    v2.x, v2.y, v2.z, 0,
+		    -p.x,-p.y,-p.z,1 };   
+    glLoadMatrixf( m );
+    glMatrixMode( GL_MODELVIEW );
+  } else {
+    glDisable( GL_TEXTURE_2D );
+  }
+#endif
+}
+//------------------------------------------------------------------------------
 bool TextureFile::SetViewportTexture() const
 {
 #ifdef USE_GUI
@@ -678,6 +762,7 @@ bool TextureChecker::SetViewportTexture() const
   return false;
 #endif
 }
+//------------------------------------------------------------------------------
 void GenLight::SetViewportParam(int lightID, ColorA ambient, ColorA intensity, Point4 pos) const
 {
 #ifdef USE_GUI

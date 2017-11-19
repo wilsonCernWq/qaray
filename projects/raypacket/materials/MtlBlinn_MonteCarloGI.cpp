@@ -1,20 +1,24 @@
-//------------------------------------------------------------------------------
-///
-/// \file       materials.cpp
-/// \author     Qi WU
-/// \version    1.0
-/// \date       September, 2017
-///
-/// \brief Source for CS 6620 - University of Utah.
-///
+#include "globalvar.h"
+#include "MtlBlinn_MonteCarloGI.h"
+
 //------------------------------------------------------------------------------
 
-#include "materials.h"
-#include "globalvar.h"
+MtlBlinn_MonteCarloGI::MtlBlinn_MonteCarloGI() :
+  diffuse(0.5f,0.5f,0.5f),
+  specular(0.7f,0.7f,0.7f),
+  glossiness(20.0f),
+  emission(0,0,0),
+  reflection(0,0,0),
+  refraction(0,0,0),
+  absorption(0,0,0),
+  ior(1),
+  reflectionGlossiness(0),
+  refractionGlossiness(0) 
+{}
+
+//------------------------------------------------------------------------------
 
 //static std::atomic<int> idx_halton(1);
-
-extern Node rootNode;
 const float glossy_threshold = 0.001f;
 const float total_reflection_threshold = 1.001f;
 const float refraction_angle_threshold = 0.001f;
@@ -22,42 +26,13 @@ const float reflection_angle_threshold = 0.001f;
 const float refraction_color_threshold = 0.001f;
 const float reflection_color_threshold = 0.001f;
 const float diffuse_color_threshold    = 0.001f;
-int Material::maxBounce   = 1;
-int Material::maxBounceMC = 1;
-int Material::maxMCSample = 8;
-float Material::gamma = 1.0;
-bool Material::sRGB = false;
-//------------------------------------------------------------------------------
-
-inline float LinearToSRGB(const float c) {
-  if (!Material::sRGB) { return c; }
-  const float a = 0.055f;
-  if (c < 0.0031308f) { return 12.92f * c; }
-  else { return (1.f + a) * POW(c, 1.f/2.4f) - a; }
-}
-
-Point3 UniformSampleHemiSphere(const float &r1, const float &r2) 
-{ 
-  const float sinTheta = sqrtf(1 - r1 * r1); 
-  const float phi = 2 * M_PI * r2; 
-  const float x = sinTheta * cosf(phi); 
-  const float y = sinTheta * sinf(phi); 
-  return Point3(x, y, r1); 
-} 
-
-Color Attenuation(const Color& absorption, const float l) {
-  const float R = exp(-absorption.r * l);
-  const float G = exp(-absorption.g * l);
-  const float B = exp(-absorption.b * l);
-  return Color(R, G, B); // attenuation
-}
 
 //------------------------------------------------------------------------------
 
-Color MtlBlinn::Shade(const DiffRay &ray,
-		      const DiffHitInfo &hInfo,
-		      const LightList &lights,
-		      int bounceCount)
+Color MtlBlinn_MonteCarloGI::Shade(const DiffRay &ray,
+				   const DiffHitInfo &hInfo,
+				   const LightList &lights,
+				   int bounceCount)
   const
 {
   // input parameters
@@ -84,10 +59,21 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   Point3 tDir, rDir, txDir, rxDir, tyDir, ryDir;
   do {    
     // jitter normal
-    const auto tjN = refractionGlossiness > glossy_threshold ?
-      glm::normalize(N + rng->GetCirclePoint(refractionGlossiness)) : N;
-    const auto rjN = reflectionGlossiness > glossy_threshold ?
-      glm::normalize(N + rng->GetCirclePoint(reflectionGlossiness)) : N;
+    Point3 tjN = N, rjN = N;
+    if (refractionGlossiness > glossy_threshold) 
+    {
+      const float r1 = rng->Get();
+      const float r2 = rng->Get();
+      const float r3 = rng->Get();	  
+      tjN = glm::normalize(N + GetCirclePoint(r1, r2, r3, refractionGlossiness));
+    }
+    if (reflectionGlossiness > glossy_threshold) 
+    {
+      const float r1 = rng->Get();
+      const float r2 = rng->Get();
+      const float r3 = rng->Get();
+      rjN = glm::normalize(N + GetCirclePoint(r1, r2, r3, refractionGlossiness));
+    }
     
     // incidence angle & refraction angle
     cosI  = glm::dot(tjN,V);
@@ -198,7 +184,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
   const int numSampleMC =
     ((Material::maxBounce - Material::maxBounceMC - bounceCount >= 0) ?
      1 : Material::maxMCSample);
-  if (true /*hInfo.c.hasFrontHit*/) {
+  if (hInfo.c.hasFrontHit) {
     // Directional Lights
     Color directShadecolor = Color(0.f);
     const float normCoeDI = 1.f;     
@@ -217,7 +203,7 @@ Color MtlBlinn::Shade(const DiffRay &ray,
     }
     // Monte Carlo GI
     Color indirectShadecolor = Color(0.f);
-    const float normCoeGI = 1.f / numSampleMC;
+    const float normCoeGI = 0.5f / numSampleMC;
     if (bounceCount > 0)
     {
       for (int i = 0; i < numSampleMC; ++i) 
@@ -233,11 +219,11 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	// mc_coe = glm::normalize(mc_coe);
 	//
 	//-- Method 2
-	Point3 mc_coe = glm::normalize(UniformSampleHemiSphere(rng->Get(), rng->Get()));
+	Point3 mc_coe = glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));
 	//
 	//-- Method 3 (the idx_halton can go out of limit)
 	// Point3 mc_coe = 
-	//   glm::normalize(UniformSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
+	//   glm::normalize(CosWeightedSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
 	// ++idx_halton;
 	
 	//-- Compute local coordinate frame
@@ -278,8 +264,8 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 	auto H = glm::normalize(V + dirMC);
 	auto cosNL = MAX(0.f, glm::dot(N, dirMC));
 	auto cosNH = MAX(0.f, glm::dot(N,H));
-        indirectShadecolor += cosNL * Intensity * 
-	  (sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
+        indirectShadecolor += Intensity * 
+	  (cosNL * sampleSpecular * POW(cosNH , glossiness) + sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }
@@ -299,33 +285,3 @@ Color MtlBlinn::Shade(const DiffRay &ray,
 }
 
 //------------------------------------------------------------------------------
-
-Color MtlPhong::Shade(const DiffRay &ray,
-		      const DiffHitInfo &hInfo,
-		      const LightList &lights,
-		      int bounceCount)
-  const
-{
-  Color color(0.f,0.f,0.f);
-  auto p = hInfo.c.p;                  // surface position in world coordinate
-  auto N = glm::normalize(hInfo.c.N);  // surface normal in world coordinate
-  auto V = glm::normalize(-ray.c.dir); // ray incoming direction
-  for (auto& light : lights) {
-    auto I = light->Illuminate(p, N);
-    if (light->IsAmbient()) {
-      color += diffuse * light->Illuminate(p, N);
-    }
-    else {
-      auto L = glm::normalize(-light->Direction(p));
-      auto H = 2.f * glm::dot(L,N) * N - glm::normalize(L);
-      auto cosNL = MAX(0.f, glm::dot(N,L));
-      auto cosVH = MAX(0.f, glm::dot(V,H));
-      color += diffuse * I * cosNL;
-      color += specular * I * POW(cosVH, glossiness) * cosNL;
-    }
-  }
-  color.r = MAX(0.f, MIN(1.f, color.r));
-  color.g = MAX(0.f, MIN(1.f, color.g));
-  color.b = MAX(0.f, MIN(1.f, color.b));
-  return color;
-}
