@@ -181,7 +181,7 @@ const
     //
     //-- Outgoing
     color += incoming * BRDF * 2.f / coefDiffuse;
-  } else if (selection < coefSpecular) /* Sample Specular */
+  } else if (selection < coefSpecular + coefDiffuse) /* Sample Specular */
   {
     //
     //-- Sampling Cos Weighted Hemisphere
