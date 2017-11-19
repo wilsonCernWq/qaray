@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #ifdef USE_TBB
-
 # include <tbb/task_arena.h>
 # include <tbb/task_scheduler_init.h>
 # include <tbb/parallel_for.h>
@@ -14,15 +13,11 @@
 #endif
 
 #ifdef USE_OMP
-
 # include <omp.h>
-
 #endif
 
 #ifdef USE_MPI
-
 # include <mpi.h>
-
 #endif
 
 #include "globalvar.h"
@@ -40,7 +35,7 @@ static const float PI = std::acos(-1.f);
 static float &gammaCorrection = Material::gamma;
 static bool &sRGBCorrection = Material::sRGB;
 static int &bounce = Material::maxBounce;
-static int sppMax = 64, sppMin = 4;
+static int sppMax = 1024, sppMin = 64;
 // Camera parameters
 static float nearClip = 10.0f, dof = 0.0f;
 static float screenW, screenH, aspect;
