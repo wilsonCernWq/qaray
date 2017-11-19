@@ -19,10 +19,15 @@
 #include "materials.h"
 #include "lights.h"
 #include "texture.h"
-enum TimeState {START_FRAME, STOP_FRAME, KILL_FRAME};
+
+enum TimeState
+{
+  START_FRAME, STOP_FRAME, KILL_FRAME
+};
 
 //------------------------------------------------------------------------------
-void TimeFrame(TimeState state);
+void TimeFrame (TimeState state);
+
 //------------------------------------------------------------------------------
 // unique
 extern Node rootNode;

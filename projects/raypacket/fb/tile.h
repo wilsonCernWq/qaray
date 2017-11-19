@@ -18,7 +18,7 @@ namespace qaray
   //! \brief Tile class is similar to OSPRay tile, which defines a block of 
   //! images rendered by a single thread. We separate r, g, b, a channels into
   //! four different array in order to stream data from SIMD data type.
-  class Tile 
+  class Tile
   {
     int tile_id = 0;
     float r[TILE_SIZE * TILE_SIZE];

@@ -15,8 +15,9 @@
 
 //------------------------------------------------------------------------------
 
-float LinearToSRGB(const float c);
-Color Attenuation(const Color& absorption, const float l);
+float LinearToSRGB (const float c);
+
+Color Attenuation (const Color &absorption, const float l);
 
 //------------------------------------------------------------------------------
 
@@ -35,24 +36,28 @@ using MtlBlinn = MtlBlinn_MonteCarloGI;
 class MultiMtl : public Material
 {
 public:
-  virtual ~MultiMtl() 
-  { 
-    for ( unsigned int i=0; i<mtls.size(); i++ ) delete mtls[i]; 
-  }
-  virtual Color Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
-		      const LightList &lights, int bounceCount) const
+  virtual ~MultiMtl ()
   {
-    return hInfo.c.mtlID < (int)mtls.size() ?
-      mtls[hInfo.c.mtlID]->Shade(ray,hInfo,lights,bounceCount) :
-      Color(1,1,1);
+    for (unsigned int i = 0; i < mtls.size(); i++) delete mtls[i];
   }
-  virtual void SetViewportMaterial(int subMtlID=0) const
+
+  virtual Color Shade (const DiffRay &ray, const DiffHitInfo &hInfo,
+                       const LightList &lights, int bounceCount) const
   {
-    if ( subMtlID<(int)mtls.size() ) mtls[subMtlID]->SetViewportMaterial();
+    return hInfo.c.mtlID < (int) mtls.size() ?
+           mtls[hInfo.c.mtlID]->Shade(ray, hInfo, lights, bounceCount) :
+           Color(1, 1, 1);
   }
-  void AppendMaterial(Material *m) { mtls.push_back(m); }
+
+  virtual void SetViewportMaterial (int subMtlID = 0) const
+  {
+    if (subMtlID < (int) mtls.size()) mtls[subMtlID]->SetViewportMaterial();
+  }
+
+  void AppendMaterial (Material *m) { mtls.push_back(m); }
+
 private:
-  std::vector<Material*> mtls;
+  std::vector<Material *> mtls;
 };
 
 //------------------------------------------------------------------------------
