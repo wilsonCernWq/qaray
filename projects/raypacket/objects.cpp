@@ -145,26 +145,29 @@ bool Sphere::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
         hInfo.p = p;
         hInfo.N = N;
         hInfo.hasFrontHit = front;
-        // differential rays
-        const float pz_x = glm::dot((diffray->x.p - p), N);
-        const float pz_y = glm::dot((diffray->y.p - p), N);
-        const float dz_x = glm::dot(diffray->x.dir, N);
-        const float dz_y = glm::dot(diffray->y.dir, N);
-        const float t_x = -pz_x / dz_x;
-        const float t_y = -pz_y / dz_y;
-        const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
-        const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
-        diffhit->x.z = t_x;
-        diffhit->x.p = p_x;
-        diffhit->x.N = glm::normalize(p_x);
-        diffhit->y.z = t_y;
-        diffhit->y.p = p_y;
-        diffhit->y.N = glm::normalize(p_y);
-        // texture coordinate at the hit point
+        // Texture Coordinate at the Hit Point
         hInfo.hasTexture = true;
         hInfo.uvw = Sphere_TexCoord(p);
-        hInfo.duvw[0] = DiffRay::rdx * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
-        hInfo.duvw[1] = DiffRay::rdy * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
+        // Differential Rays
+        if (diffray->hasDiffRay)
+        {
+          const float pz_x = glm::dot((diffray->x.p - p), N);
+          const float pz_y = glm::dot((diffray->y.p - p), N);
+          const float dz_x = glm::dot(diffray->x.dir, N);
+          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float t_x = -pz_x / dz_x;
+          const float t_y = -pz_y / dz_y;
+          const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
+          const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
+          diffhit->x.z = t_x;
+          diffhit->x.p = p_x;
+          diffhit->x.N = glm::normalize(p_x);
+          diffhit->y.z = t_y;
+          diffhit->y.p = p_y;
+          diffhit->y.N = glm::normalize(p_y);
+          hInfo.duvw[0] = DiffRay::rdx * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
+          hInfo.duvw[1] = DiffRay::rdy * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
+        }
       }
       return true;
     }
@@ -188,41 +191,45 @@ bool Plane::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
   const float t = -pz / dz;
   if (t <= bias) { return false; /* hit is too closed to the previous hit */}
   if (hInfo.z > t)
-  { // continue only if this hit is potentially closer !!!
+  {
+    // Continue Only If This Hit Is Potentially Closer !!!
     const Point3 p = ray.p + ray.dir * t;
     if (ABS(p.x) > 1.f || ABS(p.y) > 1.f) { return false; }
     const bool front = (glm::dot(N, ray.dir) <= 0);
     if (CheckHitSide(hitSide, front))
     {
       hInfo.z = t;
-      // non shadow ray
+      // Non-Shadow Ray
       if (diffray != NULL && diffhit != NULL)
       {
         hInfo.p = p;
         hInfo.N = N;
         hInfo.hasFrontHit = front;
-        // differential rays
-        const float pz_x = glm::dot(diffray->x.p, N);
-        const float pz_y = glm::dot(diffray->y.p, N);
-        const float dz_x = glm::dot(diffray->x.dir, N);
-        const float dz_y = glm::dot(diffray->y.dir, N);
-        const float t_x = -pz_x / dz_x;
-        const float t_y = -pz_y / dz_y;
-        const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
-        const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
-        diffhit->x.z = t_x;
-        diffhit->x.p = p_x;
-        diffhit->x.N = N;
-        diffhit->y.z = t_y;
-        diffhit->y.p = p_y;
-        diffhit->y.N = N;
         // texture coordinates
         hInfo.hasTexture = true;
         hInfo.uvw = Plane_TexCoord(p);
-        hInfo.duvw[0] =
-            DiffRay::rdx * (Plane_TexCoord(p_x) - hInfo.uvw);
-        hInfo.duvw[1] =
-            DiffRay::rdy * (Plane_TexCoord(p_y) - hInfo.uvw);
+        // Differential Rays
+        if (diffray->hasDiffRay)
+        {
+          const float pz_x = glm::dot(diffray->x.p, N);
+          const float pz_y = glm::dot(diffray->y.p, N);
+          const float dz_x = glm::dot(diffray->x.dir, N);
+          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float t_x = -pz_x / dz_x;
+          const float t_y = -pz_y / dz_y;
+          const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
+          const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
+          diffhit->x.z = t_x;
+          diffhit->x.p = p_x;
+          diffhit->x.N = N;
+          diffhit->y.z = t_y;
+          diffhit->y.p = p_y;
+          diffhit->y.N = N;
+          hInfo.duvw[0] =
+              DiffRay::rdx * (Plane_TexCoord(p_x) - hInfo.uvw);
+          hInfo.duvw[1] =
+              DiffRay::rdy * (Plane_TexCoord(p_y) - hInfo.uvw);
+        }
       }
       return true;
     }
@@ -255,8 +262,8 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
     const bool front = (dz <= 0); //!< roughly check it is a front or back hit
     if (CheckHitSide(hitSide, front))
     {
-      //! project triangle onto 2D plane
-      //! compute barycentric coordinate
+      // Project Triangle onto 2D Plane
+      // Compute Barycentric Coordinate
       const Point3 p = ray.p + t * ray.dir;
       size_t ignoredAxis;
       const float abs_nx = ABS(N.x);
@@ -270,48 +277,56 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
       const float b = TriangleArea(ignoredAxis, p, C, A) * s;
       const float c = 1.f - a - b;
       if (a < 0 || b < 0 || c < 0) { return false; /* hit not inside the triangle */}
-      //! now we have a hit with this triangle
+      // Now We Have a Hit with This Triangle
       const Point3 bc(a, b, c);
       hInfo.z = t;
-      // non shadow ray
+      hInfo.mtlID = GetMaterialIndex(faceID);
+      // Non-Shadow Ray
       if (diffray != NULL && diffhit != NULL)
       {
         const auto tmp_N = GetNormal(faceID, cyPoint3f(bc.x, bc.y, bc.z));
         hInfo.p = p;
         hInfo.N = Point3(tmp_N.x, tmp_N.y, tmp_N.z);
         hInfo.hasFrontHit = front;
-        // ray differential
-        const float pz_x = glm::dot((diffray->x.p - A), N);
-        const float pz_y = glm::dot((diffray->y.p - A), N);
-        const float dz_x = glm::dot(diffray->x.dir, N);
-        const float dz_y = glm::dot(diffray->y.dir, N);
-        const float t_x = -pz_x / dz_x;
-        const float t_y = -pz_y / dz_y;
-        const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
-        const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
-        const float ax = TriangleArea(ignoredAxis, p_x, B, C) * s;
-        const float bx = TriangleArea(ignoredAxis, p_x, C, A) * s;
-        const float cx = 1.f - ax - bx;
-        const float ay = TriangleArea(ignoredAxis, p_y, B, C) * s;
-        const float by = TriangleArea(ignoredAxis, p_y, C, A) * s;
-        const float cy = 1.f - ay - by;
-        diffhit->x.z = t_x;
-        diffhit->x.p = p_x;
-        diffhit->x.N = hInfo.N;
-        diffhit->y.z = t_y;
-        diffhit->y.p = p_y;
-        diffhit->y.N = hInfo.N;
-        // texture coordinates
+        // Texture Coordinates
+        // TODO: we need to remove cyCodeBase dependencies
+        cyPoint3f tmp_uvw, tmp_duvw0, tmp_duvw1;
         if (HasTextureVertices())
         {
           hInfo.hasTexture = true;
-          const auto tmp_uvw = GetTexCoord(faceID, cyPoint3f(bc.x, bc.y, bc.z));
-          const auto tmp_duvw0 = DiffRay::rdx * (GetTexCoord(faceID, cyPoint3f(ax, bx, cx)) - tmp_uvw);
-          const auto tmp_duvw1 = DiffRay::rdy * (GetTexCoord(faceID, cyPoint3f(ay, by, cy)) - tmp_uvw);
+          tmp_uvw = GetTexCoord(faceID, cyPoint3f(bc.x, bc.y, bc.z));
           hInfo.uvw = Point3(tmp_uvw.x, tmp_uvw.y, tmp_uvw.z);
-          hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
-          hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
-          hInfo.mtlID = GetMaterialIndex(faceID);
+        }
+        // Ray Differential
+        if (diffray->hasDiffRay)
+        {
+          const float pz_x = glm::dot((diffray->x.p - A), N);
+          const float pz_y = glm::dot((diffray->y.p - A), N);
+          const float dz_x = glm::dot(diffray->x.dir, N);
+          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float t_x = -pz_x / dz_x;
+          const float t_y = -pz_y / dz_y;
+          const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
+          const Point3 p_y = diffray->y.p + diffray->y.dir * t_y;
+          const float ax = TriangleArea(ignoredAxis, p_x, B, C) * s;
+          const float bx = TriangleArea(ignoredAxis, p_x, C, A) * s;
+          const float cx = 1.f - ax - bx;
+          const float ay = TriangleArea(ignoredAxis, p_y, B, C) * s;
+          const float by = TriangleArea(ignoredAxis, p_y, C, A) * s;
+          const float cy = 1.f - ay - by;
+          diffhit->x.z = t_x;
+          diffhit->x.p = p_x;
+          diffhit->x.N = hInfo.N;
+          diffhit->y.z = t_y;
+          diffhit->y.p = p_y;
+          diffhit->y.N = hInfo.N;
+          if (HasTextureVertices())
+          {
+            tmp_duvw0 = DiffRay::rdx * (GetTexCoord(faceID, cyPoint3f(ax, bx, cx)) - tmp_uvw);
+            tmp_duvw1 = DiffRay::rdy * (GetTexCoord(faceID, cyPoint3f(ay, by, cy)) - tmp_uvw);
+            hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
+            hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
+          }
         }
       }
       return true;
