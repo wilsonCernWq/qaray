@@ -11,7 +11,7 @@
 
 #include "materials.h"
 
-int Material::maxBounce = 1;
+int   Material::maxBounce = 1;
 float Material::gamma = 1.0;
 bool  Material::sRGB = false;
 

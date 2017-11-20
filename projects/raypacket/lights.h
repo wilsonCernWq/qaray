@@ -23,7 +23,6 @@ public:
   static int shadow_spp_max;
 protected:
   void SetViewportParam (int lightID, ColorA ambient, ColorA intensity, Point4 pos) const;
-
   static float Shadow (Ray ray, float t_max = BIGFLOAT);
 };
 
@@ -99,6 +98,8 @@ public:
   {
     SetViewportParam(lightID, ColorA(0.0f), ColorA(intensity, 1.f), Point4(position, 1.f));
   }
+
+  // virtual bool HasHit (const Point3 &p, const Point3 &d, const float z_max) const;
 
   void SetIntensity (Color intens) { intensity = intens; }
 

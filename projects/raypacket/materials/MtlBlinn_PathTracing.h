@@ -35,9 +35,9 @@ public:
 
   void SetRefractionTexture (TextureMap *map) { refraction.SetTexture(map); }
 
-  void SetReflectionGlossiness (float gloss) { reflectionGlossiness = gloss; }
+  void SetReflectionGlossiness (float gloss);
 
-  void SetRefractionGlossiness (float gloss) { refractionGlossiness = gloss; }
+  void SetRefractionGlossiness (float gloss);
 
   virtual Color Shade (const DiffRay &ray, const DiffHitInfo &hInfo,
                        const LightList &lights, int bounceCount) const;

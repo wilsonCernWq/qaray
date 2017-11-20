@@ -15,9 +15,9 @@
 
 //------------------------------------------------------------------------------
 
-float LinearToSRGB (const float c);
-
 Color Attenuation (const Color &absorption, const float l);
+
+float LinearToSRGB (const float c);
 
 //------------------------------------------------------------------------------
 

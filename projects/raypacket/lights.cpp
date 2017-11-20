@@ -69,4 +69,23 @@ Color PointLight::Illuminate (const Point3 &p, const Point3 &N) const
   }
 }
 
+// bool PointLight::HasHit (const Point3 &p, const Point3 &d, const float z_max) const 
+// {
+//   const float bias = 0.0005f;
+//   const float r = size < bias ? 10.f : size;
+//   const float a = glm::length2(d);
+//   const float b = 2.f * glm::dot(p - position,d);
+//   const float c = glm::length2(p - position) - r * r;
+//   const float rcp2a = 1.f / (2.f * a);
+//   const float delta = b * b - 4 * a * c;
+//   if (delta >= 0) {
+//     const float sqrt_delta = SQRT(delta);
+//     const float t1 = (-b - sqrt_delta) * rcp2a;
+//     const float t2 = (-b + sqrt_delta) * rcp2a;
+//     if (t1 > bias && t1 < z_max) { return true; }
+//     if (t2 > bias && t2 < z_max) { return true; }
+//   }
+//   return false;
+// }
+
 //------------------------------------------------------------------------------
