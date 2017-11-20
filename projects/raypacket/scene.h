@@ -34,13 +34,13 @@
 #define MIN(x, y) (x < y ? x : y)
 #define MAX(x, y) (x > y ? x : y)
 #define CLAMP(X, L, U) MIN(U, MAX(L, X))
-#define ABS(x)    (x > 0 ? x :-x)
+#define ABS(x)    (x > 0 ? x : -x)
 #define POW(x, y) (std::pow(x, y))
-#define SQRT(x) (std::sqrt(x))
-#define CEIL(x)  (std::ceil(x))
-#define FLOOR(x) (std::floor(x))
-#define SIN(x) (std::sin(x))
-#define COS(x) (std::cos(x))
+#define SQRT(x)   (std::sqrt(x))
+#define CEIL(x)   (std::ceil(x))
+#define FLOOR(x)  (std::floor(x))
+#define SIN(x)    (std::sin(x))
+#define COS(x)    (std::cos(x))
 #define BIGFLOAT 1.0e30f
 
 //------------------------------------------------------------------------------
@@ -64,66 +64,16 @@ struct UniformRandom
 
 extern UniformRandom *rng;
 
-inline Point3 GetCirclePoint (const float r1, const float r2, const float r3, float size)
-{
-  Point3 p;
-  do
-  {
-    p.x = (2.f * r1 - 1.f) * size;
-    p.y = (2.f * r2 - 1.f) * size;
-    p.z = (2.f * r3 - 1.f) * size;
-  } while (glm::length(p) > size);
-  return p;
-}
+Point3 GetCirclePoint (const float r1, const float r2, const float r3, float size);
 
-inline Point3 UniformSampleHemiSphere (const float r1, const float r2)
-{
-  // Generate random direction on unit hemisphere proportional to solid angle
-  // PDF = 1 / 2PI 
-  const float cosTheta = r1;
-  const float sinTheta = SQRT(1 - r1 * r1);
-  const float phi = 2 * M_PI * r2;
-  const float x = sinTheta * COS(phi);
-  const float y = sinTheta * SIN(phi);
-  return Point3(x, y, cosTheta);
-}
+Point3 UniformSampleHemiSphere (const float r1, const float r2);
 
-inline Point3 CosWeightedSampleHemiSphere (const float r1, const float r2)
-{
-  // Generate random direction on unit hemisphere proportional to cosine-weighted solid angle
-  // PDF = cos(Theta) / PI
-  const float cosTheta = SQRT(r1);
-  const float sinTheta = SQRT(1 - r1);
-  const float phi = 2 * M_PI * r2;
-  const float x = sinTheta * COS(phi);
-  const float y = sinTheta * SIN(phi);
-  return Point3(x, y, cosTheta);
-}
+Point3 CosWeightedSampleHemiSphere (const float r1, const float r2);
 
-inline Point3 CosLobeWeightedSampleHemiSphere (const float r1, const float r2,
-                                               const int N, const int theta_max = 90)
-{
-  // Generate random direction on unit hemisphere proportional to cosine lobe around normal
-  if (theta_max == 90)
-  {
-    // PDF = (N+1) * (cos(theta) ^ N) / 2PI
-    const float cosTheta = POW(r1, 1.f / (N + 1));
-    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
-    const float phi = 2 * M_PI * r2;
-    const float x = sinTheta * COS(phi);
-    const float y = sinTheta * SIN(phi);
-    return Point3(x, y, cosTheta);
-  } else
-  {
-    // PDF = (N+1) * (cos(theta) ^ N) / 2PI * (theta_max / 90)
-    const float cosTheta = POW(1.f - r1 * (1.f - POW(COS(theta_max), N + 1)), 1.f / (N + 1));
-    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
-    const float phi = 2 * M_PI * r2;
-    const float x = sinTheta * COS(phi);
-    const float y = sinTheta * SIN(phi);
-    return Point3(x, y, cosTheta);
-  }
-}
+Point3 CosLobeWeightedSampleHemiSphere (const float r1, const float r2,
+					const int N, const int theta_max = 90);
+
+float CosLobeWeightedNormalization (const int n, const Point3 axis, const Point3 norm);
 
 //-----------------------------------------------------------------------------
 

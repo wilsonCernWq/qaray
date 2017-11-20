@@ -186,11 +186,11 @@ const
       } else
       {
         auto L = glm::normalize(-light->Direction(p));
-        auto H = 2.f * glm::dot(L, N) * N - glm::normalize(L);
+        auto R = 2.f * glm::dot(L, N) * N - glm::normalize(L);
         auto cosNL = MAX(0.f, glm::dot(N, L));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
+        auto cosVR = MAX(0.f, glm::dot(V, R));
         color += sampleDiffuse * Intensity * cosNL;
-        color += sampleSpecular * Intensity * POW(cosNH, glossiness) * cosNL;
+        color += sampleSpecular * Intensity * POW(cosVR, glossiness);
       }
     }
   }
