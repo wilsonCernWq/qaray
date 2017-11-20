@@ -99,23 +99,32 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
       hInfo.c.hasTexture ?
       specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       specular.GetColor();
+  //
+  // Throw A Dice
+  const float select = rng->Get();
+  float coefDirectLight = 1.f;
   float coefRefraction = ColorMax(sampleRefraction);
   float coefReflection = ColorMax(sampleReflection);
   float coefSpecular   = ColorMax(sampleSpecular);
   float coefDiffuse    = ColorMax(sampleDiffuse);
   const float coefSum = 
-    coefRefraction + coefReflection + coefSpecular + coefDiffuse;
-  coefRefraction /= coefSum;
-  coefReflection /= coefSum;
-  coefSpecular   /= coefSum;
-  coefDiffuse    /= coefSum;
+    coefDirectLight + coefRefraction + coefReflection + coefSpecular + coefDiffuse;
+  coefDirectLight /= coefSum;
+  coefRefraction  /= coefSum;
+  coefReflection  /= coefSum;
+  coefSpecular    /= coefSum;
+  coefDiffuse     /= coefSum;
+  const float sumDirectLight = coefDirectLight;
+  const float sumRefraction  = coefRefraction + coefDirectLight;
+  const float sumReflection  = coefReflection + coefRefraction + coefDirectLight;
+  const float sumSpecular    = coefSpecular + coefReflection + coefRefraction + coefDirectLight;
+  const float sumDiffuse     = 1.00001f; /* make sure everything is inside the range */  
   //
-  // Shading Directional Lights  
-  if (hInfo.c.hasFrontHit) 
+  // Shading Directional Lights
+  if (bounceCount == 0 || select <= sumDirectLight) 
   {
-    const float normCoefDI = 1.f;
-    for (auto &light : lights)
-    {    
+    const float normCoefDI = bounceCount == 0 ? 1.f : sumDirectLight;
+    for (auto &light : lights) {    
       if (light->IsAmbient()) {}
       else
       {
@@ -131,43 +140,35 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
   }
   //
   // Shading Indirectional Lights  
-  if (bounceCount > 0)
+  else if (bounceCount > 0)
   {
     //
     // Coordinate Frame for the Hemisphere
-    Point3 new_x, new_y, new_z = Y;
-    if (ABS(new_z.x) > ABS(new_z.y))
-    {
-      new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
-    }
-    else
-    {
-      new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
-    }
-    new_x = glm::normalize(glm::cross(new_y, new_z));
+    const Point3 new_z = Y;
+    const Point3 new_y = (ABS(new_z.x) > ABS(new_z.y)) ? 
+      glm::normalize(Point3(new_z.z, 0, -new_z.x)) :    
+      glm::normalize(Point3(0, -new_z.z, new_z.y));
+    const Point3 new_x = glm::normalize(glm::cross(new_y, new_z));
     Point3 sample_dir(0.f);
-    float pdf = 0.5f;
+    bool do_shade = false;
     //
     // Select a BxDF
-    Color BxDF(0.f);
-    const float select = rng->Get();
+    float PDF = 1.f;
+    Color BxDF(1.f);
     /* Refraction */ 
-    if (select < coefRefraction && coefRefraction > 1e-6f)
-    {
-      //
-      // Generate Sample
+    if (select <= sumRefraction && coefRefraction > 1e-6f) 
+    { 
+      // Generate Sample      
       if (refractionGlossiness > glossiness_power_threshold) 
       {
 	/* Random Sampling for Glossy Surface */
 	Point3 sample = 
 	  glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));      
 	sample_dir = -(sample.x * new_x + sample.y * new_y + sample.z * new_z);
-	pdf = coefRefraction * 2.f;
-      } 
-      else 
-      {
+	PDF = coefRefraction / (float)M_PI /* x cosTheta */;
+      } else  {
 	sample_dir = tDir;
-	pdf = coefRefraction;
+	PDF = coefRefraction;
       }
       //
       // BSDF
@@ -179,30 +180,29 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	const float cosVH = MAX(0.f, glm::dot(V, H));
 	const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
 	BxDF = sampleRefraction * glossiness;
-      } 
-      else 
-      {
+      } else {
 	BxDF = sampleRefraction;
       }
+      do_shade = true;
     }
     else
     {
       /* Reflection */ 
-      if (select < coefRefraction + coefReflection && coefReflection > 1e-6f) 
-      {
+      if (select < sumReflection && coefReflection > 1e-6f) 
+      {	
 	// Generate Sample
-	if (reflectionGlossiness > glossiness_power_threshold)
-	{
+	if (reflectionGlossiness > glossiness_power_threshold) 
+	{ 
 	  /* Random Sampling for Glossy Surface */
 	  Point3 sample = 
 	    glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));      
 	  sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-	  pdf = coefReflection * 2.f;
+	  PDF = coefReflection / (float)M_PI /* x cosTheta */;
 	} 
 	else 
 	{ 
 	  sample_dir = rDir; 
-	  pdf = coefReflection;
+	  PDF = coefReflection;
 	}
 	// BRDF
 	if (reflectionGlossiness > glossiness_power_threshold) 
@@ -214,10 +214,10 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	} else {
 	  BxDF = sampleReflection;
 	}
+	do_shade = true;
       }
       /* Specular */
-      else if (select < coefRefraction + coefReflection + coefSpecular &&
-	       coefSpecular > 1e-6f) 
+      else if (select < sumSpecular && coefSpecular > 1e-6f) 
       {
 	// Generate Sample
 	if (specularGlossiness > glossiness_power_threshold)
@@ -226,12 +226,12 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	  Point3 sample = 
 	    glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));      
 	  sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-	  pdf = coefSpecular * 2.f;
+	  PDF = coefSpecular / (float)M_PI /* x cosTheta */;
 	} 
 	else 
 	{ 
 	  sample_dir = rDir; 
-	  pdf = coefSpecular;
+	  PDF = coefSpecular;
 	}
 	// BRDF
 	if (hInfo.c.hasFrontHit)
@@ -241,48 +241,56 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	  const float cosNH = MAX(0.f, glm::dot(N, H));
 	  BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
 	}
+	do_shade = true;
       }
-      else /* Diffuse */
+      /* Diffuse */
+      else if (coefDiffuse > 1e-6f)
       {
 	// Generate Sample
 	Point3 sample = 
 	  glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));      
 	sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-	pdf = coefDiffuse * 2.f;	  
+	PDF = coefDiffuse / (float)M_PI /* x cosTheta */;	  
 	// BRDF	
 	if (hInfo.c.hasFrontHit) { BxDF = sampleDiffuse; }
+	do_shade = true;
       }
-    }    
-    //
-    // Generate ray
-    DiffRay sample_ray(p, sample_dir);
-    DiffHitInfo sample_hInfo;
-    sample_hInfo.c.z = BIGFLOAT;
-    sample_ray.Normalize();          
-    //
-    // Integrate Incoming Ray
-    Color incoming(0.f);
-    if (TraceNodeNormal(rootNode, sample_ray, sample_hInfo))
-    {      
-      // Attenuation When the Ray Travels Inside the Material
-      if (!sample_hInfo.c.hasFrontHit) { 
-	incoming *= Attenuation(absorption, sample_hInfo.c.z);
-      }
-      const auto *mtl = sample_hInfo.c.node->GetMaterial();
-      incoming = mtl->Shade(sample_ray, sample_hInfo, lights, bounceCount - 1);
     }
-    else
+    //
+    // Shade
+    if (do_shade) 
     {
-      incoming = environment.SampleEnvironment(sample_ray.c.dir);
+      //
+      // Generate ray
+      DiffRay sample_ray(p, sample_dir);
+      DiffHitInfo sample_hInfo;
+      sample_hInfo.c.z = BIGFLOAT;
+      sample_ray.Normalize();          
+      //
+      // Integrate Incoming Ray
+      Color incoming(0.f);
+      if (TraceNodeNormal(rootNode, sample_ray, sample_hInfo))
+      {      
+	// Attenuation When the Ray Travels Inside the Material
+	if (!sample_hInfo.c.hasFrontHit) { 
+	  incoming *= Attenuation(absorption, sample_hInfo.c.z);
+	}
+	const auto *mtl = sample_hInfo.c.node->GetMaterial();
+	incoming = mtl->Shade(sample_ray, sample_hInfo, lights, bounceCount - 1);
+      }
+      else
+      {
+	incoming = environment.SampleEnvironment(sample_ray.c.dir);
+      }
+      Point3 outgoing = incoming * BxDF / PDF;
+      //
+      // Attenuate Outgoing Ray
+      if (hInfo.c.hasFrontHit) 
+      {     
+	// TODO making volume effect here
+      }
+      color += outgoing;
     }
-    Point3 outgoing = incoming * BxDF / pdf;
-    //
-    // Attenuate Outgoing Ray
-    if (hInfo.c.hasFrontHit) 
-    {     
-      // TODO making volume effect here
-    }
-    color += outgoing;
   }  
   //
   //-- Post Process Color
