@@ -48,12 +48,17 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
   //
   // Differential Geometry
   Color color = hInfo.c.hasTexture ?
-                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission.GetColor();
-  const auto N  = glm::normalize(hInfo.c.N);  // surface normal in world coordinate
-  const auto V  = glm::normalize(-ray.c.dir); // ray incoming direction
-  const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
-  const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
-  const auto p  = hInfo.c.p;                  // surface position in world coordinate
+    emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission.GetColor();
+  // surface normal in world coordinate
+  // ray incoming direction
+  // diff ray incoming direction
+  // diff ray incoming direction
+  // surface position in world coordinate
+  const auto N  = glm::normalize(hInfo.c.N);
+  const auto V  = glm::normalize(-ray.c.dir);
+  const auto Vx = glm::normalize(-ray.x.dir);
+  const auto Vy = glm::normalize(-ray.y.dir);
+  const auto p  = hInfo.c.p;
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
@@ -98,7 +103,8 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
   float coefReflection = ColorMax(sampleReflection);
   float coefSpecular   = ColorMax(sampleSpecular);
   float coefDiffuse    = ColorMax(sampleDiffuse);
-  const float coefSum = coefRefraction + coefReflection + coefSpecular + coefDiffuse;
+  const float coefSum = 
+    coefRefraction + coefReflection + coefSpecular + coefDiffuse;
   coefRefraction /= coefSum;
   coefReflection /= coefSum;
   coefSpecular   /= coefSum;
@@ -108,7 +114,6 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
   if (hInfo.c.hasFrontHit) 
   {
     const float normCoefDI = 1.f;
-    //const float normCoefDI = lights.size() == 0 ? 1.f : 1.f / lights.size();
     for (auto &light : lights)
     {    
       if (light->IsAmbient()) {}
@@ -141,7 +146,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
     }
     new_x = glm::normalize(glm::cross(new_y, new_z));
     Point3 sample_dir(0.f);
-    float pdf = 0.25f / (float)M_PI;
+    float pdf = 0.5f;
     //
     // Select a BxDF
     Color BxDF(0.f);
@@ -171,8 +176,8 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	const Point3 L = glm::normalize(sample_dir);
 	const Point3 H = tDir;
 	const float cosNL = MAX(0.f, glm::dot(N, L));	
-	const float cosNH = MAX(0.f, glm::dot(N, H));
-	const float glossiness = POW(cosNH, refractionGlossiness); // My Hack
+	const float cosVH = MAX(0.f, glm::dot(V, H));
+	const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
 	BxDF = sampleRefraction * glossiness;
       } 
       else 
@@ -203,9 +208,9 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	if (reflectionGlossiness > glossiness_power_threshold) 
 	{
 	  const Point3 L = glm::normalize(sample_dir);
-	  const Point3 H = glm::normalize(V + L);
-	  const float cosNH = MAX(0.f, glm::dot(N, H));
-	  BxDF = sampleReflection * POW(cosNH, reflectionGlossiness);
+	  const Point3 H = rDir;
+	  const float cosVH = MAX(0.f, glm::dot(V, H));
+	  BxDF = sampleReflection * POW(cosVH, reflectionGlossiness);
 	} else {
 	  BxDF = sampleReflection;
 	}

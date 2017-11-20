@@ -1,0 +1,24 @@
+<xml>
+  <scene>
+    <object type="obj" name="cornell_box.obj">
+      <translate x="-278" y="-274.4" z="-279.1"/>
+      <scale value="0.05"/>
+      <rotate angle="90" x="1"/>
+      <rotate angle="180" z="1"/>
+      <translate x="0" y="0" z="11"/>
+    </object>
+    <light type="point" name="pointLight">
+      <intensity value="0.5"/>
+      <position x="0" y="0" z="24"/>
+    </light>
+  </scene>
+
+  <camera>
+    <position x="0" y="-60" z="11"/>
+    <target x="0" y="0" z="11"/>
+    <up x="0" y="0" z="1"/>
+    <fov value="30"/>
+    <width value="608"/>
+    <height value="600"/>
+  </camera>
+</xml>

@@ -33,7 +33,7 @@
       <rotate angle="-30" z="1"/>
       <translate x="2" y="5" z="0"/>
     </object>
-    <object type="obj" name="teapot-high.obj" material="mtl1">
+    <object type="obj" name="teapot-high.obj" material="mtl3">
       <scale value="0.3"/>
       <rotate angle="-60" z="1"/>
       <translate x="5" y="-6" z="0"/>
@@ -50,11 +50,11 @@
       <specular value="0"/>
     </material>
     <material type="blinn" name="wallRed">
-      <diffuse  r="1.0" g="0.5" b="0.5"/>
+      <diffuse  r="1.0" g="0.2" b="0.2"/>
       <specular value="0"/>
     </material>
     <material type="blinn" name="wallBlue">
-      <diffuse  r="0.5" g="0.5" b="1.0"/>
+      <diffuse  r="0.2" g="0.2" b="1.0"/>
       <specular value="0"/>
     </material>
     <material type="blinn" name="mtl1">
@@ -74,7 +74,7 @@
       <diffuse  r="0.2" g="0.2" b="0.2"/>
       <specular r="1.0" g="1.0" b="1.0" value="0.7"/>
       <glossiness value="20"/>
-      <refraction value="1.0"/>
+      <refraction value="1.0" index="1.52"/>
     </material>
 
     <!-- Lights -->
