@@ -21,10 +21,10 @@ float ColorMax (const Color &c) { return MAX(c.x, MAX(c.y, c.z)); }
 
 void GetRandomSamples(const DiffHitInfo& hInfo, float& r1, float& r2)
 {
-  //r1 = rng->Get();
-  //r2 = rng->Get();
-  r1 = hInfo.c.haltonRNG->Get(2);
-  r2 = hInfo.c.haltonRNG->Get(3);
+  r1 = rng->Get();
+  r2 = rng->Get();
+  //r1 = hInfo.c.haltonRNG->Get(2);
+  //r2 = hInfo.c.haltonRNG->Get(3);
 }
 
 //------------------------------------------------------------------------------
@@ -39,14 +39,12 @@ void MtlBlinn_PathTracing::SetReflectionGlossiness (float gloss)
 {
   reflectionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
-  //debug(reflectionGlossiness);
 }
 
 void MtlBlinn_PathTracing::SetRefractionGlossiness (float gloss)
 {
   refractionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
-  //debug(refractionGlossiness);
 }
 
 Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
