@@ -55,17 +55,11 @@ const
     Point3 tjN = N, rjN = N;
     if (refractionGlossiness > glossy_threshold)
     {
-      const float r1 = rng->Get();
-      const float r2 = rng->Get();
-      const float r3 = rng->Get();
-      tjN = glm::normalize(N + GetCirclePoint(r1, r2, r3, refractionGlossiness));
+      tjN = glm::normalize(N + GetCirclePoint(refractionGlossiness));
     }
     if (reflectionGlossiness > glossy_threshold)
     {
-      const float r1 = rng->Get();
-      const float r2 = rng->Get();
-      const float r3 = rng->Get();
-      rjN = glm::normalize(N + GetCirclePoint(r1, r2, r3, refractionGlossiness));
+      rjN = glm::normalize(N + GetCirclePoint(reflectionGlossiness));
     }
 
     // incidence angle & refraction angle

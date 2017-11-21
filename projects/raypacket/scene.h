@@ -77,7 +77,7 @@ struct UniformRandom
 
 extern UniformRandom *rng;
 
-Point3 GetCirclePoint (const float r1, const float r2, const float r3, float size);
+Point3 GetCirclePoint (const float size);
 
 Point3 UniformSampleHemiSphere (const float r1, const float r2);
 

@@ -20,6 +20,7 @@
 #include "materials.h"
 #include "texture.h"
 #include "globalvar.h"
+#include <stdlib.h>
 #include <chrono>
 
 #ifdef USE_GUI
@@ -243,7 +244,7 @@ void DrawScene ()
   if (camera.dof > 0)
   {
     Point3 v = glm::cross(camera.dir, camera.up);
-    float r = SQRT(float (rand ())/RAND_MAX) * camera.dof;
+    float r = sqrtf(float(rand()) / RAND_MAX) * camera.dof;
     float a = float(M_PI) * 2.0f * float(rand()) / RAND_MAX;
     p += r * cosf(a) * v + r * sinf(a) * u;
   }

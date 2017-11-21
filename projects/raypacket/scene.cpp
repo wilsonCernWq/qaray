@@ -64,15 +64,15 @@ UniformRandom *rng = new UniformRandom_Marsaglia;
 
 //------------------------------------------------------------------------------
 
-Point3 GetCirclePoint (const float r1, const float r2, const float r3, float size)
+Point3 GetCirclePoint (float R)
 {
   Point3 p;
   do
   {
-    p.x = (2.f * r1 - 1.f) * size;
-    p.y = (2.f * r2 - 1.f) * size;
-    p.z = (2.f * r3 - 1.f) * size;
-  } while (glm::length(p) > size);
+    p.x = (2.f * rng->Get() - 1.f) * R;
+    p.y = (2.f * rng->Get() - 1.f) * R;
+    p.z = (2.f * rng->Get() - 1.f) * R;
+  } while (glm::length(p) > R);
   return p;
 }
 

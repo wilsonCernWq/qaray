@@ -31,14 +31,13 @@
 #define MULTITHREAD 1
 //-------------------------------------------------------------------------
 // Parameters
-static const float PI = std::acos(-1.f);
 static float gammaCorrection = 1.0f;
 static bool  sRGBCorrection = false;
 static int &bounce = Material::maxBounce;
-static int sppMax = 1024, sppMin = 64;
+static int sppMax = 32, sppMin =16;
 // Camera parameters
-static float nearClip = 10.0f, dof = 0.0f;
-static float screenW, screenH, aspect;
+static float  focal = 10.0f, dof = 0.0f;
+static float  screenW, screenH, aspect;
 static Point3 screenX, screenY, screenZ;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
@@ -242,14 +241,14 @@ void DivideLength
 void ComputeScene ()
 {
   // rendering
-  nearClip = camera.focaldist;
+  focal = camera.focaldist;
   dof = camera.dof;
   pixelW = camera.imgWidth;
   pixelH = camera.imgHeight;
   aspect =
       static_cast<float>(camera.imgWidth) /
       static_cast<float>(camera.imgHeight);
-  screenH = 2.f * nearClip * std::tan(camera.fov * PI / 2.f / 180.f);
+  screenH = 2.f * focal * std::tan(camera.fov * (float)M_PI / 2.f / 180.f);
   screenW = aspect * screenH;
   Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
   Point3 Y = glm::normalize(glm::cross(X, camera.dir));
@@ -257,7 +256,7 @@ void ComputeScene ()
   screenU = X * (screenW / camera.imgWidth);
   screenV = -Y * (screenH / camera.imgHeight);
   screenA = camera.pos
-            - Z * nearClip
+            - Z * focal
             + Y * screenH / 2.f
             - X * screenW / 2.f;
   screenX = X;
