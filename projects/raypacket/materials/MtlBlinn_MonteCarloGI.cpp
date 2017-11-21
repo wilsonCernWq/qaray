@@ -210,7 +210,7 @@ const
     }
     // Monte Carlo GI
     Color indirectShadecolor = Color(0.f);
-    const float normCoeGI = 0.5f / numSampleMC;
+    const float normCoeGI = 1.f / numSampleMC;
     if (bounceCount > 0)
     {
       for (int i = 0; i < numSampleMC; ++i)

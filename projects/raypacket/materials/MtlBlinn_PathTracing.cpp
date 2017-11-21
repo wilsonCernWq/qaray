@@ -183,17 +183,17 @@ const
         PDF = coefRefraction;
       }
       /* BSDF */
+      const Point3 L = glm::normalize(sample_dir);
+      const Point3 H = tDir;
       if (refractionGlossiness > glossiness_power_threshold)
       {
-        const Point3 L = glm::normalize(sample_dir);
-        const Point3 H = tDir;
-        const float cosNL = MAX(0.f, glm::dot(N, L));
         const float cosVH = MAX(0.f, glm::dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
         BxDF = sampleRefraction * glossiness / (float)M_PI;
       } else
       {
-        BxDF = sampleRefraction / (float)M_PI;
+	const float cosNL = MAX(0.f, glm::dot(N, L));
+        BxDF = sampleRefraction / (float)M_PI * cosNL;
       }
       do_shade = true;
     } else
@@ -215,15 +215,16 @@ const
           PDF = coefReflection;
         }
         /* BRDF */
+	const Point3 L = glm::normalize(sample_dir);
+	const Point3 H = rDir;
         if (reflectionGlossiness > glossiness_power_threshold)
         {
-          const Point3 L = glm::normalize(sample_dir);
-          const Point3 H = rDir;
           const float cosVH = MAX(0.f, glm::dot(V, H));
           BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) / (float)M_PI;
         } else
         {
-          BxDF = sampleReflection / (float)M_PI;
+	  const float cosNL = MAX(0.f, glm::dot(N, L));
+          BxDF = sampleReflection / (float)M_PI * cosNL;
         }
         do_shade = true;
       }
@@ -244,15 +245,16 @@ const
           PDF = coefSpecular;
         }
         /* BRDF */
-        if (hInfo.c.hasFrontHit)
-        {
-          const Point3 L = glm::normalize(sample_dir);
-          const Point3 H = glm::normalize(V + L);
-          const float cosNH = MAX(0.f, glm::dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float)M_PI;
+	const Point3 L = glm::normalize(sample_dir);
+	const Point3 H = glm::normalize(V + L);
+        if (specularGlossiness > glossiness_power_threshold)
+	{
+	  const float cosNH = MAX(0.f, glm::dot(N, H));
+	  BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float)M_PI;
         } else 
 	{
-	  BxDF = Color(1.f);
+	  const float cosNL = MAX(0.f, glm::dot(N, L));
+          BxDF = sampleSpecular / (float)M_PI * cosNL;
 	}
         do_shade = true;
       }
@@ -265,7 +267,8 @@ const
         sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
         PDF = coefDiffuse / (float) M_PI;
         /* BRDF */
-        if (hInfo.c.hasFrontHit) { 
+        if (hInfo.c.hasFrontHit) 
+	{ 
 	  BxDF = sampleDiffuse / (float)M_PI; 
 	} else 
 	{
