@@ -28,9 +28,9 @@ float LinearToSRGB (const float c);
 
 //------------------------------------------------------------------------------
 
-//using MtlBlinn = MtlBlinn_PathTracing;
+using MtlBlinn = MtlBlinn_PathTracing;
 //using MtlBlinn = MtlBlinn_MonteCarloGI;
-using MtlBlinn = MtlBlinn_Basic;
+//using MtlBlinn = MtlBlinn_Basic;
 //using MtlBlinn = MtlPhong_Basic;
 
 //------------------------------------------------------------------------------
