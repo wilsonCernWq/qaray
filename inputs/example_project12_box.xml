@@ -8,7 +8,7 @@
       <translate x="0" y="0" z="11"/>
     </object>
     <object type="plane" name="lightPlane" material="light">
-      <rotate angle="180" x="1"/>
+      <rotate angle="0" x="1"/>
       <scale value="5"/>
       <translate x="0" y="0.255" z="24.445"/>
     </object>

@@ -28,12 +28,12 @@
 //#undef USE_OMP
 //#undef USE_MPI
 #pragma warning(disable: 588)
-#define MULTITHREAD 1
+#define MULTITHREAD 0
 //-------------------------------------------------------------------------
 // Parameters
 static const float PI = std::acos(-1.f);
-static float &gammaCorrection = Material::gamma;
-static bool &sRGBCorrection = Material::sRGB;
+static float gammaCorrection = 1.0f;
+static bool  sRGBCorrection = false;
 static int &bounce = Material::maxBounce;
 static int sppMax = 1024, sppMin = 64;
 // Camera parameters
@@ -63,7 +63,15 @@ static int mpiRank = 0;
 static std::string mpiPrefix;
 
 //-------------------------------------------------------------------------
-//
+
+float LinearToSRGB (const float c)
+{
+  const float a = 0.055f;
+  if (c < 0.0031308f) { return 12.92f * c; }
+  else { return (1.f + a) * POW(c, 1.f / 2.4f) - a; }
+}
+
+//-------------------------------------------------------------------------
 void PixelRender (const int i, const int j)
 {
   // initializations
@@ -106,11 +114,28 @@ void PixelRender (const int i, const int j)
     // increment
     sampler.Increment();
   }
-  // write to framebuffer
+  // Post Process Color
+  Color color = sampler.GetColor();
+  if (sRGBCorrection)
+  {
+    color.r = LinearToSRGB(color.r);
+    color.g = LinearToSRGB(color.g);
+    color.b = LinearToSRGB(color.b);
+  }
+  if (gammaCorrection != 1.f)
+  {
+    color.r = POW(color.r, 1.f / gammaCorrection);
+    color.g = POW(color.g, 1.f / gammaCorrection);
+    color.b = POW(color.b, 1.f / gammaCorrection);
+  }
+  color.r = MAX(0.f, MIN(1.f, color.r));
+  color.g = MAX(0.f, MIN(1.f, color.g));
+  color.b = MAX(0.f, MIN(1.f, color.b));
+  // Write to Framebuffer
   const int idx = (j - pixelRegion[1]) * pixelSize[0] + i - pixelRegion[0];
-  colorBuffer[idx].r = static_cast<uchar>(round(sampler.GetColor().r * 255.f));
-  colorBuffer[idx].g = static_cast<uchar>(round(sampler.GetColor().g * 255.f));
-  colorBuffer[idx].b = static_cast<uchar>(round(sampler.GetColor().b * 255.f));
+  colorBuffer[idx].r = static_cast<uchar>(round(color.r * 255.f));
+  colorBuffer[idx].g = static_cast<uchar>(round(color.g * 255.f));
+  colorBuffer[idx].b = static_cast<uchar>(round(color.b * 255.f));
   depthBuffer[idx] = depth;
   sampleCountBuffer[idx] = 255.f * sampler.GetSampleID() / (float) sppMax;
   maskBuffer[idx] = 1;

@@ -194,11 +194,6 @@ const
       }
     }
   }
-
-  //!--- process color ---
-  color.r = MAX(0.f, MIN(1.f, color.r));
-  color.g = MAX(0.f, MIN(1.f, color.g));
-  color.b = MAX(0.f, MIN(1.f, color.b));
   return color;
 
 }

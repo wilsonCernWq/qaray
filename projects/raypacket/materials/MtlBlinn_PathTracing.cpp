@@ -48,7 +48,8 @@ const
   //
   // Differential Geometry
   Color color = hInfo.c.hasTexture ?
-                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission.GetColor();
+                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+                emission.GetColor();
   // surface normal in world coordinate
   // ray incoming direction
   // diff ray incoming direction
@@ -293,23 +294,6 @@ const
       color += outgoing;
     }
   }
-  //
-  //-- Post Process Color
-  if (Material::sRGB)
-  {
-    color.r = LinearToSRGB(color.r);
-    color.g = LinearToSRGB(color.g);
-    color.b = LinearToSRGB(color.b);
-  }
-  if (Material::gamma != 1.f)
-  {
-    color.r = POW(color.r, 1.f / Material::gamma);
-    color.g = POW(color.g, 1.f / Material::gamma);
-    color.b = POW(color.b, 1.f / Material::gamma);
-  }
-  color.r = MAX(0.f, MIN(1.f, color.r));
-  color.g = MAX(0.f, MIN(1.f, color.g));
-  color.b = MAX(0.f, MIN(1.f, color.b));
   return color;
 }
 

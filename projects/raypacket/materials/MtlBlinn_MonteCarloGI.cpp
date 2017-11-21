@@ -282,17 +282,6 @@ const
     }
     color += (indirectShadecolor + directShadecolor);
   }
-  //!--- process color ---
-  color.r = LinearToSRGB(MAX(0.f, MIN(1.f, color.r)));
-  color.g = LinearToSRGB(MAX(0.f, MIN(1.f, color.g)));
-  color.b = LinearToSRGB(MAX(0.f, MIN(1.f, color.b)));
-
-  if (Material::gamma != 1.f)
-  {
-    color.r = POW(color.r, 1.f / Material::gamma);
-    color.g = POW(color.g, 1.f / Material::gamma);
-    color.b = POW(color.b, 1.f / Material::gamma);
-  }
   return color;
 }
 
