@@ -9,7 +9,7 @@
 # include <tbb/task_arena.h>
 # include <tbb/task_scheduler_init.h>
 # include <tbb/parallel_for.h>
-
+# include <tbb/compat/thread>
 #endif
 
 #ifdef USE_OMP
@@ -72,7 +72,7 @@ float LinearToSRGB (const float c)
 }
 
 //-------------------------------------------------------------------------
-void PixelRender (const int i, const int j)
+void PixelRender (const int i, const int j, const int tile_idx)
 {
   // initializations
   SuperSamplerHalton sampler(Color(0.005f, 0.001f, 0.005f), sppMin, sppMax);
@@ -96,6 +96,8 @@ void PixelRender (const int i, const int j)
                 campos, ypt - campos);
     ray.Normalize();
     DiffHitInfo hInfo;
+    hInfo.c.z = BIGFLOAT;
+    hInfo.c.haltonRNG = &haltonRNG[tile_idx];
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
     Color localColor;
     if (hasHit)
@@ -168,10 +170,9 @@ void ThreadRender ()
   tbb::parallel_for(tileSta, tileNum, tileStp, [=] (size_t k) {
 #else
 # if MULTITHREAD
-    omp_set_num_threads(threadSize);
+  omp_set_num_threads(threadSize);
 # endif
-    for (size_t k = tileSta; k < tileNum; k += tileStp)
-    {
+  for (size_t k = tileSta; k < tileNum; k += tileStp) {
 #endif
     const int tileX = static_cast<int>(k % tileDimX);
     const int tileY = static_cast<int>(k / tileDimX);
@@ -190,12 +191,12 @@ void ThreadRender ()
 # if MULTITHREAD
 #   pragma omp parallel for 
 # endif
-      for (size_t idx(0); idx < numPixels; ++idx)
-      {
+    for (size_t idx(0); idx < numPixels; ++idx)
+    {
 #endif
       const size_t j = jStart + idx / (iEnd - iStart);
       const size_t i = iStart + idx % (iEnd - iStart);
-      if (!threadStop) { PixelRender(i, j); }
+      if (!threadStop) { PixelRender(i, j, k); }
 #if defined(USE_TBB) && MULTITHREAD
     });
 #else
@@ -205,7 +206,7 @@ void ThreadRender ()
 #if defined(USE_TBB) && MULTITHREAD
   });
 #else
-  };
+  }
 #endif
   // End timing
 #ifdef USE_MPI
@@ -278,6 +279,14 @@ void ComputeScene ()
                   static_cast<float>(tileSize));
   tileDimY = CEIL(static_cast<float>(pixelSize[1]) /
                   static_cast<float>(tileSize));
+  // Initialize
+  haltonRNG.resize(tileDimX * tileDimY);
+  for (auto& r : haltonRNG) 
+  {
+    auto seed = round(rng->Get() * tileDimX * tileDimY);
+    r.Seed(0);
+  }
+
 }
 
 //------------------------------------------------------------------------
@@ -482,12 +491,11 @@ int main (int argc, char **argv)
 #elif defined(USE_OMP)
 # pragma omp parallel
   {
-  threadSize = omp_get_num_threads();
+    threadSize = omp_get_num_threads();
   }
 #endif
-  bool batchmode = false;
-
   // Parse CMD arguments
+  bool batchmode = false;
   const char *xmlfile;
   if (argc < 2)
   {

@@ -14,6 +14,10 @@
 
 //------------------------------------------------------------------------------
 
+std::vector<HaltonRandom> haltonRNG;
+
+//------------------------------------------------------------------------------
+
 // rendering example_project9.xml takes 23.224073 s
 struct UniformRandom_mt19937 : public UniformRandom
 {
@@ -25,7 +29,7 @@ struct UniformRandom_mt19937 : public UniformRandom
     dist = std::uniform_real_distribution<float>(0.0, 1.0);
   }
 
-  double Get () { return dist(rng); }
+  float Get () { return dist(rng); }
 };
 
 // reference https://en.wikipedia.org/wiki/Xorshift
@@ -46,7 +50,7 @@ struct UniformRandom_Marsaglia : public UniformRandom
     return x;
   }
 
-  double Get ()
+  float Get ()
   {
     return xorshift32() / (float) (POW(2, 32) - 1);
   }

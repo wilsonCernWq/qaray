@@ -57,9 +57,22 @@ inline float Halton (int index, int base)
   return r;
 }
 
+struct HaltonRandom
+{
+  int idx = 0;
+  void Seed(int seed) { idx = seed; }
+  float Get(int base) 
+  { 
+    idx = (++idx) % 1048576;
+    return Halton(idx, base);     
+  }
+};
+
+extern std::vector<HaltonRandom> haltonRNG;
+
 struct UniformRandom
 {
-  virtual double Get () = 0;
+  virtual float Get () = 0;
 };
 
 extern UniformRandom *rng;
@@ -275,9 +288,9 @@ struct HitInfoCore
 
 struct HitInfo
 {
-  float z;        // the distance from the ray center to the hit point
-  Point3 p;        // position of the hit point
-  Point3 N;        // surface normal at the hit point
+  float z;            // the distance from the ray center to the hit point
+  Point3 p;           // position of the hit point
+  Point3 N;           // surface normal at the hit point
   Point3 uvw;         // texture coordinate at the hit point
   Point3 duvw[2];     // derivatives of the texture coordinate
   int mtlID;          // sub-material index
@@ -285,6 +298,8 @@ struct HitInfo
   //------------------//
   bool hasFrontHit;   // true if the ray hits the front side,
   bool hasTexture;
+  //------------------
+  HaltonRandom* haltonRNG;
 
   HitInfo () { Init(); }
 
@@ -298,6 +313,7 @@ struct HitInfo
     mtlID = 0;
     hasFrontHit = true;
     hasTexture = false;
+    haltonRNG = nullptr;
   }
 };
 

@@ -12,10 +12,6 @@
       <scale value="5"/>
       <translate x="0" y="0.255" z="24.445"/>
     </object>
-    <!-- <light type="point" name="pointLight"> -->
-    <!--     <intensity value="0.5"/> -->
-    <!--     <position x="0" y="0" z="24"/> -->
-    <!-- </light> -->
     <material type="blinn" name="light">
       <emission value="20"/>
       <specular value="0"/>
@@ -23,7 +19,7 @@
   </scene>
 
   <camera>
-    <position x="0" y="-60" z="11"/>
+    <position x="0" y="-65" z="11"/>
     <target x="0" y="0" z="11"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>

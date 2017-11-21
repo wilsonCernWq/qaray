@@ -19,7 +19,7 @@ int GenLight::shadow_spp_max = 64;
 
 float InverseSquareFalloff (const Point3 &v)
 {
-  return MIN(160.f, 160.f / glm::length2(v));
+  return MIN(100.f, 100.f / glm::length2(v));
 }
 
 float GenLight::Shadow (Ray ray, float t_max)
