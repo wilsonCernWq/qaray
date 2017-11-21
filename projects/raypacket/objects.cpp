@@ -167,9 +167,8 @@ bool Sphere::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
           diffhit->y.N = glm::normalize(p_y);
           hInfo.duvw[0] = DiffRay::rdx * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
           hInfo.duvw[1] = DiffRay::rdy * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
-        }
-	else 
-	{
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = N;
@@ -178,7 +177,7 @@ bool Sphere::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
           diffhit->y.N = N;
           hInfo.duvw[0] = Point3(0.f);
           hInfo.duvw[1] = Point3(0.f);
-	}
+        }
       }
       return true;
     }
@@ -240,9 +239,8 @@ bool Plane::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
               DiffRay::rdx * (Plane_TexCoord(p_x) - hInfo.uvw);
           hInfo.duvw[1] =
               DiffRay::rdy * (Plane_TexCoord(p_y) - hInfo.uvw);
-        }
-	else
-	{
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = N;
@@ -251,7 +249,7 @@ bool Plane::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
           diffhit->y.N = N;
           hInfo.duvw[0] = Point3(0.f);
           hInfo.duvw[1] = Point3(0.f);
-	}
+        }
       }
       return true;
     }
@@ -309,7 +307,7 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
         hInfo.p = p;
         hInfo.N = Point3(tmp_N.x, tmp_N.y, tmp_N.z);
         hInfo.hasFrontHit = front;
-	hInfo.mtlID = GetMaterialIndex(faceID);
+        hInfo.mtlID = GetMaterialIndex(faceID);
         // Texture Coordinates
         // TODO: we need to remove cyCodeBase dependencies
         cyPoint3f tmp_uvw, tmp_duvw0, tmp_duvw1;
@@ -349,18 +347,17 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
             hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
             hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
           }
-        }
-	else 
-	{
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = hInfo.N;
           diffhit->y.z = t;
           diffhit->y.p = p;
           diffhit->y.N = hInfo.N;
-	  hInfo.duvw[0] = Point3(0.f);
-	  hInfo.duvw[1] = Point3(0.f);
-	}
+          hInfo.duvw[0] = Point3(0.f);
+          hInfo.duvw[1] = Point3(0.f);
+        }
       }
       return true;
     }
