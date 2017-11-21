@@ -12,7 +12,10 @@ MtlPhong_Basic::MtlPhong_Basic () :
     absorption(0, 0, 0),
     ior(1),
     reflectionGlossiness(0),
-    refractionGlossiness(0) {}
+    refractionGlossiness(0)
+{
+  DisableInverseSquareFalloff();
+}
 
 //------------------------------------------------------------------------------
 

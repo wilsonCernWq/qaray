@@ -34,7 +34,7 @@
 static float gammaCorrection = 1.0f;
 static bool  sRGBCorrection = false;
 static int &bounce = Material::maxBounce;
-static int sppMax = 32, sppMin =16;
+static int sppMax = 16, sppMin = 4;
 // Camera parameters
 static float  focal = 10.0f, dof = 0.0f;
 static float  screenW, screenH, aspect;

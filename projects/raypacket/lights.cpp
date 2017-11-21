@@ -16,10 +16,19 @@ extern Node rootNode;
 
 int GenLight::shadow_spp_min = 16;
 int GenLight::shadow_spp_max = 64;
+static bool useInverseSquareFalloff = true;
+
+void DisableInverseSquareFalloff() { useInverseSquareFalloff = false; }
 
 float InverseSquareFalloff (const Point3 &v)
 {
-  return MIN(100.f, 100.f / glm::length2(v));
+  if (useInverseSquareFalloff)
+  {
+    return MIN(100.f, 100.f / glm::length2(v));
+  }
+  else {
+    return 1.f;
+  }
 }
 
 float GenLight::Shadow (Ray ray, float t_max)
