@@ -496,7 +496,7 @@ int main (int argc, char **argv)
 #endif
   // Parse CMD arguments
   bool batchmode = false;
-  const char *xmlfile;
+  const char *xmlfile = nullptr;
   if (argc < 2)
   {
     std::cerr << "Error: insufficient input" << std::endl;
@@ -505,33 +505,33 @@ int main (int argc, char **argv)
   for (int i = 1; i < argc; ++i)
   {
     std::string str(argv[i]);
-    if (str.compare("-batch") == 0)
+    if (str == "-batch")
     {
       batchmode = true;
-    } else if (str.compare("-spp") == 0)
+    } else if (str == "-spp")
     {
       sppMin = std::atoi(argv[++i]);
       sppMax = sppMin;
-    } else if (str.compare("-sppMin") == 0)
+    } else if (str == "-sppMin")
     {
       sppMin = std::atoi(argv[++i]);
-    } else if (str.compare("-sppMax") == 0)
+    } else if (str == "-sppMax")
     {
       sppMax = std::atoi(argv[++i]);
-    } else if (str.compare("-spp") == 0)
+    } else if (str == "-spp")
     {
       const int spp = std::atoi(argv[++i]);
       sppMax = sppMin = spp;
-    } else if (str.compare("-bounce") == 0)
+    } else if (str == "-bounce")
     {
       bounce = std::atoi(argv[++i]);
-    } else if (str.compare("-gamma") == 0)
+    } else if (str == "-gamma")
     {
       gammaCorrection = std::atof(argv[++i]);
-    } else if (str.compare("-srgb") == 0)
+    } else if (str == "-srgb")
     {
       sRGBCorrection = true;
-    } else if (str.compare("-threads") == 0)
+    } else if (str == "-threads")
     {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }
