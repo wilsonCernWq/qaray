@@ -50,11 +50,11 @@ const
   Color color = hInfo.c.hasTexture ?
                 emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
                 emission.GetColor();
-  // surface normal in world coordinate
-  // ray incoming direction
-  // diff ray incoming direction
-  // diff ray incoming direction
-  // surface position in world coordinate
+  // Surface Normal In World Coordinate
+  // Ray Incoming Direction
+  // X Differential Ray Incoming Direction
+  // Y Differential Ray Incoming Direction
+  // Durface Position in World Coordinate
   const auto N = glm::normalize(hInfo.c.N);
   const auto V = glm::normalize(-ray.c.dir);
   const auto Vx = glm::normalize(-ray.x.dir);
@@ -64,11 +64,13 @@ const
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
   // Local Coordinate Frame
+  //
   const auto Y = glm::dot(N, V) > 0.f ? N : -N;    // Vy
   const auto Z = glm::cross(V, Y);
   const auto X = glm::normalize(glm::cross(Y, Z)); // Vx
   //
   // Index of Refraction
+  //
   const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
   const float cosI = glm::dot(N, V);
   const float sinI = SQRT(1 - cosI * cosI);
@@ -78,11 +80,13 @@ const
   const Point3 rDir = 2.f * N * (glm::dot(N, V)) - V; // Reflection
   //
   // Reflection and Transmission coefficients
+  //
   const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
   const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
   const float tC = 1.f - rC;
   //
   // Reflection and Transmission Colors
+  //
   const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
   const Color tK =
       hInfo.c.hasTexture ?
@@ -102,6 +106,7 @@ const
       specular.GetColor();
   //
   // Throw A Dice
+  //
   const float select = rng->Get();
   float coefDirectLight = 1.f;
   float coefRefraction = ColorMax(sampleRefraction);
@@ -122,26 +127,30 @@ const
   const float sumDiffuse = 1.00001f; /* make sure everything is inside the range */
   //
   // Shading Directional Lights
+  //
   if (bounceCount == 0 || select <= sumDirectLight)
   {
-    const float normCoefDI = bounceCount == 0 ? 1.f : sumDirectLight;
+    const float normCoefDI = 
+      (bounceCount == 0 ? 1.f : sumDirectLight) / 
+      (lights.size() == 0 ? 1.f : lights.size()) * (float)M_PI;
     for (auto &light : lights)
     {
       if (light->IsAmbient()) {}
       else
       {
-        auto intensity = light->Illuminate(p, N) * normCoefDI;
-        auto L = glm::normalize(-light->Direction(p));
-        auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, glm::dot(N, L));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
-        color += normCoefDI * intensity * cosNL *
-                 (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+	auto intensity = light->Illuminate(p, N) * normCoefDI;
+	auto L = glm::normalize(-light->Direction(p));
+	auto H = glm::normalize(V + L);
+	auto cosNL = MAX(0.f, glm::dot(N, L));
+	auto cosNH = MAX(0.f, glm::dot(N, H));
+	color += normCoefDI * intensity * cosNL *
+	  (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
       }
     }
   }
-    //
-    // Shading Indirectional Lights
+  //
+  // Shading Indirectional Lights
+  //
   else if (bounceCount > 0)
   {
     //
@@ -160,21 +169,20 @@ const
     /* Refraction */
     if (select <= sumRefraction && coefRefraction > 1e-6f)
     {
-      // Generate Sample      
+      /* Generate Sample */
       if (refractionGlossiness > glossiness_power_threshold)
       {
         /* Random Sampling for Glossy Surface */
         Point3 sample =
             glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));
         sample_dir = -(sample.x * new_x + sample.y * new_y + sample.z * new_z);
-        PDF = coefRefraction / (float) M_PI /* x cosTheta */;
+        PDF = coefRefraction / (float) M_PI;
       } else
       {
         sample_dir = tDir;
         PDF = coefRefraction;
       }
-      //
-      // BSDF
+      /* BSDF */
       if (refractionGlossiness > glossiness_power_threshold)
       {
         const Point3 L = glm::normalize(sample_dir);
@@ -182,10 +190,10 @@ const
         const float cosNL = MAX(0.f, glm::dot(N, L));
         const float cosVH = MAX(0.f, glm::dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-        BxDF = sampleRefraction * glossiness;
+        BxDF = sampleRefraction * glossiness / (float)M_PI;
       } else
       {
-        BxDF = sampleRefraction;
+        BxDF = sampleRefraction / (float)M_PI;
       }
       do_shade = true;
     } else
@@ -193,68 +201,76 @@ const
       /* Reflection */
       if (select < sumReflection && coefReflection > 1e-6f)
       {
-        // Generate Sample
+        /* Generate Sample */
         if (reflectionGlossiness > glossiness_power_threshold)
         {
           /* Random Sampling for Glossy Surface */
           Point3 sample =
               glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));
           sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-          PDF = coefReflection / (float) M_PI /* x cosTheta */;
+          PDF = coefReflection / (float) M_PI;
         } else
         {
           sample_dir = rDir;
           PDF = coefReflection;
         }
-        // BRDF
+        /* BRDF */
         if (reflectionGlossiness > glossiness_power_threshold)
         {
           const Point3 L = glm::normalize(sample_dir);
           const Point3 H = rDir;
           const float cosVH = MAX(0.f, glm::dot(V, H));
-          BxDF = sampleReflection * POW(cosVH, reflectionGlossiness);
+          BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) / (float)M_PI;
         } else
         {
-          BxDF = sampleReflection;
+          BxDF = sampleReflection / (float)M_PI;
         }
         do_shade = true;
       }
-        /* Specular */
+      /* Specular */
       else if (select < sumSpecular && coefSpecular > 1e-6f)
       {
-        // Generate Sample
+        /* Generate Sample */
         if (specularGlossiness > glossiness_power_threshold)
         {
           /* Random Sampling for Glossy Surface */
           Point3 sample =
               glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));
           sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-          PDF = coefSpecular / (float) M_PI /* x cosTheta */;
+          PDF = coefSpecular / (float) M_PI;
         } else
         {
           sample_dir = rDir;
           PDF = coefSpecular;
         }
-        // BRDF
+        /* BRDF */
         if (hInfo.c.hasFrontHit)
         {
           const Point3 L = glm::normalize(sample_dir);
           const Point3 H = glm::normalize(V + L);
           const float cosNH = MAX(0.f, glm::dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
-        }
+          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float)M_PI;
+        } else 
+	{
+	  BxDF = Color(1.f);
+	}
         do_shade = true;
       }
-        /* Diffuse */
+      /* Diffuse */
       else if (coefDiffuse > 1e-6f)
       {
-        // Generate Sample
+        /* Generate Sample */
         Point3 sample =
             glm::normalize(CosWeightedSampleHemiSphere(rng->Get(), rng->Get()));
         sample_dir = sample.x * new_x + sample.y * new_y + sample.z * new_z;
-        PDF = coefDiffuse / (float) M_PI /* x cosTheta */;
-        // BRDF
-        if (hInfo.c.hasFrontHit) { BxDF = sampleDiffuse; }
+        PDF = coefDiffuse / (float) M_PI;
+        /* BRDF */
+        if (hInfo.c.hasFrontHit) { 
+	  BxDF = sampleDiffuse / (float)M_PI; 
+	} else 
+	{
+	  BxDF = Color(1.f);
+	}
         do_shade = true;
       }
     }
@@ -290,6 +306,7 @@ const
       if (hInfo.c.hasFrontHit)
       {
         // TODO making volume effect here
+	//outgoing *= MIN(1.f, 1.f / (0.0025f * hInfo.c.z * hInfo.c.z));
       }
       color += outgoing;
     }

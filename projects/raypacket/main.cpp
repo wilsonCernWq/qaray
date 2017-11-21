@@ -28,7 +28,7 @@
 //#undef USE_OMP
 //#undef USE_MPI
 #pragma warning(disable: 588)
-#define MULTITHREAD 0
+#define MULTITHREAD 1
 //-------------------------------------------------------------------------
 // Parameters
 static const float PI = std::acos(-1.f);
