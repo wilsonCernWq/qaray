@@ -7,12 +7,29 @@
       <rotate angle="180" z="1"/>
       <translate x="0" y="0" z="11"/>
     </object>
+
+    <object type="plane" name="lightPlane" material="wallBlue">
+      <rotate angle="180" x="1"/>
+      <scale value="1"/>
+      <translate z="0"/>
+    </object>
+
     <light type="point" name="pointLight">
       <intensity value="0.5"/>
       <position x="0" y="0" z="24"/>
     </light>
   </scene>
 
+  <material type="blinn" name="wallBlue">
+    <diffuse  r="0.2" g="0.2" b="1.0"/>
+    <specular value="0"/>
+  </material>  
+
+  <material type="blinn" name="light">
+    <emission  value="20"/>
+    <specular value="0"/>
+  </material>
+  
   <camera>
     <position x="0" y="-60" z="11"/>
     <target x="0" y="0" z="11"/>

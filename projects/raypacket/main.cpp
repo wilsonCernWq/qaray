@@ -485,6 +485,10 @@ int main (int argc, char **argv)
     } else if (str.compare("-sppMax") == 0)
     {
       sppMax = std::atoi(argv[++i]);
+    } else if (str.compare("-spp") == 0)
+    {
+      const int spp = std::atoi(argv[++i]);
+      sppMax = sppMin = spp;
     } else if (str.compare("-bounce") == 0)
     {
       bounce = std::atoi(argv[++i]);

@@ -168,6 +168,17 @@ bool Sphere::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
           hInfo.duvw[0] = DiffRay::rdx * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
           hInfo.duvw[1] = DiffRay::rdy * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
         }
+	else 
+	{
+          diffhit->x.z = t;
+          diffhit->x.p = p;
+          diffhit->x.N = N;
+          diffhit->y.z = t;
+          diffhit->y.p = p;
+          diffhit->y.N = N;
+          hInfo.duvw[0] = Point3(0.f);
+          hInfo.duvw[1] = Point3(0.f);
+	}
       }
       return true;
     }
@@ -230,6 +241,17 @@ bool Plane::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
           hInfo.duvw[1] =
               DiffRay::rdy * (Plane_TexCoord(p_y) - hInfo.uvw);
         }
+	else
+	{
+          diffhit->x.z = t;
+          diffhit->x.p = p;
+          diffhit->x.N = N;
+          diffhit->y.z = t;
+          diffhit->y.p = p;
+          diffhit->y.N = N;
+          hInfo.duvw[0] = Point3(0.f);
+          hInfo.duvw[1] = Point3(0.f);
+	}
       }
       return true;
     }
@@ -280,7 +302,6 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
       // Now We Have a Hit with This Triangle
       const Point3 bc(a, b, c);
       hInfo.z = t;
-      hInfo.mtlID = GetMaterialIndex(faceID);
       // Non-Shadow Ray
       if (diffray != NULL && diffhit != NULL)
       {
@@ -288,6 +309,7 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
         hInfo.p = p;
         hInfo.N = Point3(tmp_N.x, tmp_N.y, tmp_N.z);
         hInfo.hasFrontHit = front;
+	hInfo.mtlID = GetMaterialIndex(faceID);
         // Texture Coordinates
         // TODO: we need to remove cyCodeBase dependencies
         cyPoint3f tmp_uvw, tmp_duvw0, tmp_duvw1;
@@ -328,6 +350,17 @@ bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
             hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
           }
         }
+	else 
+	{
+          diffhit->x.z = t;
+          diffhit->x.p = p;
+          diffhit->x.N = hInfo.N;
+          diffhit->y.z = t;
+          diffhit->y.p = p;
+          diffhit->y.N = hInfo.N;
+	  hInfo.duvw[0] = Point3(0.f);
+	  hInfo.duvw[1] = Point3(0.f);
+	}
       }
       return true;
     }
