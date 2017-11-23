@@ -739,10 +739,14 @@
 #endif
 
 #if GLM_HAS_CONSTEXPR || GLM_HAS_CONSTEXPR_PARTIAL
-#	define GLM_CONSTEXPR constexpr
 #	if GLM_COMPILER & GLM_COMPILER_VC // Visual C++ has a bug #594 https://github.com/g-truc/glm/issues/594
 #		define GLM_CONSTEXPR_CTOR
+#	    define GLM_CONSTEXPR
+#	elif GLM_COMPILER & GLM_COMPILER_INTEL // Visual C++ has a bug #594 https://github.com/g-truc/glm/issues/594
+#		define GLM_CONSTEXPR_CTOR
+#	    define GLM_CONSTEXPR
 #	else
+#	    define GLM_CONSTEXPR constexpr
 #		define GLM_CONSTEXPR_CTOR constexpr
 #	endif
 #else

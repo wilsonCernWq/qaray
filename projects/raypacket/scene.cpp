@@ -11,10 +11,30 @@
 
 #include "scene.h"
 #include <random>
+#include <thread>
 
 //------------------------------------------------------------------------------
 
-std::vector<HaltonRandom> haltonRNG;
+TBBHalton TBBHaltonRNG(HaltonRandom(0));
+
+HaltonRandom::HaltonRandom(int seed)
+{
+  idx = seed;
+};
+void HaltonRandom::Seed(int seed) 
+{ 
+  idx = seed; 
+}
+void HaltonRandom::Get(float& r1, float& r2) 
+{
+  r1 = Halton(idx, 2);
+  r2 = Halton(idx, 3);
+  Increment();
+}
+void HaltonRandom::Increment()
+{
+  idx = idx + 1;
+}
 
 //------------------------------------------------------------------------------
 
@@ -216,7 +236,7 @@ SuperSamplerHalton::SuperSamplerHalton (const Color th, const int sppMin, const 
 
 const Color &SuperSamplerHalton::GetColor () const { return color; }
 
-const int SuperSamplerHalton::GetSampleID () const { return s; }
+int SuperSamplerHalton::GetSampleID () const { return s; }
 
 bool SuperSamplerHalton::Loop () const
 {
@@ -227,7 +247,7 @@ bool SuperSamplerHalton::Loop () const
 
 Point3 SuperSamplerHalton::NewPixelSample ()
 {
-  return Point3(Halton(s, 2), Halton(s, 3), 0.f);
+  return Point3(Halton(s, 11), Halton(s, 13), 0.f);
 }
 
 Point3 SuperSamplerHalton::NewDofSample (const float R)

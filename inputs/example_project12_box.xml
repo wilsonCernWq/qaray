@@ -13,7 +13,7 @@
       <translate x="0" y="0.255" z="24.445"/>
     </object>
     <material type="blinn" name="light">
-      <emission value="20"/>
+      <emission value="15"/>
       <specular value="0"/>
     </material>
   </scene>

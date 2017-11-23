@@ -9,7 +9,7 @@
 # include <tbb/task_arena.h>
 # include <tbb/task_scheduler_init.h>
 # include <tbb/parallel_for.h>
-# include <tbb/compat/thread>
+# include <tbb/enumerable_thread_specific.h>
 #endif
 
 #ifdef USE_OMP
@@ -96,7 +96,7 @@ void PixelRender (const int i, const int j, const int tile_idx)
     ray.Normalize();
     DiffHitInfo hInfo;
     hInfo.c.z = BIGFLOAT;
-    hInfo.c.haltonRNG = &haltonRNG[tile_idx];
+    hInfo.c.haltonRNG = nullptr;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
     Color localColor;
     if (hasHit)
@@ -207,6 +207,11 @@ void ThreadRender ()
 #else
   }
 #endif
+  debug(TBBHaltonRNG.size());
+  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin(); i != TBBHaltonRNG.end(); ++i)
+  {
+    debug(i->idx);
+  }
   // End timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
@@ -278,14 +283,6 @@ void ComputeScene ()
                   static_cast<float>(tileSize));
   tileDimY = CEIL(static_cast<float>(pixelSize[1]) /
                   static_cast<float>(tileSize));
-  // Initialize
-  haltonRNG.resize(tileDimX * tileDimY);
-  for (auto& r : haltonRNG) 
-  {
-    auto seed = round(rng->Get() * tileDimX * tileDimY);
-    r.Seed(0);
-  }
-
 }
 
 //------------------------------------------------------------------------

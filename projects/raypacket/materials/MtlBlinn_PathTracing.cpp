@@ -23,8 +23,7 @@ void GetRandomSamples(const DiffHitInfo& hInfo, float& r1, float& r2)
 {
   r1 = rng->Get();
   r2 = rng->Get();
-  //r1 = hInfo.c.haltonRNG->Get(2);
-  //r2 = hInfo.c.haltonRNG->Get(3);
+  //TBBHaltonRNG.local().Get(r1, r2);
 }
 
 //------------------------------------------------------------------------------
@@ -51,7 +50,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
                                    const DiffHitInfo &hInfo,
                                    const LightList &lights,
                                    int bounceCount)
-const
+  const
 {
   //
   // Differential Geometry

@@ -28,6 +28,17 @@
 #include <algorithm>
 #include "math/math.h"
 
+#ifdef USE_TBB
+# include <tbb/task_arena.h>
+# include <tbb/task_scheduler_init.h>
+# include <tbb/parallel_for.h>
+# include <tbb/enumerable_thread_specific.h>
+#endif
+
+#ifdef USE_OMP
+# include <omp.h>
+#endif
+
 //-----------------------------------------------------------------------------
 
 #define debug(x) (std::cout << #x << " " << x << std::endl)
@@ -60,15 +71,14 @@ inline float Halton (int index, int base)
 struct HaltonRandom
 {
   int idx = 0;
-  void Seed(int seed) { idx = seed; }
-  float Get(int base) 
-  { 
-    idx = (++idx) % 1048576;
-    return Halton(idx, base);     
-  }
+  HaltonRandom(int);
+  void Seed(int seed);
+  void Get(float& r1, float& r2);
+  void Increment();
 };
 
-extern std::vector<HaltonRandom> haltonRNG;
+typedef tbb::enumerable_thread_specific<HaltonRandom> TBBHalton;
+extern TBBHalton TBBHaltonRNG;
 
 struct UniformRandom
 {
@@ -111,7 +121,7 @@ class SuperSampler
 public:
   virtual const Color &GetColor () const = 0;
 
-  virtual const int GetSampleID () const = 0;
+  virtual int GetSampleID () const = 0;
 
   virtual bool Loop () const = 0;
 
@@ -137,7 +147,7 @@ public:
 
   const Color &GetColor () const;
 
-  const int GetSampleID () const;
+  int GetSampleID () const;
 
   bool Loop () const;
 
