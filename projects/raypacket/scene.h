@@ -15,9 +15,7 @@
 //-----------------------------------------------------------------------------
 
 #define TEXTURE_SAMPLE_COUNT 32
-#ifndef _USE_MATH_DEFINES
-# define _USE_MATH_DEFINES
-#endif
+
 
 #include <cassert>
 #include <cmath>
@@ -25,11 +23,14 @@
 #include <string>
 #include <vector>
 #include <atomic>
-#include <algorithm>
 
-#include "core/qaray.h"
+
 #include "core/sampler.h"
 #include "core/camera.h"
+#include "core/transform.h"
+#include "core/box.h"
+#include "core/ray.h"
+
 #include "math/math.h"
 
 #ifdef USE_TBB
@@ -45,17 +46,6 @@
 
 //-----------------------------------------------------------------------------
 
-#define MIN(x, y) (x < y ? x : y)
-#define MAX(x, y) (x > y ? x : y)
-#define CLAMP(X, L, U) MIN(U, MAX(L, X))
-#define ABS(x)    (x > 0 ? x : -x)
-#define POW(x, y) (std::pow(x, y))
-#define SQRT(x)   (std::sqrt(x))
-#define CEIL(x)   (std::ceil(x))
-#define FLOOR(x)  (std::floor(x))
-#define SIN(x)    (std::sin(x))
-#define COS(x)    (std::cos(x))
-#define BIGFLOAT 1.0e30f
 
 //------------------------------------------------------------------------------
 
@@ -92,10 +82,6 @@ extern TBBSampler rng;
 //-----------------------------------------------------------------------------
 
 class Node;
-
-class Ray;
-
-class DiffRay;
 
 class HitInfo;
 
@@ -151,121 +137,8 @@ class SuperSamplerHalton : public SuperSampler {
 
 //-----------------------------------------------------------------------------
 
-class Box {
- public:
-  Point3 pmin, pmax;
-
-  // Constructors
-  Box() { Init(); }
-
-  Box(const Point3 &_pmin, const Point3 &_pmax) : pmin(_pmin), pmax(_pmax) {}
-
-  Box(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) :
-      pmin(xmin, ymin, zmin), pmax(xmax, ymax, zmax) {}
-
-  Box(const float *dim) :
-      pmin(dim[0], dim[1], dim[2]), pmax(dim[3], dim[4], dim[5]) {}
-
-  // Initializes the box, such that there exists no point inside the box (i.e. it is empty).
-  void Init()
-  {
-    pmin = Point3(BIGFLOAT, BIGFLOAT, BIGFLOAT);
-    pmax = Point3(-BIGFLOAT, -BIGFLOAT, -BIGFLOAT);
-  }
-
-  // Returns true if the box is empty; otherwise, returns false.
-  bool IsEmpty() const
-  {
-    return pmin.x > pmax.x || pmin.y > pmax.y || pmin.z > pmax.z;
-  }
-
-  // Returns one of the 8 corner point of the box in the following order:
-  // 0:(x_min,y_min,z_min), 1:(x_max,y_min,z_min)
-  // 2:(x_min,y_max,z_min), 3:(x_max,y_max,z_min)
-  // 4:(x_min,y_min,z_max), 5:(x_max,y_min,z_max)
-  // 6:(x_min,y_max,z_max), 7:(x_max,y_max,z_max)
-  Point3 Corner(int i) const  // 8 corners of the box
-  {
-    Point3 p;
-    p.x = (i & 1) ? pmax.x : pmin.x;
-    p.y = (i & 2) ? pmax.y : pmin.y;
-    p.z = (i & 4) ? pmax.z : pmin.z;
-    return p;
-  }
-
-  // Enlarges the box such that it includes the given point p.
-  void operator+=(const Point3 &p)
-  {
-    for (int i = 0; i < 3; i++) {
-      if (pmin[i] > p[i]) pmin[i] = p[i];
-      if (pmax[i] < p[i]) pmax[i] = p[i];
-    }
-  }
-
-  // Enlarges the box such that it includes the given box b.
-  void operator+=(const Box &b)
-  {
-    for (int i = 0; i < 3; i++) {
-      if (pmin[i] > b.pmin[i]) pmin[i] = b.pmin[i];
-      if (pmax[i] < b.pmax[i]) pmax[i] = b.pmax[i];
-    }
-  }
-
-  // Returns true if the point is inside the box; otherwise, returns false.
-  bool IsInside(const Point3 &p) const
-  {
-    for (int i = 0; i < 3; i++)
-      if (pmin[i] > p[i] || pmax[i] < p[i]) return false;
-    return true;
-  }
-
-  // Returns true if the ray intersects with the box for any parameter that
-  // is smaller than t_max; otherwise, returns false.
-  bool IntersectRay(const Ray &r, float t_max) const;
-};
 
 //-----------------------------------------------------------------------------
-
-class HitInfo;
-
-struct Ray {
-  Point3 p, dir;
-
-  Ray() {}
-
-  Ray(const Point3 &p, const Point3 &d) : p(p), dir(d) {}
-
-  Ray(const Ray &r) :
-      p(r.p), dir(r.dir) {}
-
-  void Normalize() { dir = glm::normalize(dir); }
-};
-
-struct DiffRay {
-  static const float dx, dy, rdx, rdy;
-  Ray c, x, y;
-  bool hasDiffRay = true;
-
-  DiffRay() = default;
-
-  DiffRay(const Point3 &p, const Point3 &d) :
-      c(p, d), x(p, d), y(p, d), hasDiffRay(false) {}
-
-  DiffRay(const Point3 &pc, const Point3 &dc,
-          const Point3 &px, const Point3 &dx,
-          const Point3 &py, const Point3 &dy) :
-      c(pc, dc), x(px, dx), y(py, dy), hasDiffRay(true) {}
-
-  DiffRay(const DiffRay &r)
-      : c(r.c), x(r.x), y(r.y), hasDiffRay(r.hasDiffRay) {}
-
-  void Normalize()
-  {
-    c.Normalize();
-    x.Normalize();
-    y.Normalize();
-  }
-};
 
 //-----------------------------------------------------------------------------
 
@@ -412,85 +285,6 @@ class ItemFileList {
 
 //-----------------------------------------------------------------------------
 
-class Transformation {
- private:
-  Matrix3 tm;    // Transformation matrix to the local space
-  Point3 pos;    // Translation part of the transformation matrix
-  mutable Matrix3 itm;  // Inverse of the transformation matrix (cached)
- public:
-  Transformation() : pos(0, 0, 0)
-  {
-    tm = Matrix3(1.f);
-    itm = Matrix3(1.f);
-  }
-
-  const Matrix3 &GetTransform() const { return tm; }
-
-  const Point3 &GetPosition() const { return pos; }
-
-  const Matrix3 &GetInverseTransform() const { return itm; }
-
-  // Transform to the local coordinate system
-  Point3 TransformTo(const Point3 &p) const { return itm * (p - pos); }
-
-  // Transform from the local coordinate system
-  Point3 TransformFrom(const Point3 &p) const { return tm * p + pos; }
-
-  // Transforms a vector to the local coordinate system
-  // (same as multiplication with the inverse transpose of the transformation)
-  Point3 VectorTransformTo(const Point3 &dir) const
-  {
-    return TransposeMult(tm,
-                         dir);
-  }
-
-  // Transforms a vector from the local coordinate system
-  // (same as multiplication with the inverse transpose of the transformation)
-  Point3 VectorTransformFrom(const Point3 &dir) const
-  {
-    return TransposeMult(itm,
-                         dir);
-  }
-
-  void Translate(Point3 p) { pos += p; }
-
-  void Rotate(Point3 axis, float degree)
-  {
-    Matrix3 m(glm::rotate(Matrix4(1.0f), degree * (float) M_PI / 180.0f, axis));
-    Transform(m);
-  }
-
-  void Scale(float sx, float sy, float sz)
-  {
-    Matrix3 m(glm::scale(Matrix4(1.0f), Point3(sx, sy, sz)));
-    Transform(m);
-  }
-
-  void Transform(const Matrix3 &m)
-  {
-    tm = m * tm;
-    pos = m * pos;
-    itm = glm::inverse(tm);
-  }
-
-  void InitTransform()
-  {
-    pos = Point3(0.f);
-    tm = Matrix3(1.f);
-    itm = Matrix3(1.f);
-  }
-
- private:
-  // Multiplies the given vector with the transpose of the given matrix
-  static Point3 TransposeMult(const Matrix3 &m, const Point3 &dir)
-  {
-    Point3 d;
-    d.x = glm::dot(glm::column(m, 0), dir);
-    d.y = glm::dot(glm::column(m, 1), dir);
-    d.z = glm::dot(glm::column(m, 2), dir);
-    return d;
-  }
-};
 
 //-----------------------------------------------------------------------------
 

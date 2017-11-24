@@ -20,8 +20,9 @@ const float RCP_2PI = 1.f / (2.f * M_PI);
 // Helper functions
 inline bool CheckHitSide(const int &hitSide, const bool &front)
 {
-  return (((hitSide & ~(HIT_FRONT)) && front) ||
-      ((hitSide & ~(HIT_BACK)) && !front));
+  return
+      (((hitSide & ~(HIT_FRONT)) && front) ||
+      ((hitSide & ~(HIT_BACK))   && !front));
 }
 
 inline float TriangleArea(size_t i,
@@ -39,42 +40,6 @@ inline float TriangleArea(size_t i,
 
 //-------------------------------------------------------------------------------
 
-// Check if ray intersects with the bounding box
-bool Box::IntersectRay(const Ray &r, float t_max) const
-{
-  const float dx = r.dir.x;
-  const float dy = r.dir.y;
-  const float dz = r.dir.z;
-  const Point3 drcp = Point3(1.f, 1.f, 1.f) / r.dir;
-  const Point3 p0 = -(r.p - pmin) * drcp;;
-  const Point3 p1 = -(r.p - pmax) * drcp;;
-  Point3 t0, t1;
-  if (ABS(dx) < 1e-7f) {
-    t0.x = -BIGFLOAT;
-    t1.x = BIGFLOAT;
-  } else {
-    t0.x = MIN(p0.x, p1.x);
-    t1.x = MAX(p0.x, p1.x);
-  }
-  if (ABS(dy) < 1e-7f) {
-    t0.y = -BIGFLOAT;
-    t1.y = BIGFLOAT;
-  } else {
-    t0.y = MIN(p0.y, p1.y);
-    t1.y = MAX(p0.y, p1.y);
-  }
-  if (ABS(dz) < 1e-7f) {
-    t0.z = -BIGFLOAT;
-    t1.z = BIGFLOAT;
-  } else {
-    t0.z = MIN(p0.z, p1.z);
-    t1.z = MAX(p0.z, p1.z);
-  }
-  const float entry = MAX(t0.x, MAX(t0.y, t0.z));
-  const float exit = MIN(t1.x, MIN(t1.y, t1.z));
-  if (entry > t_max || entry > exit) { return false; }
-  else { return true; }
-}
 
 //-------------------------------------------------------------------------------
 // Function return true only if the HitInfo has been updated!

@@ -1,7 +1,6 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Created by Qi WU on 11/23/17.                                             //
-/// Copyright (c) 2017 University of Utah. All rights reserved.             //
+/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -25,25 +24,28 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CAMERA_H
-#define QARAY_CAMERA_H
+#ifndef QARAY_CORE_H
+#define QARAY_CORE_H
 #pragma once
 
-#include "core/core.h"
-#include "math/math.h"
+#include <cassert>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <atomic>
+
+#define debug(x) (std::cout << #x << " " << (x) << std::endl)
 
 namespace qaray {
-class Camera {
- public:
-  Point3 pos, dir, up;
-  float fovy;
-  float focalDistance;
-  float depthOfField;
-  int imgWidth;
-  int imgHeight;
- public:
-  void Init();
+class Sampler;
+class Camera;
+class Transform;
+class Box;
+class Ray;
+class DiffRay;
 };
-}
 
-#endif //QARAY_CAMERA_H
+class HitInfo;
+
+
+#endif //QARAY_CORE_H

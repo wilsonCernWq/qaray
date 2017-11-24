@@ -29,8 +29,47 @@
 #define QARAY_RAY_H
 #pragma once
 
-class ray {
+#include "core/core.h"
+#include "math/math.h"
 
+namespace qaray {
+class Ray {
+ public:
+  Point3 p, dir;
+  Ray() = default;
+  Ray(const Ray &r) = default;
+  Ray(const Point3 &p, const Point3 &d) : p(p), dir(d) {}
+  void Normalize() { dir = glm::normalize(dir); }
 };
+class DiffRay {
+ public:
+  static const float dx, dy, rdx, rdy;
+  Ray c, x, y;
+  bool hasDiffRay = true;
+ public:
+  DiffRay() = default;
+  DiffRay(const Point3 &p, const Point3 &d) :
+      c(p, d),
+      x(p, d),
+      y(p, d),
+      hasDiffRay(false)
+  {}
+  DiffRay(const Point3 &pc, const Point3 &dc,
+          const Point3 &px, const Point3 &dx,
+          const Point3 &py, const Point3 &dy) :
+      c(pc, dc),
+      x(px, dx),
+      y(py, dy),
+      hasDiffRay(true)
+  {}
+  DiffRay(const DiffRay &r) = default;
+  void Normalize()
+  {
+    c.Normalize();
+    x.Normalize();
+    y.Normalize();
+  }
+};
+}
 
 #endif //QARAY_RAY_H

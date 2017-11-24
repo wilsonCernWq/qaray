@@ -27,6 +27,7 @@
 #ifndef QARAY_SAMPLER_H
 #define QARAY_SAMPLER_H
 
+#include "core/core.h"
 #include "math/math.h"
 
 namespace qaray {

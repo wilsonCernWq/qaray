@@ -29,7 +29,7 @@
 #pragma once
 
 #include <random>
-#include "core/qaray.h"
+#include "core/core.h"
 #include "core/sampler.h"
 #include "math/math.h"
 

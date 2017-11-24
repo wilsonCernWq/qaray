@@ -26,3 +26,10 @@
 ///--------------------------------------------------------------------------//
 
 #include "ray.h"
+
+namespace qaray {
+const float DiffRay::dx = 0.01f;
+const float DiffRay::dy = 0.01f;
+const float DiffRay::rdx = 1.f / DiffRay::dx;
+const float DiffRay::rdy = 1.f / DiffRay::dy;
+}

@@ -175,10 +175,6 @@ Point3 CosLobeWeightedSampleHemiSphere(const float r1, const float r2,
 
 //------------------------------------------------------------------------------
 
-const float DiffRay::dx = 0.01f;
-const float DiffRay::dy = 0.01f;
-const float DiffRay::rdx = 1.f / DiffRay::dx;
-const float DiffRay::rdy = 1.f / DiffRay::dy;
 
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children

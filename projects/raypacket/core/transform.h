@@ -25,25 +25,58 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CAMERA_H
-#define QARAY_CAMERA_H
+#ifndef QARAY_TRANSFORM_H
+#define QARAY_TRANSFORM_H
 #pragma once
 
 #include "core/core.h"
 #include "math/math.h"
 
 namespace qaray {
-class Camera {
+class Transformation {
+ private:
+  Point3 pos;          // Translation part of the transformation matrix
+  Matrix3 tm;          // Transformation matrix to the local space
+  mutable Matrix3 itm; // Inverse of the transformation matrix (cached)
  public:
-  Point3 pos, dir, up;
-  float fovy;
-  float focalDistance;
-  float depthOfField;
-  int imgWidth;
-  int imgHeight;
- public:
-  void Init();
+  Transformation();
+  const Point3  &GetPosition() const { return pos; }
+  const Matrix3 &GetTransform() const { return tm; }
+  const Matrix3 &GetInverseTransform() const { return itm; }
+  // Transform to the local coordinate system
+  Point3 TransformTo(const Point3 &p) const { return itm * (p - pos); }
+  // Transform from the local coordinate system
+  Point3 TransformFrom(const Point3 &p) const { return tm * p + pos; }
+  // Transforms a vector to the local coordinate system
+  // (same as multiplication with the inverse transpose of the transformation)
+  Point3 VectorTransformTo(const Point3 &dir) const
+  {
+    return TransposeMult(tm, dir);
+  }
+  // Transforms a vector from the local coordinate system
+  // (same as multiplication with the inverse transpose of the transformation)
+  Point3 VectorTransformFrom(const Point3 &dir) const
+  {
+    return TransposeMult(itm, dir);
+  }
+  // Rigid motions
+  void Translate(Point3 p) { pos += p; }
+  void Rotate(Point3 axis, float degree)
+  {
+    Matrix3 m(glm::rotate(Matrix4(1.0f), degree * PI / 180.0f, axis));
+    Transform(m);
+  }
+  void Scale(float sx, float sy, float sz)
+  {
+    Matrix3 m(glm::scale(Matrix4(1.0f), Point3(sx, sy, sz)));
+    Transform(m);
+  }
+  void Transform(const Matrix3 &m);
+  void InitTransform();
+ private:
+  // Multiplies the given vector with the transpose of the given matrix
+  static Point3 TransposeMult(const Matrix3 &m, const Point3 &dir);
 };
 }
 
-#endif //QARAY_CAMERA_H
+#endif //QARAY_TRANSFORM_H

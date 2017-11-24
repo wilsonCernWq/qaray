@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 11/23/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,16 +25,44 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_H
-#define QARAY_H
+#ifndef QARAY_BOX_H
+#define QARAY_BOX_H
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <atomic>
+#include "core/core.h"
+#include "math/math.h"
 
-#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+namespace qaray {
+class Box {
+ public:
+  Point3 pmin, pmax;
+ public:
+  Box() { Init(); }
+  ~Box() = default;
+  Box(const Point3 &, const Point3 &);
+  Box(float, float, float, float, float, float);
+  explicit Box(const float *);
+  // Initializes the box, such that there exists no point inside the box (i.e. it is empty).
+  void Init();
+  // Returns true if the box is empty; otherwise, returns false.
+  bool IsEmpty() const;
+  // Returns one of the 8 corner point of the box in the following order:
+  // 0:(x_min,y_min,z_min), 1:(x_max,y_min,z_min)
+  // 2:(x_min,y_max,z_min), 3:(x_max,y_max,z_min)
+  // 4:(x_min,y_min,z_max), 5:(x_max,y_min,z_max)
+  // 6:(x_min,y_max,z_max), 7:(x_max,y_max,z_max)
+  // 8 corners of the box
+  Point3 Corner(int i) const;
+  // Enlarges the box such that it includes the given point p.
+  void operator+=(const Point3 &p);
+  // Enlarges the box such that it includes the given box b.
+  void operator+=(const Box &b);
+  // Returns true if the point is inside the box; otherwise, returns false.
+  bool IsInside(const Point3 &p) const;
+  // Returns true if the ray intersects with the box for any parameter that
+  // is smaller than t_max; otherwise, returns false.
+  bool IntersectRay(const Ray &r, float t_max) const;
+};
+}
 
-#endif //QARAY_H
+#endif //QARAY_BOX_H

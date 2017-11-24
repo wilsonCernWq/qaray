@@ -27,7 +27,11 @@
 #define QARAY_MATH_H
 #pragma once
 //-----------------------------------------------------------------------------
+#ifndef _USE_MATH_DEFINES
+# define _USE_MATH_DEFINES
+#endif
 #include <cmath>
+#include <algorithm>
 #include "scalar.h"
 #include "vector.h"
 //-----------------------------------------------------------------------------
@@ -69,6 +73,7 @@ DEFINE_ALL_DEC(unsigned char, c);
 DEFINE_ALL_DEC(int, i);
 DEFINE_ALL_DEC(float, f);
 DEFINE_ALL_DEC(double, d);
+//-----------------------------------------------------------------------------
 namespace qaray {
 typedef vec3f Color3f;
 typedef vec3c Color3c;
@@ -79,10 +84,30 @@ typedef qaray::vec3f Point3;
 typedef qaray::vec4f Point4;
 typedef qaray::mat3f Matrix3;
 typedef qaray::mat4f Matrix4;
+//-----------------------------------------------------------------------------
 inline Color3f ToColor(const Color3c &c)
 {
   return Color3f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 }
+//-----------------------------------------------------------------------------
+template<typename T>
+qaFLOAT length(const T& v) { return glm::length(v); }
+template<typename T>
+qaFLOAT dot(const T& a, const T& b) { return glm::dot(a,b); }
 };
+//-----------------------------------------------------------------------------
 using namespace qaray;
+//-----------------------------------------------------------------------------
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define CLAMP(X, L, U) MIN(U, MAX(L, X))
+#define ABS(x)    ((x) > 0 ? (x) : -(x))
+#define POW(x, y) (std::pow(x, y))
+#define SQRT(x)   (std::sqrt(x))
+#define CEIL(x)   (std::ceil(x))
+#define FLOOR(x)  (std::floor(x))
+#define SIN(x)    (std::sin(x))
+#define COS(x)    (std::cos(x))
+#define BIGFLOAT 1.0e30f
+//-----------------------------------------------------------------------------
 #endif //QARAY_MATH_H

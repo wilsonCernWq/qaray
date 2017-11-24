@@ -25,25 +25,33 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CAMERA_H
-#define QARAY_CAMERA_H
-#pragma once
-
-#include "core/core.h"
-#include "math/math.h"
+#include "transform.h"
 
 namespace qaray {
-class Camera {
- public:
-  Point3 pos, dir, up;
-  float fovy;
-  float focalDistance;
-  float depthOfField;
-  int imgWidth;
-  int imgHeight;
- public:
-  void Init();
-};
+Transformation::Transformation() :
+    pos(0, 0, 0),
+    tm(1.f),
+    itm(1.f)
+{}
+void Transformation::Transform(const Matrix3 &m)
+{
+  tm = m * tm;
+  pos = m * pos;
+  itm = glm::inverse(tm);
 }
-
-#endif //QARAY_CAMERA_H
+void Transformation::InitTransform()
+{
+  pos = Point3(0.f);
+  tm = Matrix3(1.f);
+  itm = Matrix3(1.f);
+}
+// Multiplies the given vector with the transpose of the given matrix
+Point3 Transformation::TransposeMult(const Matrix3 &m, const Point3 &dir)
+{
+  Point3 d;
+  d.x = dot(glm::column(m, 0), dir);
+  d.y = dot(glm::column(m, 1), dir);
+  d.z = dot(glm::column(m, 2), dir);
+  return d;
+}
+}
