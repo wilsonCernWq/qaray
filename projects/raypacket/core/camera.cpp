@@ -26,3 +26,17 @@
 ///--------------------------------------------------------------------------//
 
 #include "camera.h"
+
+namespace qaray {
+void Camera::Init()
+{
+  pos = Point3(0, 0, 0);
+  dir = Point3(0, 0, -1);
+  up  = Point3(0, 1, 0);
+  fovy = 40;
+  focalDistance = 1;
+  depthOfField  = 0;
+  imgWidth  = 200;
+  imgHeight = 150;
+}
+}

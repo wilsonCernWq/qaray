@@ -123,12 +123,14 @@ int LoadScene(const char *filename)
     else if (COMPARE(camChild->Value(), "target"))
       ReadVector(camChild,
                  camera.dir);
-    else if (COMPARE(camChild->Value(), "up")) ReadVector(camChild, camera.up);
-    else if (COMPARE(camChild->Value(), "fov")) ReadFloat(camChild, camera.fov);
+    else if (COMPARE(camChild->Value(), "up"))
+      ReadVector(camChild, camera.up);
+    else if (COMPARE(camChild->Value(), "fov"))
+      ReadFloat(camChild, camera.fovy);
     else if (COMPARE(camChild->Value(), "focaldist"))
-      ReadFloat(camChild,
-                camera.focaldist);
-    else if (COMPARE(camChild->Value(), "dof")) ReadFloat(camChild, camera.dof);
+      ReadFloat(camChild, camera.focalDistance);
+    else if (COMPARE(camChild->Value(), "dof"))
+      ReadFloat(camChild, camera.depthOfField);
     else if (COMPARE(camChild->Value(), "width"))
       camChild->QueryIntAttribute("value", &camera.imgWidth);
     else if (COMPARE(camChild->Value(), "height"))

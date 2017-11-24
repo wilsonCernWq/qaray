@@ -25,24 +25,4 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CAMERA_H
-#define QARAY_CAMERA_H
-#pragma once
-
-#include "math/math.h"
-
-namespace qaray {
-class Camera {
- public:
-  Point3 pos, dir, up;
-  float fovy;
-  float focalDistance;
-  float depthOfField;
-  int imgWidth;
-  int imgHeight;
- public:
-  void Init();
-};
-}
-
-#endif //QARAY_CAMERA_H
+#include "ray.h"

@@ -153,17 +153,6 @@ IF (OPENMP_FOUND)
     ADD_DEFINITIONS(-DUSE_OMP)
 ENDIF ()
 #
-#--- libsimdpp
-#
-OPTION(ENABLE_LIBSIMDPP "Enable libsimdpp Library" OFF)
-IF (ENABLE_LIBSIMDPP)
-    IF (EXISTS ${PROJECT_SOURCE_DIR}/external/libsimdpp)
-        ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/external/libsimdpp)
-        INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/libsimdpp)
-        ADD_DEFINITIONS(-DUSE_LIBSIMDPP)
-    ENDIF ()
-ENDIF (ENABLE_LIBSIMDPP)
-#
 #--- MPI
 #
 OPTION(ENABLE_MPI "Enable MPI" ON)

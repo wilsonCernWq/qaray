@@ -117,7 +117,7 @@ void ShowViewport()
   glEnable(GL_NORMALIZE);
   glLineWidth(2);
 
-  if (camera.dof > 0) {
+  if (camera.depthOfField > 0) {
     dofBuffer = new Color3c[camera.imgWidth * camera.imgHeight];
     dofImage = new Color3f[camera.imgWidth * camera.imgHeight];
     memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color3f));
@@ -143,7 +143,7 @@ void GlutReshape(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     float r = (float) w / float(h);
-    gluPerspective(camera.fov, r, 0.02, 1000.0);
+    gluPerspective(camera.fovy, r, 0.02, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
   }
@@ -229,11 +229,11 @@ void DrawScene()
   glEnable(GL_DEPTH_TEST);
   glPushMatrix();
   Point3 p = camera.pos;
-  Point3 t = camera.pos + camera.dir * camera.focaldist;
+  Point3 t = camera.pos + camera.dir * camera.focalDistance;
   Point3 u = camera.up;
-  if (camera.dof > 0) {
+  if (camera.depthOfField > 0) {
     Point3 v = glm::cross(camera.dir, camera.up);
-    float r = sqrtf(float(rand()) / RAND_MAX) * camera.dof;
+    float r = sqrtf(float(rand()) / RAND_MAX) * camera.depthOfField;
     float a = float(M_PI) * 2.0f * float(rand()) / RAND_MAX;
     p += r * cosf(a) * v + r * sinf(a) * u;
   }

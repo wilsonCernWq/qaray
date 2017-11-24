@@ -1,7 +1,0 @@
-build
-*.user*
-*~
-libsimdpp.config
-libsimdpp.creator
-libsimdpp.includes
-libsimdpp.files

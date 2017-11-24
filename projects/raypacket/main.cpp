@@ -241,14 +241,14 @@ void DivideLength
 void ComputeScene()
 {
   // rendering
-  focal = camera.focaldist;
-  dof = camera.dof;
+  focal = camera.focalDistance;
+  dof = camera.depthOfField;
   pixelW = camera.imgWidth;
   pixelH = camera.imgHeight;
   aspect =
       static_cast<float>(camera.imgWidth) /
           static_cast<float>(camera.imgHeight);
-  screenH = 2.f * focal * std::tan(camera.fov * (float) M_PI / 2.f / 180.f);
+  screenH = 2.f * focal * std::tan(camera.fovy * (float) M_PI / 2.f / 180.f);
   screenW = aspect * screenH;
   Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
   Point3 Y = glm::normalize(glm::cross(X, camera.dir));

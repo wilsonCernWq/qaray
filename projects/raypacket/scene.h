@@ -28,8 +28,9 @@
 #include <algorithm>
 
 #include "core/qaray.h"
-#include "math/math.h"
 #include "core/sampler.h"
+#include "core/camera.h"
+#include "math/math.h"
 
 #ifdef USE_TBB
 # include <tbb/task_arena.h>
@@ -835,25 +836,6 @@ class Node : public ItemBase, public Transformation {
 };
 
 //-----------------------------------------------------------------------------
-
-class Camera {
- public:
-  Point3 pos, dir, up;
-  float fov, focaldist, dof;
-  int imgWidth, imgHeight;
-
-  void Init()
-  {
-    pos = Point3(0, 0, 0);
-    dir = Point3(0, 0, -1);
-    up = Point3(0, 1, 0);
-    fov = 40;
-    focaldist = 1;
-    dof = 0;
-    imgWidth = 200;
-    imgHeight = 150;
-  }
-};
 
 //-----------------------------------------------------------------------------
 
