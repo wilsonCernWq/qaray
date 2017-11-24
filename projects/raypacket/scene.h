@@ -69,34 +69,24 @@
 /*   } */
 /*   return r; */
 /* } */
-
-struct HaltonRandom {
-  int idx = 0;
-  HaltonRandom(int);
-  void Seed(int seed);
-  void Get(float &r1, float &r2);
-  void Increment();
-};
-
-typedef tbb::enumerable_thread_specific<HaltonRandom> TBBHalton;
-extern TBBHalton TBBHaltonRNG;
-
-struct UniformRandom {
-  virtual float Get() = 0;
-};
-
-extern Sampler *rng;
-
-//Point3 GetCirclePoint (const float size);
 //
-//Point3 UniformSampleHemiSphere (const float r1, const float r2);
+//struct HaltonRandom {
+//  int idx = 0;
+//  HaltonRandom(int);
+//  void Seed(int seed);
+//  void Get(float &r1, float &r2);
+//  void Increment();
+//};
 //
-//Point3 CosWeightedSampleHemiSphere (const float r1, const float r2);
+//typedef tbb::enumerable_thread_specific<HaltonRandom> TBBHalton;
+//extern TBBHalton TBBHaltonRNG;
 //
-//Point3 CosLobeWeightedSampleHemiSphere (const float r1, const float r2,
-//					const int N, const int theta_max = 90);
-//
-//float CosLobeWeightedNormalization (const int n, const Point3 axis, const Point3 norm);
+//struct UniformRandom {
+//  virtual float Get() = 0;
+//};
+
+typedef tbb::enumerable_thread_specific<Sampler*> TBBSampler;
+extern TBBSampler rng;
 
 //-----------------------------------------------------------------------------
 
@@ -305,7 +295,6 @@ struct HitInfo {
   bool hasFrontHit;   // true if the ray hits the front side,
   bool hasTexture;
   //------------------
-  HaltonRandom *haltonRNG;
 
   HitInfo() { Init(); }
 
@@ -319,7 +308,6 @@ struct HitInfo {
     mtlID = 0;
     hasFrontHit = true;
     hasTexture = false;
-    haltonRNG = nullptr;
   }
 };
 

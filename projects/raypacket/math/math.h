@@ -43,6 +43,7 @@
 //-----------------------------------------------------------------------------
 typedef bool          qaBOOL;
 typedef unsigned char qaUCHAR;
+typedef unsigned int  qaUINT;
 typedef int           qaINT;
 typedef float         qaFLOAT;
 typedef double        qaDOUBLE;

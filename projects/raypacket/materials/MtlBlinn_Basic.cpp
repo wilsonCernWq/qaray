@@ -58,10 +58,10 @@ const
     // jitter normal
     Point3 tjN = N, rjN = N;
     if (refractionGlossiness > glossy_threshold) {
-      tjN = glm::normalize(N + rng->UniformBall(refractionGlossiness));
+      tjN = glm::normalize(N + rng.local()->UniformBall(refractionGlossiness));
     }
     if (reflectionGlossiness > glossy_threshold) {
-      rjN = glm::normalize(N + rng->UniformBall(reflectionGlossiness));
+      rjN = glm::normalize(N + rng.local()->UniformBall(reflectionGlossiness));
     }
     // incidence angle & refraction angle
     cosI = glm::dot(tjN, V);

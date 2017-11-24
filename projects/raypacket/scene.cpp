@@ -15,70 +15,70 @@
 #include "samplers/Sampler_Marsaglia.h"
 //------------------------------------------------------------------------------
 
-TBBHalton TBBHaltonRNG(HaltonRandom(0));
+//TBBHalton TBBHaltonRNG(HaltonRandom(0));
+//
+//HaltonRandom::HaltonRandom(int seed)
+//{
+//  idx = seed;
+//};
+//void HaltonRandom::Seed(int seed)
+//{
+//  idx = seed;
+//}
+//void HaltonRandom::Get(float &r1, float &r2)
+//{
+//  r1 = Halton(idx, 2);
+//  r2 = Halton(idx, 3);
+//  Increment();
+//}
+//void HaltonRandom::Increment()
+//{
+//  idx = idx + 1;
+//}
 
-HaltonRandom::HaltonRandom(int seed)
-{
-  idx = seed;
-};
-void HaltonRandom::Seed(int seed)
-{
-  idx = seed;
-}
-void HaltonRandom::Get(float &r1, float &r2)
-{
-  r1 = Halton(idx, 2);
-  r2 = Halton(idx, 3);
-  Increment();
-}
-void HaltonRandom::Increment()
-{
-  idx = idx + 1;
-}
+//------------------------------------------------------------------------------
+//
+//// rendering example_project9.xml takes 23.224073 s
+//struct UniformRandom_mt19937 : public UniformRandom {
+//  std::mt19937 rng;
+//  std::uniform_real_distribution<float> dist; // distribution in range [0, 1]
+//  UniformRandom_mt19937()
+//  {
+//    rng.seed(std::random_device()());
+//    dist = std::uniform_real_distribution<float>(0.0, 1.0);
+//  }
+//
+//  float Get() { return dist(rng); }
+//};
+//
+//// reference https://en.wikipedia.org/wiki/Xorshift
+//// rendering example_project9.xml takes 20.582386 s
+//struct UniformRandom_Marsaglia : public UniformRandom {
+//  static uint32_t seed;
+//
+//  /* The state word must be initialized to non-zero */
+//  uint32_t xorshift32()
+//  {
+//    /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
+//    uint32_t x = seed;
+//    x ^= x << 13;
+//    x ^= x >> 17;
+//    x ^= x << 5;
+//    seed = x;
+//    return x;
+//  }
+//
+//  float Get()
+//  {
+//    return xorshift32() / (float) (POW(2, 32) - 1);
+//  }
+//};
+//
+//uint32_t UniformRandom_Marsaglia::seed = 123456789;
 
 //------------------------------------------------------------------------------
 
-// rendering example_project9.xml takes 23.224073 s
-struct UniformRandom_mt19937 : public UniformRandom {
-  std::mt19937 rng;
-  std::uniform_real_distribution<float> dist; // distribution in range [0, 1]
-  UniformRandom_mt19937()
-  {
-    rng.seed(std::random_device()());
-    dist = std::uniform_real_distribution<float>(0.0, 1.0);
-  }
-
-  float Get() { return dist(rng); }
-};
-
-// reference https://en.wikipedia.org/wiki/Xorshift
-// rendering example_project9.xml takes 20.582386 s
-struct UniformRandom_Marsaglia : public UniformRandom {
-  static uint32_t seed;
-
-  /* The state word must be initialized to non-zero */
-  uint32_t xorshift32()
-  {
-    /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
-    uint32_t x = seed;
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    seed = x;
-    return x;
-  }
-
-  float Get()
-  {
-    return xorshift32() / (float) (POW(2, 32) - 1);
-  }
-};
-
-uint32_t UniformRandom_Marsaglia::seed = 123456789;
-
-//------------------------------------------------------------------------------
-
-Sampler *rng = new Sampler_Marsaglia;
+TBBSampler rng(new Sampler_Marsaglia);
 
 //------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ Point3 GetCirclePoint(float R)
 {
   Point3 p;
   float r1, r2, r3;
-  rng->Get3f(r1, r2, r3);
+  rng.local()->Get3f(r1, r2, r3);
   do {
     p.x = (2.f * r1 - 1.f) * R;
     p.y = (2.f * r2 - 1.f) * R;
@@ -101,7 +101,7 @@ Point3 UniformSampleHemiSphere(const float r1, const float r2)
   // PDF = 1 / 2PI 
   const float cosTheta = r1;
   const float sinTheta = SQRT(1 - r1 * r1);
-  const float phi = 2 * M_PI * r2;
+  const float phi = 2 * PI * r2;
   const float x = sinTheta * COS(phi);
   const float y = sinTheta * SIN(phi);
   return Point3(x, y, cosTheta);
@@ -113,7 +113,7 @@ Point3 CosWeightedSampleHemiSphere(const float r1, const float r2)
   // PDF = cos(Theta) / PI
   const float cosTheta = SQRT(r1);
   const float sinTheta = SQRT(1 - r1);
-  const float phi = 2 * M_PI * r2;
+  const float phi = 2 * PI * r2;
   const float x = sinTheta * COS(phi);
   const float y = sinTheta * SIN(phi);
   return Point3(x, y, cosTheta);
@@ -121,7 +121,7 @@ Point3 CosWeightedSampleHemiSphere(const float r1, const float r2)
 
 float CosLobeWeightedFn(const int n)
 {
-  if (n == 0) { return M_PI; }
+  if (n == 0) { return PI; }
   if (n == 1) { return 2; }
   return static_cast<float>(n - 1) * CosLobeWeightedFn(n - 2) / n;
 }
@@ -157,7 +157,7 @@ Point3 CosLobeWeightedSampleHemiSphere(const float r1, const float r2,
     // PDF = (N+1) * (cos(theta) ^ N) / 2PI
     const float cosTheta = POW(r1, 1.f / (N + 1));
     const float sinTheta = SQRT(1 - cosTheta * cosTheta);
-    const float phi = 2 * M_PI * r2;
+    const float phi = 2 * PI * r2;
     const float x = sinTheta * COS(phi);
     const float y = sinTheta * SIN(phi);
     return Point3(x, y, cosTheta);
@@ -249,7 +249,7 @@ Point3 SuperSamplerHalton::NewPixelSample()
 Point3 SuperSamplerHalton::NewDofSample(const float R)
 {
   float r1, r2;
-  rng->Get2f(r1, r2);
+  rng.local()->Get2f(r1, r2);
   const float r = R * SQRT(r1);
   const float t = r2 * 2.f * M_PI;
   return Point3(r * cos(t), r * sin(t), 0.f);

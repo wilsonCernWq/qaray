@@ -96,7 +96,6 @@ void PixelRender(const int i, const int j, const int tile_idx)
     ray.Normalize();
     DiffHitInfo hInfo;
     hInfo.c.z = BIGFLOAT;
-    hInfo.c.haltonRNG = nullptr;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
     Color3f localColor;
     if (hasHit) {
@@ -202,11 +201,11 @@ void ThreadRender()
 #else
   }
 #endif
-  debug(TBBHaltonRNG.size());
-  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin();
-       i != TBBHaltonRNG.end(); ++i) {
-    debug(i->idx);
-  }
+//  debug(TBBHaltonRNG.size());
+//  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin();
+//       i != TBBHaltonRNG.end(); ++i) {
+//    debug(i->idx);
+//  }
   // End timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
