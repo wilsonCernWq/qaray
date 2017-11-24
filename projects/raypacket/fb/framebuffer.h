@@ -6,67 +6,66 @@
 
 //-----------------------------------------------------------------------------
 
-class RenderImage
-{
-private:
-  uchar *mask;
-  Color24 *img;
+class RenderImage {
+ private:
+  uint8_t *mask;
+  Color3c *img;
   float *zbuffer;
-  uchar *zbufferImg;
-  uchar *sampleCount;
-  uchar *sampleCountImg;
-  uchar *irradComp;
+  uint8_t *zbufferImg;
+  uint8_t *sampleCount;
+  uint8_t *sampleCountImg;
+  uint8_t *irradComp;
   int width, height;
   std::atomic<int> numRenderedPixels;
-public:
-  RenderImage ();
+ public:
+  RenderImage();
 
-  ~RenderImage ();
+  ~RenderImage();
 
-  void Init (int w, int h);
+  void Init(int w, int h);
 
-  void AllocateIrradianceComputationImage ();
+  void AllocateIrradianceComputationImage();
 
-  int GetWidth () const { return width; }
+  int GetWidth() const { return width; }
 
-  int GetHeight () const { return height; }
+  int GetHeight() const { return height; }
 
-  Color24 *GetPixels () { return img; }
+  Color3c *GetPixels() { return img; }
 
-  uchar *GetMasks () { return mask; }
+  uint8_t *GetMasks() { return mask; }
 
-  float *GetZBuffer () { return zbuffer; }
+  float *GetZBuffer() { return zbuffer; }
 
-  uchar *GetZBufferImage () { return zbufferImg; }
+  uint8_t *GetZBufferImage() { return zbufferImg; }
 
-  uchar *GetSampleCount () { return sampleCount; }
+  uint8_t *GetSampleCount() { return sampleCount; }
 
-  uchar *GetSampleCountImage () { return sampleCountImg; }
+  uint8_t *GetSampleCountImage() { return sampleCountImg; }
 
-  uchar *GetIrradianceComputationImage () { return irradComp; }
+  uint8_t *GetIrradianceComputationImage() { return irradComp; }
 
-  void ResetNumRenderedPixels ();
+  void ResetNumRenderedPixels();
 
-  int GetNumRenderedPixels () const { return numRenderedPixels; }
+  int GetNumRenderedPixels() const { return numRenderedPixels; }
 
-  void IncrementNumRenderPixel (int n) { numRenderedPixels += n; }
+  void IncrementNumRenderPixel(int n) { numRenderedPixels += n; }
 
-  bool IsRenderDone () const { return numRenderedPixels >= width * height; }
+  bool IsRenderDone() const { return numRenderedPixels >= width * height; }
 
-  void ComputeZBufferImage ();
+  void ComputeZBufferImage();
 
-  int ComputeSampleCountImage ();
+  int ComputeSampleCountImage();
 
-  bool SaveImage (const char *filename) const;
+  bool SaveImage(const char *filename) const;
 
-  bool SaveZImage (const char *filename) const;
+  bool SaveZImage(const char *filename) const;
 
-  bool SaveSampleCountImage (const char *filename) const;
+  bool SaveSampleCountImage(const char *filename) const;
 
-  bool SaveIrradianceComputationImage (const char *filename) const;
+  bool SaveIrradianceComputationImage(const char *filename) const;
 
-private:
-  bool SavePNG (const char *filename, uchar *data, int compCount) const;
+ private:
+  bool SavePNG(const char *filename, uint8_t *data, int compCount) const;
 };
 
 //-----------------------------------------------------------------------------

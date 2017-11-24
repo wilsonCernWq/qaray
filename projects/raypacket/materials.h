@@ -15,9 +15,9 @@
 
 //------------------------------------------------------------------------------
 
-Color Attenuation (const Color &absorption, const float l);
+Color3f Attenuation(const Color3f &absorption, const float l);
 
-float LinearToSRGB (const float c);
+float LinearToSRGB(const float c);
 
 //------------------------------------------------------------------------------
 
@@ -35,30 +35,26 @@ using MtlBlinn = MtlBlinn_PathTracing;
 
 //------------------------------------------------------------------------------
 
-class MultiMtl : public Material
-{
-public:
-  virtual ~MultiMtl ()
-  {
+class MultiMtl : public Material {
+ public:
+  virtual ~MultiMtl() {
     for (unsigned int i = 0; i < mtls.size(); i++) delete mtls[i];
   }
 
-  virtual Color Shade (const DiffRay &ray, const DiffHitInfo &hInfo,
-                       const LightList &lights, int bounceCount) const
-  {
+  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+                      const LightList &lights, int bounceCount) const {
     return hInfo.c.mtlID < (int) mtls.size() ?
            mtls[hInfo.c.mtlID]->Shade(ray, hInfo, lights, bounceCount) :
-           Color(1, 1, 1);
+           Color3f(1, 1, 1);
   }
 
-  virtual void SetViewportMaterial (int subMtlID = 0) const
-  {
+  virtual void SetViewportMaterial(int subMtlID = 0) const {
     if (subMtlID < (int) mtls.size()) mtls[subMtlID]->SetViewportMaterial();
   }
 
-  void AppendMaterial (Material *m) { mtls.push_back(m); }
+  void AppendMaterial(Material *m) { mtls.push_back(m); }
 
-private:
+ private:
   std::vector<Material *> mtls;
 };
 

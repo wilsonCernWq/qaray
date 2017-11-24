@@ -24,3 +24,16 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
+#ifndef QARAY_H
+#define QARAY_H
+#pragma once
+
+#include <cassert>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <atomic>
+
+#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+
+#endif //QARAY_H
