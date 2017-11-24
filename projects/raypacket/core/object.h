@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 11/24/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,36 +25,29 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CORE_H
-#define QARAY_CORE_H
+#ifndef QARAY_OBJECT_H
+#define QARAY_OBJECT_H
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <atomic>
-
-#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+#include "core/core.h"
+#include "core/ray.h"
+#include "math/math.h"
 
 namespace qaray {
-class Box;
-class Camera;
-class DiffRay;
-class DiffHitInfo;
-class HitInfo;
-class Light;
-class LightList;
-class ItemBase;
-class Node;
-class Ray;
-class Sampler;
-class Transformation;
-class Object;
-class Material;
-class MaterialList;
-template<class T> class ItemList;
-template<class T> class ItemFileList;
+// Base class for all object types
+class Object {
+ public:
+  virtual ~Object() = default;
+  virtual bool IntersectRay(const Ray &ray,
+                            HitInfo &hInfo,
+                            int hitSide = HIT_FRONT,
+                            DiffRay *diffray = nullptr,
+                            DiffHitInfo *diffhit = nullptr) const = 0;
+  virtual Box GetBoundBox() const = 0;
+  // Used for OpenGL display
+  virtual void ViewportDisplay(const Material *mtl) const {}
 };
+typedef ItemFileList<Object> ObjFileList;
+}
 
-#endif //QARAY_CORE_H
+#endif //QARAY_OBJECT_H

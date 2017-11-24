@@ -24,12 +24,17 @@
 #include <vector>
 #include <atomic>
 
-
 #include "core/sampler.h"
 #include "core/camera.h"
 #include "core/transform.h"
 #include "core/box.h"
 #include "core/ray.h"
+#include "core/hitinfo.h"
+#include "core/light.h"
+#include "core/material.h"
+#include "core/object.h"
+#include "core/items.h"
+#include "core/node.h"
 
 #include "math/math.h"
 
@@ -80,12 +85,6 @@ typedef tbb::enumerable_thread_specific<Sampler*> TBBSampler;
 extern TBBSampler rng;
 
 //-----------------------------------------------------------------------------
-
-class Node;
-
-class HitInfo;
-
-class DiffHitInfo;
 
 bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
 
@@ -141,215 +140,19 @@ class SuperSamplerHalton : public SuperSampler {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-
-class Node;
-
-struct HitInfoCore {
-  float z;        // the distance from the ray center to the hit point
-  Point3 p;        // position of the hit point
-  Point3 N;        // surface normal at the hit point
-  HitInfoCore() { Init(); }
-
-  void Init()
-  {
-    z = BIGFLOAT;
-  }
-};
-
-struct HitInfo {
-  float z;            // the distance from the ray center to the hit point
-  Point3 p;           // position of the hit point
-  Point3 N;           // surface normal at the hit point
-  Point3 uvw;         // texture coordinate at the hit point
-  Point3 duvw[2];     // derivatives of the texture coordinate
-  int mtlID;          // sub-material index
-  const Node *
-      node;   // the object node that was hit, false if the ray hits the back side
-  //------------------//
-  bool hasFrontHit;   // true if the ray hits the front side,
-  bool hasTexture;
-  //------------------
-
-  HitInfo() { Init(); }
-
-  void Init()
-  {
-    z = BIGFLOAT;
-    uvw = Point3(0.5f, 0.5f, 0.5f);
-    duvw[0] = Point3(0.0f);
-    duvw[1] = Point3(0.0f);
-    node = NULL;
-    mtlID = 0;
-    hasFrontHit = true;
-    hasTexture = false;
-  }
-};
-
-struct DiffHitInfo {
-  HitInfo c;
-  HitInfoCore x, y;
-
-  DiffHitInfo() { Init(); }
-
-  void Init()
-  {
-    c.Init();
-    x.Init();
-    y.Init();
-  }
-};
 //-----------------------------------------------------------------------------
-
-class ItemBase {
- private:
-  char *name;          // The name of the item
-
- public:
-  ItemBase() : name(NULL) {}
-
-  virtual ~ItemBase() { if (name) delete[] name; }
-
-  const char *GetName() const { return name ? name : ""; }
-
-  void SetName(const char *newName)
-  {
-    if (name) delete[] name;
-    if (newName) {
-      int n = strlen(newName);
-      name = new char[n + 1];
-      for (int i = 0; i < n; i++) name[i] = newName[i];
-      name[n] = '\0';
-    } else { name = NULL; }
-  }
-};
-
-template<class T>
-class ItemList : public std::vector<T *> {
- public:
-  virtual ~ItemList() { DeleteAll(); }
-
-  void DeleteAll()
-  {
-    int n = (int) this->size();
-    for (int i = 0; i < n; i++) if (this->at(i)) delete this->at(i);
-  }
-};
-
-template<class T>
-class ItemFileList {
- public:
-  void Clear() { list.DeleteAll(); }
-
-  void Append(T *item, const char *name)
-  {
-    list.push_back(new FileInfo(item, name));
-  }
-
-  T *Find(const char *name) const
-  {
-    int n = list.size();
-    for (int i = 0; i < n; i++)
-      if (list[i] && strcmp(name, list[i]->GetName()) == 0)
-        return list[i]->GetObj();
-    return NULL;
-  }
-
- private:
-  class FileInfo : public ItemBase {
-   private:
-    T *item;
-   public:
-    FileInfo() : item(NULL) {}
-
-    FileInfo(T *_item, const char *name) : item(_item) { SetName(name); }
-
-    ~FileInfo() { Delete(); }
-
-    void Delete()
-    {
-      if (item) delete item;
-      item = NULL;
-    }
-
-    void SetObj(T *_item)
-    {
-      Delete();
-      item = _item;
-    }
-
-    T *GetObj() { return item; }
-  };
-
-  ItemList<FileInfo> list;
-};
 
 //-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------
 
-class Material;
 
-// Base class for all object types
-class Object {
- public:
-  virtual ~Object() {}
-
-  virtual bool IntersectRay(const Ray &ray,
-                            HitInfo &hInfo,
-                            int hitSide = HIT_FRONT,
-                            DiffRay *diffray = NULL,
-                            DiffHitInfo *diffhit = NULL) const =0;
-
-  virtual Box GetBoundBox() const =0;
-
-  virtual void ViewportDisplay(const Material *mtl) const {}  // used for OpenGL display
-};
-
-typedef ItemFileList<Object> ObjFileList;
 
 //-----------------------------------------------------------------------------
 
-class Light : public ItemBase {
- public:
-  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const =0;
-
-  virtual Point3 Direction(const Point3 &p) const =0;
-
-  virtual bool IsAmbient() const { return false; }
-
-  virtual void SetViewportLight(int lightID) const {}  // used for OpenGL display
-};
-
-class LightList : public ItemList<Light> {
-};
-
 //-----------------------------------------------------------------------------
 
-class Material : public ItemBase {
- public:
-  static int maxBounce;
- public:
-  // The main method that handles the shading by calling all the lights in the list.
-  // ray: incoming ray,
-  // hInfo: hit information for the point that is being shaded, lights: the light list,
-  // bounceCount: permitted number of additional bounces for reflection and refraction.
-  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
-                      const LightList &lights, int bounceCount) const =0;
-
-  virtual void SetViewportMaterial(int subMtlID = 0) const {}  // used for OpenGL display
-};
-
-class MaterialList : public ItemList<Material> {
- public:
-  Material *Find(const char *name)
-  {
-    int n = size();
-    for (int i = 0; i < n; i++)
-      if (at(i) && strcmp(name, at(i)->GetName()) == 0)return at(i);
-    return NULL;
-  }
-};
 
 //-------------------------------------------------------------------------------
 
@@ -493,141 +296,6 @@ class TexturedColor {
 
 //-----------------------------------------------------------------------------
 
-class Node : public ItemBase, public Transformation {
- private:
-  Node **child;    // Child nodes
-  int numChild;    // The number of child nodes
-  Object *obj;    // Object reference
-  // (merely points to the object, but does not own the object,
-  //  so it doesn't get deleted automatically)
-  Material *mtl;  // Material used for shading the object
-  Box childBoundBox;  // Bounding box of the child nodes,
-  // which does not include the object of this node,
-  // but includes the objects of the child nodes
- public:
-  Node() : child(NULL), numChild(0), obj(NULL), mtl(NULL) {}
-
-  virtual ~Node() { DeleteAllChildNodes(); }
-
-  // Initialize the node deleting all child nodes
-  void Init()
-  {
-    DeleteAllChildNodes();
-    obj = NULL;
-    mtl = NULL;
-    SetName(NULL);
-    InitTransform();
-  }
-
-  // Hierarchy management
-  int GetNumChild() const { return numChild; }
-
-  void SetNumChild(int n, int keepOld = false)
-  {
-    if (n < 0) n = 0;  // just to be sure
-    Node **nc = NULL;  // new child pointer
-    if (n > 0) nc = new Node *[n];
-    for (int i = 0; i < n; i++) nc[i] = NULL;
-    if (keepOld) {
-      int sn = MIN(n, numChild);
-      for (int i = 0; i < sn; i++) nc[i] = child[i];
-    }
-    if (child) delete[] child;
-    child = nc;
-    numChild = n;
-  }
-
-  const Node *GetChild(int i) const { return child[i]; }
-
-  Node *GetChild(int i) { return child[i]; }
-
-  void SetChild(int i, Node *node) { child[i] = node; }
-
-  void AppendChild(Node *node)
-  {
-    SetNumChild(numChild + 1, true);
-    SetChild(numChild - 1, node);
-  }
-
-  void RemoveChild(int i)
-  {
-    for (int j = i; j < numChild - 1; j++) child[j] = child[j + 1];
-    SetNumChild(numChild - 1);
-  }
-
-  void DeleteAllChildNodes()
-  {
-    for (int i = 0; i < numChild; i++) {
-      child[i]->DeleteAllChildNodes();
-      delete child[i];
-    }
-    SetNumChild(0);
-  }
-
-  // Bounding Box
-  const Box &ComputeChildBoundBox()
-  {
-    childBoundBox.Init();
-    for (int i = 0; i < numChild; i++) {
-      Box childBox = child[i]->ComputeChildBoundBox();
-      Object *cobj = child[i]->GetNodeObj();
-      if (cobj) childBox += cobj->GetBoundBox();
-      if (!childBox.IsEmpty()) {
-        // transform the box from child coordinates
-        for (int j = 0; j < 8; j++)
-          childBoundBox += child[i]->TransformFrom(childBox.Corner(j));
-      }
-    }
-    return childBoundBox;
-  }
-
-  const Box &GetChildBoundBox() const { return childBoundBox; }
-
-  // Object management
-  const Object *GetNodeObj() const { return obj; }
-
-  Object *GetNodeObj() { return obj; }
-
-  void SetNodeObj(Object *object) { obj = object; }
-
-  // Material management
-  const Material *GetMaterial() const { return mtl; }
-
-  void SetMaterial(Material *material) { mtl = material; }
-
-  // Transformations
-  Ray ToNodeCoords(const Ray &ray) const
-  {
-    Ray r;
-    r.p = TransformTo(ray.p);
-    r.dir = TransformTo(ray.p + ray.dir) - r.p;
-    return r;
-  }
-
-  DiffRay ToNodeCoords(const DiffRay &ray) const
-  {
-    DiffRay r;
-    r.c = ToNodeCoords(ray.c);
-    r.x = ToNodeCoords(ray.x);
-    r.y = ToNodeCoords(ray.y);
-    return r;
-  }
-
-  void FromNodeCoords(HitInfo &hInfo) const
-  {
-    hInfo.p = TransformFrom(hInfo.p);
-    hInfo.N = glm::normalize(VectorTransformFrom(hInfo.N));
-  }
-
-  void FromNodeCoords(DiffHitInfo &hInfo) const
-  {
-    FromNodeCoords(hInfo.c);
-    hInfo.x.p = TransformFrom(hInfo.x.p);
-    hInfo.x.N = glm::normalize(VectorTransformFrom(hInfo.x.N));
-    hInfo.y.p = TransformFrom(hInfo.y.p);
-    hInfo.y.N = glm::normalize(VectorTransformFrom(hInfo.y.N));
-  }
-};
 
 //-----------------------------------------------------------------------------
 

@@ -91,7 +91,7 @@ Point3 GetCirclePoint(float R)
     p.x = (2.f * r1 - 1.f) * R;
     p.y = (2.f * r2 - 1.f) * R;
     p.z = (2.f * r3 - 1.f) * R;
-  } while (glm::length(p) > R);
+  } while (length(p) > R);
   return p;
 }
 

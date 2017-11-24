@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 11/24/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,36 +25,34 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CORE_H
-#define QARAY_CORE_H
+#ifndef QARAY_MATERIAL_H
+#define QARAY_MATERIAL_H
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <atomic>
-
-#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+#include "core/core.h"
+#include "core/items.h"
 
 namespace qaray {
-class Box;
-class Camera;
-class DiffRay;
-class DiffHitInfo;
-class HitInfo;
-class Light;
-class LightList;
-class ItemBase;
-class Node;
-class Ray;
-class Sampler;
-class Transformation;
-class Object;
-class Material;
-class MaterialList;
-template<class T> class ItemList;
-template<class T> class ItemFileList;
+class Material : public ItemBase {
+ public:
+  static int maxBounce;
+ public:
+  //
+  // The main method that handles the shading by calling all the lights in the
+  // list
+  //
+  // ray: incoming ray,
+  // hInfo: hit information for the point that is being shaded,
+  // lights: the light list,
+  // bounceCount: permitted number of additional bounces for reflection and
+  //              refraction.
+  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+                        const LightList &lights, int bounceCount) const = 0;
+  virtual void SetViewportMaterial(int subMtlID = 0) const {}  // used for OpenGL display
 };
-
-#endif //QARAY_CORE_H
+class MaterialList : public ItemList<Material> {
+ public:
+  Material *Find(const char *name);
+};
+}
+#endif //QARAY_MATERIAL_H

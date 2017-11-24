@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 11/24/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,36 +25,66 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_CORE_H
-#define QARAY_CORE_H
+#ifndef QARAY_ITEMS_H
+#define QARAY_ITEMS_H
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <atomic>
-
-#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+#include "core/core.h"
+#include "math/math.h"
 
 namespace qaray {
-class Box;
-class Camera;
-class DiffRay;
-class DiffHitInfo;
-class HitInfo;
-class Light;
-class LightList;
-class ItemBase;
-class Node;
-class Ray;
-class Sampler;
-class Transformation;
-class Object;
-class Material;
-class MaterialList;
-template<class T> class ItemList;
-template<class T> class ItemFileList;
+//-----------------------------------------------------------------------------
+class ItemBase {
+ private:
+  char *name;          // The name of the item
+ public:
+  ItemBase() : name(nullptr) {}
+  virtual ~ItemBase() { if (name) delete[] name; }
+  const char *GetName() const { return name ? name : ""; }
+  void SetName(const char *newName);
 };
+//-----------------------------------------------------------------------------
+template<class T>
+class ItemList : public std::vector<T *> {
+ public:
+  virtual ~ItemList() { DeleteAll(); }
+  void DeleteAll()
+  {
+    size_t n = (int) this->size();
+    for (size_t i = 0; i < n; i++) if (this->at(i)) delete this->at(i);
+  }
+};
+//-----------------------------------------------------------------------------
+template<class T>
+class ItemFileList {
+ public:
+  void Clear() { list.DeleteAll(); }
+  void Append(T *item, const char *name)
+  {
+    list.push_back(new FileInfo(item, name));
+  }
+  T *Find(const char *name) const
+  {
+    size_t n = list.size();
+    for (size_t i = 0; i < n; i++)
+      if (list[i] && strcmp(name, list[i]->GetName()) == 0)
+        return list[i]->GetObj();
+    return nullptr;
+  }
+ private:
+  class FileInfo : public ItemBase {
+   private:
+    T *item;
+   public:
+    FileInfo() : item(nullptr) {}
+    FileInfo(T *_item, const char *name) : item(_item) { SetName(name); }
+    ~FileInfo() { Delete(); }
+    void Delete() { if (item) delete item; item = nullptr; }
+    void SetObj(T *_item) { Delete(); item = _item; }
+    T *GetObj() { return item; }
+  };
+  ItemList<FileInfo> list;
+};
+}
 
-#endif //QARAY_CORE_H
+#endif //QARAY_ITEMS_H
