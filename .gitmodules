@@ -1,3 +1,0 @@
-[submodule "web"]
-	path = web
-	url = git@bitbucket.org:WilsonOverCloud/2017-raytracing-web.git
