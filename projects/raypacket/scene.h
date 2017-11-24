@@ -118,7 +118,7 @@ bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);
 
 class SuperSampler {
  public:
-  virtual const Color &GetColor() const = 0;
+  virtual const Color3f &GetColor() const = 0;
 
   virtual int GetSampleID() const = 0;
 
@@ -128,22 +128,22 @@ class SuperSampler {
 
   virtual Point3 NewDofSample(const float) = 0;
 
-  virtual void Accumulate(const Color &localColor) = 0;
+  virtual void Accumulate(const Color3f &localColor) = 0;
 
   virtual void Increment() = 0;
 };
 
 class SuperSamplerHalton : public SuperSampler {
  private:
-  const Color th;
+  const Color3f th;
   const int sppMin, sppMax;
-  Color color_std = Color(0.0f, 0.0f, 0.0f);
-  Color color = Color(0.0f, 0.0f, 0.0f);
+  Color3f color_std = Color3f(0.0f, 0.0f, 0.0f);
+  Color3f color = Color3f(0.0f, 0.0f, 0.0f);
   int s = 0;
  public:
-  SuperSamplerHalton(const Color th, const int sppMin, const int sppMax);
+  SuperSamplerHalton(const Color3f th, const int sppMin, const int sppMax);
 
-  const Color &GetColor() const;
+  const Color3f &GetColor() const;
 
   int GetSampleID() const;
 
@@ -153,7 +153,7 @@ class SuperSamplerHalton : public SuperSampler {
 
   Point3 NewDofSample(const float);
 
-  void Accumulate(const Color &localColor);
+  void Accumulate(const Color3f &localColor);
 
   void Increment();
 };
@@ -529,7 +529,7 @@ typedef ItemFileList<Object> ObjFileList;
 
 class Light : public ItemBase {
  public:
-  virtual Color Illuminate(const Point3 &p, const Point3 &N) const =0;
+  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const =0;
 
   virtual Point3 Direction(const Point3 &p) const =0;
 
@@ -551,7 +551,7 @@ class Material : public ItemBase {
   // ray: incoming ray,
   // hInfo: hit information for the point that is being shaded, lights: the light list,
   // bounceCount: permitted number of additional bounces for reflection and refraction.
-  virtual Color Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
                       const LightList &lights, int bounceCount) const =0;
 
   virtual void SetViewportMaterial(int subMtlID = 0) const {}  // used for OpenGL display
@@ -573,15 +573,15 @@ class MaterialList : public ItemList<Material> {
 class Texture : public ItemBase {
  public:
   // Evaluates the color at the given uvw location.
-  virtual Color Sample(const Point3 &uvw) const =0;
+  virtual Color3f Sample(const Point3 &uvw) const =0;
 
   // Evaluates the color around the given uvw location using the derivatives duvw
   // by calling the Sample function multiple times.
-  virtual Color Sample(const Point3 &uvw,
+  virtual Color3f Sample(const Point3 &uvw,
                        const Point3 duvw[2],
                        bool elliptic = true) const
   {
-    Color c = Sample(uvw);
+    Color3f c = Sample(uvw);
     if (glm::length2(duvw[0]) + glm::length2(duvw[1]) == 0) return c;
     for (int i = 1; i < TEXTURE_SAMPLE_COUNT; i++) {
       float x = Halton(i, 2);
@@ -630,16 +630,16 @@ class TextureMap : public Transformation {
 
   void SetTexture(Texture *tex) { texture = tex; }
 
-  virtual Color Sample(const Point3 &uvw) const
+  virtual Color3f Sample(const Point3 &uvw) const
   {
-    return texture ? texture->Sample(TransformTo(uvw)) : Color(0, 0, 0);
+    return texture ? texture->Sample(TransformTo(uvw)) : Color3f(0, 0, 0);
   }
 
-  virtual Color Sample(const Point3 &uvw,
+  virtual Color3f Sample(const Point3 &uvw,
                        const Point3 duvw[2],
                        bool elliptic = true) const
   {
-    if (texture == NULL) return Color(0, 0, 0);
+    if (texture == NULL) return Color3f(0, 0, 0);
     Point3 u = TransformTo(uvw);
     Point3 d[2];
     d[0] = TransformTo(duvw[0] + uvw) - u;
@@ -664,7 +664,7 @@ class TextureMap : public Transformation {
 // by the color value.
 class TexturedColor {
  private:
-  Color color;
+  Color3f color;
   TextureMap *map;
  public:
   TexturedColor() : color(0, 0, 0), map(NULL) {}
@@ -673,7 +673,7 @@ class TexturedColor {
 
   virtual ~TexturedColor() { if (map) delete map; }
 
-  void SetColor(const Color &c) { color = c; }
+  void SetColor(const Color3f &c) { color = c; }
 
   void SetTexture(TextureMap *m)
   {
@@ -681,16 +681,16 @@ class TexturedColor {
     map = m;
   }
 
-  Color GetColor() const { return color; }
+  Color3f GetColor() const { return color; }
 
   const TextureMap *GetTexture() const { return map; }
 
-  Color Sample(const Point3 &uvw) const
+  Color3f Sample(const Point3 &uvw) const
   {
     return (map) ? color * map->Sample(uvw) : color;
   }
 
-  Color Sample(const Point3 &uvw,
+  Color3f Sample(const Point3 &uvw,
                const Point3 duvw[2],
                bool elliptic = true) const
   {
@@ -698,7 +698,7 @@ class TexturedColor {
   }
 
   // Returns the color value at the given direction for environment mapping.
-  Color SampleEnvironment(const Point3 &dir) const
+  Color3f SampleEnvironment(const Point3 &dir) const
   {
     float z = asinf(-dir.z) / float(M_PI) + 0.5f;
     float x = dir.x / (fabs(dir.x) + fabs(dir.y));

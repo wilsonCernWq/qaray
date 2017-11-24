@@ -17,7 +17,7 @@ MtlBlinn_PathTracing::MtlBlinn_PathTracing() :
 
 //------------------------------------------------------------------------------
 
-float ColorMax(const Color &c) { return MAX(c.x, MAX(c.y, c.z)); }
+float ColorMax(const Color3f &c) { return MAX(c.x, MAX(c.y, c.z)); }
 
 void GetRandomSamples(const DiffHitInfo &hInfo, float &r1, float &r2)
 {
@@ -46,7 +46,7 @@ void MtlBlinn_PathTracing::SetRefractionGlossiness(float gloss)
                          1.f / gloss : -1.f;
 }
 
-Color MtlBlinn_PathTracing::Shade(const DiffRay &ray,
+Color3f MtlBlinn_PathTracing::Shade(const DiffRay &ray,
                                   const DiffHitInfo &hInfo,
                                   const LightList &lights,
                                   int bounceCount)
@@ -55,7 +55,7 @@ const
   //
   // Differential Geometry
   //
-  Color color = hInfo.c.hasTexture ?
+  Color3f color = hInfo.c.hasTexture ?
                 emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
                 emission.GetColor();
   // Surface Normal In World Coordinate
@@ -96,19 +96,19 @@ const
   // Reflection and Transmission Colors
   //
   const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
-  const Color tK =
+  const Color3f tK =
       hInfo.c.hasTexture ?
       refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
-  const Color rK =
+  const Color3f rK =
       hInfo.c.hasTexture ?
       reflection.Sample(hInfo.c.uvw, hInfo.c.duvw) : reflection.GetColor();
-  const Color sampleRefraction = totReflection ? Color(0.f) : tK * tC;
-  const Color sampleReflection = totReflection ? (rK + tK) : (rK + tK * rC);
-  const Color sampleDiffuse =
+  const Color3f sampleRefraction = totReflection ? Color3f(0.f) : tK * tC;
+  const Color3f sampleReflection = totReflection ? (rK + tK) : (rK + tK * rC);
+  const Color3f sampleDiffuse =
       hInfo.c.hasTexture ?
       diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       diffuse.GetColor();
-  const Color sampleSpecular =
+  const Color3f sampleSpecular =
       hInfo.c.hasTexture ?
       specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       specular.GetColor();
@@ -176,7 +176,7 @@ const
     //
     // Select a BxDF
     float PDF = 1.f;
-    Color BxDF(0.f);
+    Color3f BxDF(0.f);
     /* Refraction */
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
       if (refractionGlossiness > glossiness_power_threshold) {
@@ -274,7 +274,7 @@ const
       sampleHInfo.c.haltonRNG = hInfo.c.haltonRNG;
       sampleRay.Normalize();
       // Integrate Incoming Ray
-      Color incoming(0.f);
+      Color3f incoming(0.f);
       if (TraceNodeNormal(rootNode, sampleRay, sampleHInfo)) {
         // Attenuation When the Ray Travels Inside the Material
         if (!sampleHInfo.c.hasFrontHit) {

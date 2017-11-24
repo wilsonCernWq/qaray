@@ -67,8 +67,8 @@ static int mouseX = 0, mouseY = 0;
 static float viewAngle1 = 0, viewAngle2 = 0;
 static GLuint viewTexture;
 static int dofDrawCount = 0;
-static Color *dofImage = NULL;
-static Color24 *dofBuffer = NULL;
+static Color3f *dofImage = NULL;
+static Color3c *dofBuffer = NULL;
 #define MAX_DOF_DRAW 32
 #endif
 //------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void ShowViewport()
   glutKeyboardFunc(GlutKeyboard);
   glutMouseFunc(GlutMouse);
   glutMotionFunc(GlutMotion);
-  Color bg = background.GetColor();
+  Color3f bg = background.GetColor();
   glClearColor(bg.r, bg.g, bg.b, 0);
   glPointSize(3.0);
   glEnable(GL_CULL_FACE);
@@ -118,9 +118,9 @@ void ShowViewport()
   glLineWidth(2);
 
   if (camera.dof > 0) {
-    dofBuffer = new Color24[camera.imgWidth * camera.imgHeight];
-    dofImage = new Color[camera.imgWidth * camera.imgHeight];
-    memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color));
+    dofBuffer = new Color3c[camera.imgWidth * camera.imgHeight];
+    dofImage = new Color3f[camera.imgWidth * camera.imgHeight];
+    memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color3f));
   }
 
   glGenTextures(1, &viewTexture);
@@ -190,7 +190,7 @@ void DrawScene()
     glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
-    Color c = background.GetColor();
+    Color3f c = background.GetColor();
     glColor3f(c.r, c.g, c.b);
     if (bgMap->SetViewportTexture()) {
       glEnable(GL_TEXTURE_2D);
@@ -432,9 +432,9 @@ void GlutKeyboard(unsigned char key, int x, int y)
         case MODE_READY:mode = MODE_RENDERING;
           viewMode = VIEWMODE_IMAGE;
           if (dofImage) {
-            Color24 *p = renderImage.GetPixels();
+            Color3c *p = renderImage.GetPixels();
             for (int i = 0; i < camera.imgWidth * camera.imgHeight; i++)
-              p[i] = Color24(dofImage[i]);
+              p[i] = Color3c(dofImage[i]);
           } else {
             DrawScene();
             glReadPixels(0,
@@ -445,13 +445,13 @@ void GlutKeyboard(unsigned char key, int x, int y)
                          GL_UNSIGNED_BYTE,
                          renderImage.GetPixels());
             {
-              Color24 *c = renderImage.GetPixels();
+              Color3c *c = renderImage.GetPixels();
               for (int y0 = 0, y1 = renderImage.GetHeight() - 1; y0 < y1;
                    y0++, y1--) {
                 int i0 = y0 * renderImage.GetWidth();
                 int i1 = y1 * renderImage.GetWidth();
                 for (int x = 0; x < renderImage.GetWidth(); x++, i0++, i1++) {
-                  Color24 t = c[i0];
+                  Color3c t = c[i0];
                   c[i0] = c[i1];
                   c[i1] = t;
                 }
@@ -495,10 +495,10 @@ void GlutKeyboard(unsigned char key, int x, int y)
 void PrintPixelData(int x, int y)
 {
   if (x < renderImage.GetWidth() && y < renderImage.GetHeight()) {
-    Color24 *colors = renderImage.GetPixels();
+    Color3c *colors = renderImage.GetPixels();
     float *zbuffer = renderImage.GetZBuffer();
     int i = (y) * renderImage.GetWidth() + x;
-    printf("Pixel [ %d, %d ] Color24: %d, %d, %d   Z: %f\n",
+    printf("Pixel [ %d, %d ] Color3c: %d, %d, %d   Z: %f\n",
            x, y, colors[i].r, colors[i].g, colors[i].b, zbuffer[i]);
   } else {
     printf("-- Invalid pixel (%d,%d) --\n", x, y);
@@ -633,13 +633,13 @@ void TriObj::ViewportDisplay(const Material *mtl) const
 void MtlBlinn_PathTracing::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
-  ColorA c;
-  c = ColorA(diffuse.GetColor(), 1.f);
+  Color4f c;
+  c = Color4f(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = ColorA(specular.GetColor(), 1.f);
+  c = Color4f(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, specularGlossiness * 1.5f);
-  c = ColorA(emission.GetColor(), 1.f);
+  c = Color4f(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
   if (dm && dm->SetViewportTexture()) {
@@ -665,13 +665,13 @@ void MtlBlinn_PathTracing::SetViewportMaterial(int subMtlID) const
 void MtlBlinn_MonteCarloGI::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
-  ColorA c;
-  c = ColorA(diffuse.GetColor(), 1.f);
+  Color4f c;
+  c = Color4f(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = ColorA(specular.GetColor(), 1.f);
+  c = Color4f(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = ColorA(emission.GetColor(), 1.f);
+  c = Color4f(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
   if (dm && dm->SetViewportTexture()) {
@@ -697,13 +697,13 @@ void MtlBlinn_MonteCarloGI::SetViewportMaterial(int subMtlID) const
 void MtlBlinn_Basic::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
-  ColorA c;
-  c = ColorA(diffuse.GetColor(), 1.f);
+  Color4f c;
+  c = Color4f(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = ColorA(specular.GetColor(), 1.f);
+  c = Color4f(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = ColorA(emission.GetColor(), 1.f);
+  c = Color4f(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
   if (dm && dm->SetViewportTexture()) {
@@ -729,13 +729,13 @@ void MtlBlinn_Basic::SetViewportMaterial(int subMtlID) const
 void MtlPhong_Basic::SetViewportMaterial(int subMtlID) const
 {
 #ifdef USE_GUI
-  ColorA c;
-  c = ColorA(diffuse.GetColor(), 1.f);
+  Color4f c;
+  c = Color4f(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = ColorA(specular.GetColor(), 1.f);
+  c = Color4f(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = ColorA(emission.GetColor(), 1.f);
+  c = Color4f(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
   if (dm && dm->SetViewportTexture()) {
@@ -763,13 +763,13 @@ bool TextureFile::SetViewportTexture() const
 {
 #ifdef USE_GUI
   if (viewportTextureID == 0) {
-    std::vector<uchar> flip(width * height * 3, 0);
+    std::vector<qaUCHAR> flip(width * height * 3, 0);
     for (int y = 0; y < height; ++y) {
       const auto dst_idx = 3 * ((height - y - 1) * width + 0);
       const auto src_idx = y * width + 0;
       std::memcpy(&flip[dst_idx],
                   &(data[src_idx].r),
-                  3 * width * sizeof(uchar));
+                  3 * width * sizeof(qaUCHAR));
     }
     glGenTextures(1, &viewportTextureID);
     glBindTexture(GL_TEXTURE_2D, viewportTextureID);
@@ -797,11 +797,11 @@ bool TextureChecker::SetViewportTexture() const
     const int texSize = 256;
     glGenTextures(1, &viewportTextureID);
     glBindTexture(GL_TEXTURE_2D, viewportTextureID);
-    Color24 c[2] = {
-        Color24(color1 * 255.f),
-        Color24(color2 * 255.f)
+    Color3c c[2] = {
+        Color3c(color1 * 255.f),
+        Color3c(color2 * 255.f)
     };
-    Color24 *tex = new Color24[texSize * texSize];
+    Color3c *tex = new Color3c[texSize * texSize];
     for (int i = 0; i < texSize * texSize; i++) {
       int ix = (i % texSize) < 128 ? 0 : 1;
       if (i / 256 >= 128) ix = 1 - ix;
@@ -826,8 +826,8 @@ bool TextureChecker::SetViewportTexture() const
 
 //------------------------------------------------------------------------------
 void GenLight::SetViewportParam(int lightID,
-                                ColorA ambient,
-                                ColorA intensity,
+                                Color4f ambient,
+                                Color4f intensity,
                                 Point4 pos) const
 {
 #ifdef USE_GUI

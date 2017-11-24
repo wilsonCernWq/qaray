@@ -29,7 +29,7 @@ int ReadLine(FILE *fp, int size, char *buffer)
 
 //-------------------------------------------------------------------------------
 
-bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color24> &data)
+bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color3c> &data)
 {
   const int bufferSize = 1024;
   char buffer[bufferSize];
@@ -47,7 +47,7 @@ bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color24> &data)
   // last read line should be "255\n"
 
   data.resize(width * height);
-  fread(data.data(), sizeof(Color24), width * height, fp);
+  fread(data.data(), sizeof(Color3c), width * height, fp);
 
   return true;
 }
@@ -93,9 +93,9 @@ bool TextureFile::Load()
 
 //-------------------------------------------------------------------------------
 
-Color TextureFile::Sample(const Point3 &uvw) const
+Color3f TextureFile::Sample(const Point3 &uvw) const
 {
-  if (width + height == 0) return Color(0, 0, 0);
+  if (width + height == 0) return Color3f(0, 0, 0);
 
   Point3 fliped_uvw(uvw.x, 1.f - uvw.y, uvw.z);
   Point3 u = TileClamp(fliped_uvw);
@@ -125,7 +125,7 @@ Color TextureFile::Sample(const Point3 &uvw) const
 
 //-------------------------------------------------------------------------------
 
-Color TextureChecker::Sample(const Point3 &uvw) const
+Color3f TextureChecker::Sample(const Point3 &uvw) const
 {
   Point3 u = TileClamp(uvw);
   if (u.x <= 0.5f) {

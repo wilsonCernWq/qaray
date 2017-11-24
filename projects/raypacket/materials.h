@@ -15,7 +15,7 @@
 
 //------------------------------------------------------------------------------
 
-Color Attenuation(const Color &absorption, const float l);
+Color3f Attenuation(const Color3f &absorption, const float l);
 
 float LinearToSRGB(const float c);
 
@@ -42,12 +42,12 @@ class MultiMtl : public Material {
     for (unsigned int i = 0; i < mtls.size(); i++) delete mtls[i];
   }
 
-  virtual Color Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
                       const LightList &lights, int bounceCount) const
   {
     return hInfo.c.mtlID < (int) mtls.size() ?
            mtls[hInfo.c.mtlID]->Shade(ray, hInfo, lights, bounceCount) :
-           Color(1, 1, 1);
+           Color3f(1, 1, 1);
   }
 
   virtual void SetViewportMaterial(int subMtlID = 0) const

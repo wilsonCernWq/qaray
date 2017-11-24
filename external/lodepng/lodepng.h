@@ -311,7 +311,7 @@ void lodepng_compress_settings_init(LodePNGCompressSettings* settings);
 
 #ifdef LODEPNG_COMPILE_PNG
 /*
-Color mode of an image. Contains all information required to decode the pixel
+Color3f mode of an image. Contains all information required to decode the pixel
 bits to RGBA colors. This information is the same as used in the PNG file
 format, and is used both for PNG and raw image data in LodePNG.
 */

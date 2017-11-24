@@ -1,3 +1,29 @@
+///--------------------------------------------------------------------------//
+///                                                                          //
+/// Created by Qi WU on 11/23/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
+///                                                                          //
+/// Redistribution and use in source and binary forms, with or without       //
+/// modification, are permitted provided that the following conditions are   //
+/// met:                                                                     //
+///  - Redistributions of source code must retain the above copyright        //
+///    notice, this list of conditions and the following disclaimer.         //
+///  - Redistributions in binary form must reproduce the above copyright     //
+///    notice, this list of conditions and the following disclaimer in the   //
+///    documentation and/or other materials provided with the distribution.  //
+/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS  //
+/// IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED    //
+/// TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A          //
+/// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT       //
+/// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,   //
+/// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT         //
+/// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,    //
+/// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY    //
+/// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT      //
+/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE    //
+/// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     //
+///                                                                          //
+///--------------------------------------------------------------------------//
 #pragma once
 
 #include <atomic>
@@ -8,13 +34,13 @@
 
 class RenderImage {
  private:
-  uchar *mask;
-  Color24 *img;
+  qaUCHAR *mask;
+  Color3c *img;
   float *zbuffer;
-  uchar *zbufferImg;
-  uchar *sampleCount;
-  uchar *sampleCountImg;
-  uchar *irradComp;
+  qaUCHAR *zbufferImg;
+  qaUCHAR *sampleCount;
+  qaUCHAR *sampleCountImg;
+  qaUCHAR *irradComp;
   int width, height;
   std::atomic<int> numRenderedPixels;
  public:
@@ -30,19 +56,19 @@ class RenderImage {
 
   int GetHeight() const { return height; }
 
-  Color24 *GetPixels() { return img; }
+  Color3c *GetPixels() { return img; }
 
-  uchar *GetMasks() { return mask; }
+  qaUCHAR *GetMasks() { return mask; }
 
   float *GetZBuffer() { return zbuffer; }
 
-  uchar *GetZBufferImage() { return zbufferImg; }
+  qaUCHAR *GetZBufferImage() { return zbufferImg; }
 
-  uchar *GetSampleCount() { return sampleCount; }
+  qaUCHAR *GetSampleCount() { return sampleCount; }
 
-  uchar *GetSampleCountImage() { return sampleCountImg; }
+  qaUCHAR *GetSampleCountImage() { return sampleCountImg; }
 
-  uchar *GetIrradianceComputationImage() { return irradComp; }
+  qaUCHAR *GetIrradianceComputationImage() { return irradComp; }
 
   void ResetNumRenderedPixels();
 
@@ -65,7 +91,7 @@ class RenderImage {
   bool SaveIrradianceComputationImage(const char *filename) const;
 
  private:
-  bool SavePNG(const char *filename, uchar *data, int compCount) const;
+  bool SavePNG(const char *filename, qaUCHAR *data, int compCount) const;
 };
 
 //-----------------------------------------------------------------------------

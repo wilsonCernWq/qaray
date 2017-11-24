@@ -41,10 +41,10 @@ static float screenW, screenH, aspect;
 static Point3 screenX, screenY, screenZ;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
-static Color24 *colorBuffer = NULL; // RGB uchar
+static Color3c *colorBuffer = NULL; // RGB qaUCHAR
 static float *depthBuffer = NULL;
-static uchar *sampleCountBuffer = NULL;
-static uchar *maskBuffer = NULL;
+static qaUCHAR *sampleCountBuffer = NULL;
+static qaUCHAR *maskBuffer = NULL;
 static int pixelW, pixelH;       // global size in pixel
 static int pixelRegion[4] = {0}; // local image offset [x y]
 static int pixelSize[2] = {0}; // local image size
@@ -74,7 +74,7 @@ float LinearToSRGB(const float c)
 void PixelRender(const int i, const int j, const int tile_idx)
 {
   // initializations
-  SuperSamplerHalton sampler(Color(0.005f, 0.001f, 0.005f), sppMin, sppMax);
+  SuperSamplerHalton sampler(Color3f(0.005f, 0.001f, 0.005f), sppMin, sppMax);
   float depth = 0.0f;
   // start looping
   while (sampler.Loop()) {
@@ -98,7 +98,7 @@ void PixelRender(const int i, const int j, const int tile_idx)
     hInfo.c.z = BIGFLOAT;
     hInfo.c.haltonRNG = nullptr;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
-    Color localColor;
+    Color3f localColor;
     if (hasHit) {
       localColor =
           hInfo.c.node->GetMaterial()->Shade(ray, hInfo, lights, bounce);
@@ -114,8 +114,8 @@ void PixelRender(const int i, const int j, const int tile_idx)
     // increment
     sampler.Increment();
   }
-  // Post Process Color
-  Color color = sampler.GetColor();
+  // Post Process Color3f
+  Color3f color = sampler.GetColor();
   if (sRGBCorrection) {
     color.r = LinearToSRGB(color.r);
     color.g = LinearToSRGB(color.g);
@@ -131,9 +131,9 @@ void PixelRender(const int i, const int j, const int tile_idx)
   color.b = MAX(0.f, MIN(1.f, color.b));
   // Write to Framebuffer
   const int idx = (j - pixelRegion[1]) * pixelSize[0] + i - pixelRegion[0];
-  colorBuffer[idx].r = static_cast<uchar>(round(color.r * 255.f));
-  colorBuffer[idx].g = static_cast<uchar>(round(color.g * 255.f));
-  colorBuffer[idx].b = static_cast<uchar>(round(color.b * 255.f));
+  colorBuffer[idx].r = static_cast<qaUCHAR>(round(color.r * 255.f));
+  colorBuffer[idx].g = static_cast<qaUCHAR>(round(color.g * 255.f));
+  colorBuffer[idx].b = static_cast<qaUCHAR>(round(color.b * 255.f));
   depthBuffer[idx] = depth;
   sampleCountBuffer[idx] = 255.f * sampler.GetSampleID() / (float) sppMax;
   maskBuffer[idx] = 1;
@@ -346,7 +346,7 @@ void PlaceImage
     (int srcext[4],
      size_t dstW,
      size_t dstH,
-     const uchar *mask,
+     const qaUCHAR *mask,
      const T *src,
      T *dst)
 {
@@ -391,34 +391,34 @@ void BatchRender()
       if (target == master) {
         int imgext[4] = {(int) pixelRegion[0], (int) pixelRegion[1],
                          (int) pixelRegion[2], (int) pixelRegion[3]};
-        PlaceImage<Color24>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
+        PlaceImage<Color3c>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
                             finalImage.GetPixels());
         PlaceImage<float>(imgext, pixelW, pixelH, maskBuffer, depthBuffer,
                           finalImage.GetZBuffer());
-        PlaceImage<uchar>(imgext, pixelW, pixelH, maskBuffer, sampleCountBuffer,
+        PlaceImage<qaUCHAR>(imgext, pixelW, pixelH, maskBuffer, sampleCountBuffer,
                           finalImage.GetSampleCount());
       } else {
         int imgext[4];
         MPI_Recv(&imgext, 4, MPI_INT, target, tag[0],
                  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
-        Color24 *cbuff = new Color24[buffsize];
+        Color3c *cbuff = new Color3c[buffsize];
         float *zbuff = new float[buffsize];
-        uchar *sbuff = new uchar[buffsize];
-        uchar *mbuff = new uchar[buffsize];
-        MPI_Recv(cbuff, buffsize * sizeof(Color24), MPI_BYTE,
+        qaUCHAR *sbuff = new qaUCHAR[buffsize];
+        qaUCHAR *mbuff = new qaUCHAR[buffsize];
+        MPI_Recv(cbuff, buffsize * sizeof(Color3c), MPI_BYTE,
                  target, tag[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(zbuff, buffsize, MPI_FLOAT, target,
                  tag[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(sbuff, buffsize * sizeof(uchar), MPI_BYTE, target,
+        MPI_Recv(sbuff, buffsize * sizeof(qaUCHAR), MPI_BYTE, target,
                  tag[3], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(mbuff, buffsize * sizeof(uchar), MPI_BYTE, target,
+        MPI_Recv(mbuff, buffsize * sizeof(qaUCHAR), MPI_BYTE, target,
                  tag[4], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        PlaceImage<Color24>(imgext, pixelW, pixelH, mbuff, cbuff,
+        PlaceImage<Color3c>(imgext, pixelW, pixelH, mbuff, cbuff,
                             finalImage.GetPixels());
         PlaceImage<float>(imgext, pixelW, pixelH, mbuff, zbuff,
                           finalImage.GetZBuffer());
-        PlaceImage<uchar>(imgext, pixelW, pixelH, mbuff, sbuff,
+        PlaceImage<qaUCHAR>(imgext, pixelW, pixelH, mbuff, sbuff,
                           finalImage.GetSampleCount());
       }
     }
@@ -433,13 +433,13 @@ void BatchRender()
                      (int) pixelRegion[2], (int) pixelRegion[3]};
     MPI_Send(&imgext, 4, MPI_INT, master, tag[0], MPI_COMM_WORLD);
     int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
-    MPI_Send(colorBuffer, buffsize * sizeof(Color24), MPI_BYTE,
+    MPI_Send(colorBuffer, buffsize * sizeof(Color3c), MPI_BYTE,
              master, tag[1], MPI_COMM_WORLD);
     MPI_Send(depthBuffer, buffsize, MPI_FLOAT,
              master, tag[2], MPI_COMM_WORLD);
-    MPI_Send(sampleCountBuffer, buffsize * sizeof(uchar), MPI_BYTE,
+    MPI_Send(sampleCountBuffer, buffsize * sizeof(qaUCHAR), MPI_BYTE,
              master, tag[3], MPI_COMM_WORLD);
-    MPI_Send(maskBuffer, buffsize * sizeof(uchar), MPI_BYTE,
+    MPI_Send(maskBuffer, buffsize * sizeof(qaUCHAR), MPI_BYTE,
              master, tag[4], MPI_COMM_WORLD);
   }
 #else

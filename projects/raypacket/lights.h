@@ -26,8 +26,8 @@ class GenLight : public Light {
   static int shadow_spp_max;
  protected:
   void SetViewportParam(int lightID,
-                        ColorA ambient,
-                        ColorA intensity,
+                        Color4f ambient,
+                        Color4f intensity,
                         Point4 pos) const;
   static float Shadow(Ray ray, float t_max = BIGFLOAT);
 };
@@ -38,7 +38,7 @@ class AmbientLight : public GenLight {
  public:
   AmbientLight() : intensity(0, 0, 0) {}
 
-  virtual Color Illuminate(const Point3 &p,
+  virtual Color3f Illuminate(const Point3 &p,
                            const Point3 &N) const { return intensity; }
 
   virtual Point3 Direction(const Point3 &p) const { return Point3(0, 0, 0); }
@@ -48,15 +48,15 @@ class AmbientLight : public GenLight {
   virtual void SetViewportLight(int lightID) const
   {
     SetViewportParam(lightID,
-                     ColorA(intensity, 1.f),
-                     ColorA(0.0f),
+                     Color4f(intensity, 1.f),
+                     Color4f(0.0f),
                      Point4(0, 0, 0, 1));
   }
 
-  void SetIntensity(Color intens) { intensity = intens; }
+  void SetIntensity(Color3f intens) { intensity = intens; }
 
  private:
-  Color intensity;
+  Color3f intensity;
 };
 
 //------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ class DirectLight : public GenLight {
  public:
   DirectLight() : intensity(0, 0, 0), direction(0, 0, 1) {}
 
-  virtual Color Illuminate(const Point3 &p, const Point3 &N) const
+  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const
   {
     Ray ray(p, -direction);
     ray.Normalize();
@@ -77,17 +77,17 @@ class DirectLight : public GenLight {
   virtual void SetViewportLight(int lightID) const
   {
     SetViewportParam(lightID,
-                     ColorA(0.0f),
-                     ColorA(intensity, 1.f),
+                     Color4f(0.0f),
+                     Color4f(intensity, 1.f),
                      Point4(-direction, 0.f));
   }
 
-  void SetIntensity(Color intens) { intensity = intens; }
+  void SetIntensity(Color3f intens) { intensity = intens; }
 
   void SetDirection(Point3 dir) { direction = glm::normalize(dir); }
 
  private:
-  Color intensity;
+  Color3f intensity;
   Point3 direction;
 };
 
@@ -97,7 +97,7 @@ class PointLight : public GenLight {
  public:
   PointLight() : intensity(0, 0, 0), position(0, 0, 0), size(0) {}
 
-  virtual Color Illuminate(const Point3 &p, const Point3 &N) const;
+  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const;
 
   virtual Point3 Direction(const Point3 &p) const
   {
@@ -107,19 +107,19 @@ class PointLight : public GenLight {
   virtual void SetViewportLight(int lightID) const
   {
     SetViewportParam(lightID,
-                     ColorA(0.0f),
-                     ColorA(intensity, 1.f),
+                     Color4f(0.0f),
+                     Color4f(intensity, 1.f),
                      Point4(position, 1.f));
   }
 
-  void SetIntensity(Color intens) { intensity = intens; }
+  void SetIntensity(Color3f intens) { intensity = intens; }
 
   void SetPosition(Point3 pos) { position = pos; }
 
   void SetSize(float s) { size = s; }
 
  private:
-  Color intensity;
+  Color3f intensity;
   Point3 position;
   float size;
 };

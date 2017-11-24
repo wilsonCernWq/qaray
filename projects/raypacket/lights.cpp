@@ -42,7 +42,7 @@ float GenLight::Shadow(Ray ray, float t_max)
 
 //------------------------------------------------------------------------------
 
-Color PointLight::Illuminate(const Point3 &p, const Point3 &N) const
+Color3f PointLight::Illuminate(const Point3 &p, const Point3 &N) const
 {
   if (size > 0.01f) {
     int spp = GenLight::shadow_spp_min, s = 0;

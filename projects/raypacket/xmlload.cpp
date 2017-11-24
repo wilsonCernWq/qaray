@@ -45,7 +45,7 @@ void LoadLight(TiXmlElement *element);
 
 void ReadVector(TiXmlElement *element, Point3 &v);
 
-void ReadColor(TiXmlElement *element, Color &c);
+void ReadColor(TiXmlElement *element, Color3f &c);
 
 void ReadFloat(TiXmlElement *element, float &f, const char *name = "value");
 
@@ -160,13 +160,13 @@ void LoadScene(TiXmlElement *element)
        child != NULL; child = child->NextSiblingElement()) {
 
     if (COMPARE(child->Value(), "background")) {
-      Color c(1, 1, 1);
+      Color3f c(1, 1, 1);
       ReadColor(child, c);
       background.SetColor(c);
       PRINTF("Background %f %f %f\n", c.r, c.g, c.b);
       background.SetTexture(ReadTexture(child));
     } else if (COMPARE(child->Value(), "environment")) {
-      Color c(1, 1, 1);
+      Color3f c(1, 1, 1);
       ReadColor(child, c);
       environment.SetColor(c);
       PRINTF("Environment %f %f %f\n", c.r, c.g, c.b);
@@ -233,8 +233,8 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
               for (unsigned int i = 0; i < tobj->NM(); i++) {
                 MtlBlinn *m = new MtlBlinn;
                 const cyTriMesh::Mtl &mtl = tobj->M(i);
-                m->SetDiffuse(Color(mtl.Kd[0], mtl.Kd[1], mtl.Kd[2]));
-                m->SetSpecular(Color(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
+                m->SetDiffuse(Color3f(mtl.Kd[0], mtl.Kd[1], mtl.Kd[2]));
+                m->SetSpecular(Color3f(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
                 m->SetGlossiness(mtl.Ns);
                 m->SetRefractionIndex(mtl.Ni);
                 if (mtl.map_Kd.data != nullptr)
@@ -244,14 +244,14 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
                   m->SetDiffuseTexture(new TextureMap(ReadTexture(mtl.map_Ks
                                                                       .data)));
                 if (mtl.illum > 2 && mtl.illum <= 7) {
-                  m->SetReflection(Color(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
+                  m->SetReflection(Color3f(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
                   if (mtl.map_Ks.data != nullptr)
                     m->SetReflectionTexture(new TextureMap(ReadTexture(mtl.map_Ks
                                                                            .data)));
                   float gloss = acosf(powf(2, 1 / mtl.Ns));
                   if (mtl.illum >= 6) {
                     m->SetRefraction(
-                        1.f - Color(mtl.Tf[0], mtl.Tf[1], mtl.Tf[2]));
+                        1.f - Color3f(mtl.Tf[0], mtl.Tf[1], mtl.Tf[2]));
                   }
                 }
                 mm->AppendMaterial(m);
@@ -333,7 +333,7 @@ void LoadMaterial(TiXmlElement *element)
       mtl = m;
       for (TiXmlElement *child = element->FirstChildElement();
            child != NULL; child = child->NextSiblingElement()) {
-        Color c(1, 1, 1);
+        Color3f c(1, 1, 1);
         float f = 1;
         if (COMPARE(child->Value(), "diffuse")) {
           ReadColor(child, c);
@@ -413,7 +413,7 @@ void LoadLight(TiXmlElement *element)
       for (TiXmlElement *child = element->FirstChildElement();
            child != NULL; child = child->NextSiblingElement()) {
         if (COMPARE(child->Value(), "intensity")) {
-          Color c(1, 1, 1);
+          Color3f c(1, 1, 1);
           ReadColor(child, c);
           l->SetIntensity(c);
           PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
@@ -426,7 +426,7 @@ void LoadLight(TiXmlElement *element)
       for (TiXmlElement *child = element->FirstChildElement();
            child != NULL; child = child->NextSiblingElement()) {
         if (COMPARE(child->Value(), "intensity")) {
-          Color c(1, 1, 1);
+          Color3f c(1, 1, 1);
           ReadColor(child, c);
           l->SetIntensity(c);
           PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
@@ -444,7 +444,7 @@ void LoadLight(TiXmlElement *element)
       for (TiXmlElement *child = element->FirstChildElement();
            child != NULL; child = child->NextSiblingElement()) {
         if (COMPARE(child->Value(), "intensity")) {
-          Color c(1, 1, 1);
+          Color3f c(1, 1, 1);
           ReadColor(child, c);
           l->SetIntensity(c);
           PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
@@ -493,7 +493,7 @@ void ReadVector(TiXmlElement *element, Point3 &v)
 
 //-----------------------------------------------------------------------------
 
-void ReadColor(TiXmlElement *element, Color &c)
+void ReadColor(TiXmlElement *element, Color3f &c)
 {
   double r = (double) c.r;
   double g = (double) c.g;
@@ -535,12 +535,12 @@ TextureMap *ReadTexture(TiXmlElement *element)
     for (TiXmlElement *child = element->FirstChildElement();
          child != NULL; child = child->NextSiblingElement()) {
       if (COMPARE(child->Value(), "color1")) {
-        Color c(0, 0, 0);
+        Color3f c(0, 0, 0);
         ReadColor(child, c);
         ctex->SetColor1(c);
         PRINTF("         color1 %f %f %f\n", c.r, c.g, c.b);
       } else if (COMPARE(child->Value(), "color2")) {
-        Color c(0, 0, 0);
+        Color3f c(0, 0, 0);
         ReadColor(child, c);
         ctex->SetColor2(c);
         PRINTF("         color2 %f %f %f\n", c.r, c.g, c.b);

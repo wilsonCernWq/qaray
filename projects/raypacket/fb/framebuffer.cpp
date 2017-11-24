@@ -28,15 +28,15 @@ void RenderImage::Init(int w, int h)
   width = w;
   height = h;
   if (mask) delete[] mask;
-  mask = new uchar[width * height]();
+  mask = new qaUCHAR[width * height]();
   if (img) delete[] img;
-  img = new Color24[width * height];
+  img = new Color3c[width * height];
   if (zbuffer) delete[] zbuffer;
   zbuffer = new float[width * height];
   if (zbufferImg) delete[] zbufferImg;
   zbufferImg = NULL;
   if (sampleCount) delete[] sampleCount;
-  sampleCount = new uchar[width * height];
+  sampleCount = new qaUCHAR[width * height];
   if (sampleCountImg) delete[] sampleCountImg;
   sampleCountImg = NULL;
   if (irradComp) delete[] irradComp;
@@ -46,14 +46,14 @@ void RenderImage::Init(int w, int h)
 
 void RenderImage::AllocateIrradianceComputationImage()
 {
-  if (!irradComp) irradComp = new uchar[width * height];
+  if (!irradComp) irradComp = new qaUCHAR[width * height];
   for (int i = 0; i < width * height; i++) irradComp[i] = 0;
 }
 
 void RenderImage::ResetNumRenderedPixels()
 {
   if (mask) delete[] mask;
-  mask = new uchar[width * height]();
+  mask = new qaUCHAR[width * height]();
   numRenderedPixels = 0;
 }
 
@@ -61,7 +61,7 @@ void RenderImage::ComputeZBufferImage()
 {
   int size = width * height;
   if (zbufferImg) delete[] zbufferImg;
-  zbufferImg = new uchar[size];
+  zbufferImg = new qaUCHAR[size];
 
   float zmin = BIGFLOAT, zmax = 0;
   for (int i = 0; i < size; i++) {
@@ -85,8 +85,8 @@ int RenderImage::ComputeSampleCountImage()
 {
   int size = width * height;
   if (sampleCountImg) delete[] sampleCountImg;
-  sampleCountImg = new uchar[size];
-  uchar smin = 255, smax = 0;
+  sampleCountImg = new qaUCHAR[size];
+  qaUCHAR smin = 255, smax = 0;
   for (int i = 0; i < size; i++) {
     if (smin > sampleCount[i]) smin = sampleCount[i];
     if (smax < sampleCount[i]) smax = sampleCount[i];
@@ -105,7 +105,7 @@ int RenderImage::ComputeSampleCountImage()
 }
 
 bool RenderImage::SavePNG(const char *filename,
-                          uchar *data,
+                          qaUCHAR *data,
                           int compCount) const
 {
   LodePNGColorType colortype;

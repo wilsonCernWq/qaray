@@ -30,14 +30,14 @@ const float diffuse_color_threshold = 0.001f;
 
 //------------------------------------------------------------------------------
 
-Color MtlBlinn_MonteCarloGI::Shade(const DiffRay &ray,
+Color3f MtlBlinn_MonteCarloGI::Shade(const DiffRay &ray,
                                    const DiffHitInfo &hInfo,
                                    const LightList &lights,
                                    int bounceCount)
 const
 {
   // input parameters
-  Color color = hInfo.c.hasTexture ?
+  Color3f color = hInfo.c.hasTexture ?
                 emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission
                     .GetColor();
   const auto
@@ -112,13 +112,13 @@ const
 
   // reflection and transmission colors
   const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
-  const Color sampleRefraction =
+  const Color3f sampleRefraction =
       hInfo.c.hasTexture ?
       refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
-  const Color sampleReflection =
+  const Color3f sampleReflection =
       hInfo.c.hasTexture ?
       reflection.Sample(hInfo.c.uvw, hInfo.c.duvw) : reflection.GetColor();
-  const auto tK = totReflection ? Color(0.f) : sampleRefraction * tC;
+  const auto tK = totReflection ? Color3f(0.f) : sampleRefraction * tC;
   const auto rK = totReflection ?
                   (sampleReflection + sampleRefraction) :
                   (sampleReflection + sampleRefraction * rC);
@@ -134,7 +134,7 @@ const
     tRay.Normalize();
     if (TraceNodeNormal(rootNode, tRay, tHit)) {
       const auto K = tK * (tHit.c.hasFrontHit ?
-                           Color(1.f) :
+                           Color3f(1.f) :
                            Attenuation(absorption, tHit.c.z));
       const auto *tMtl = tHit.c.node->GetMaterial();
       color += K * tMtl->Shade(tRay, tHit, lights, bounceCount - 1);
@@ -154,7 +154,7 @@ const
     rHit.c.z = BIGFLOAT;
     if (TraceNodeNormal(rootNode, rRay, rHit)) {
       const auto K = rK * (rHit.c.hasFrontHit ?
-                           Color(1.f) :
+                           Color3f(1.f) :
                            Attenuation(absorption, rHit.c.z));
       const auto *rMtl = rHit.c.node->GetMaterial();
       color += K * rMtl->Shade(rRay, rHit, lights, bounceCount - 1);
@@ -164,11 +164,11 @@ const
   }
 
   //!--- normal shading ---
-  const Color sampleDiffuse =
+  const Color3f sampleDiffuse =
       hInfo.c.hasTexture ?
       diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       diffuse.GetColor();
-  const Color sampleSpecular =
+  const Color3f sampleSpecular =
       hInfo.c.hasTexture ?
       specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       specular.GetColor();
@@ -177,7 +177,7 @@ const
        1 : maxMCSample);
   if (hInfo.c.hasFrontHit) {
     // Directional Lights
-    Color directShadecolor = Color(0.f);
+    Color3f directShadecolor = Color3f(0.f);
     const float normCoeDI = 1.f;
     for (auto &light : lights) {
       if (light->IsAmbient()) {
@@ -194,7 +194,7 @@ const
       }
     }
     // Monte Carlo GI
-    Color indirectShadecolor = Color(0.f);
+    Color3f indirectShadecolor = Color3f(0.f);
     const float normCoeGI = 1.f / numSampleMC;
     if (bounceCount > 0) {
       for (int i = 0; i < numSampleMC; ++i) {
@@ -244,7 +244,7 @@ const
         DiffHitInfo hitMC;
         hitMC.c.z = BIGFLOAT;
         rayMC.Normalize();
-        Color Intensity;
+        Color3f Intensity;
         if (TraceNodeNormal(rootNode, rayMC, hitMC)) {
           Intensity =
               hitMC.c.node->GetMaterial()

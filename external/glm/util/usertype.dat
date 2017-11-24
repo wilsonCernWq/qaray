@@ -120,7 +120,7 @@ limited
 access
 self
 
-uchar
+qaUCHAR
 schar
 uint
 sint

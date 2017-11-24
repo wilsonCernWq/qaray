@@ -225,12 +225,12 @@ bool TraceNodeNormal
 
 //------------------------------------------------------------------------------
 
-SuperSamplerHalton::SuperSamplerHalton(const Color th,
+SuperSamplerHalton::SuperSamplerHalton(const Color3f th,
                                        const int sppMin,
                                        const int sppMax)
     : th(th), sppMin(sppMin), sppMax(sppMax) {}
 
-const Color &SuperSamplerHalton::GetColor() const { return color; }
+const Color3f &SuperSamplerHalton::GetColor() const { return color; }
 
 int SuperSamplerHalton::GetSampleID() const { return s; }
 
@@ -255,14 +255,14 @@ Point3 SuperSamplerHalton::NewDofSample(const float R)
   return Point3(r * cos(t), r * sin(t), 0.f);
 }
 
-void SuperSamplerHalton::Accumulate(const Color &localColor)
+void SuperSamplerHalton::Accumulate(const Color3f &localColor)
 {
-  const Color dc = (localColor - color) / static_cast<float>(s + 1);
+  const Color3f dc = (localColor - color) / static_cast<float>(s + 1);
   color += dc;
   color_std += s > 0 ?
                dc * dc * static_cast<float>(s + 1)
                    - color_std / static_cast<float>(s) :
-               Color(0.0f);
+               Color3f(0.0f);
 }
 
 void SuperSamplerHalton::Increment() { ++s; }

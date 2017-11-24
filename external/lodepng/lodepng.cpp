@@ -2541,7 +2541,7 @@ unsigned lodepng_chunk_create(unsigned char** out, size_t* outlength, unsigned l
 }
 
 /* ////////////////////////////////////////////////////////////////////////// */
-/* / Color types and such                                                   / */
+/* / Color3f types and such                                                   / */
 /* ////////////////////////////////////////////////////////////////////////// */
 
 /*return type is a LodePNG error code*/
@@ -3634,7 +3634,7 @@ unsigned lodepng_get_color_profile(LodePNGColorProfile* profile,
         }
         else if(a == 65535 && profile->key && matchkey)
         {
-          /* Color key cannot be used if an opaque pixel also has that RGB color. */
+          /* Color3f key cannot be used if an opaque pixel also has that RGB color. */
           profile->alpha = 1;
           profile->key = 0;
           alpha_done = 1;
@@ -3650,7 +3650,7 @@ unsigned lodepng_get_color_profile(LodePNGColorProfile* profile,
         getPixelColorRGBA16(&r, &g, &b, &a, in, i, mode);
         if(a != 0 && r == profile->key_r && g == profile->key_g && b == profile->key_b)
         {
-          /* Color key cannot be used if an opaque pixel also has that RGB color. */
+          /* Color3f key cannot be used if an opaque pixel also has that RGB color. */
           profile->alpha = 1;
           profile->key = 0;
           alpha_done = 1;
@@ -3699,7 +3699,7 @@ unsigned lodepng_get_color_profile(LodePNGColorProfile* profile,
         }
         else if(a == 255 && profile->key && matchkey)
         {
-          /* Color key cannot be used if an opaque pixel also has that RGB color. */
+          /* Color3f key cannot be used if an opaque pixel also has that RGB color. */
           profile->alpha = 1;
           profile->key = 0;
           alpha_done = 1;
@@ -3736,7 +3736,7 @@ unsigned lodepng_get_color_profile(LodePNGColorProfile* profile,
         getPixelColorRGBA8(&r, &g, &b, &a, in, i, mode);
         if(a != 0 && r == profile->key_r && g == profile->key_g && b == profile->key_b)
         {
-          /* Color key cannot be used if an opaque pixel also has that RGB color. */
+          /* Color3f key cannot be used if an opaque pixel also has that RGB color. */
           profile->alpha = 1;
           profile->key = 0;
           alpha_done = 1;
