@@ -14,18 +14,18 @@
 #define _VIEWPORT_H_
 
 // Called to start rendering (renderer must run in a separate thread)
-void BeginRender();
+void BeginRender ();
 
 // Called to end rendering (if it is not already finished)
-void StopRender();
+void StopRender ();
 
 // Called when the rendering is end successfully
-void CleanRender();
+void CleanRender ();
 
 // Called when the program is stopped
-void KillRender();
+void KillRender ();
 
 // Show OpenGL PreView Window
-void ShowViewport();
+void ShowViewport ();
 
 #endif//_VIEWPORT_H_

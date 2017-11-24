@@ -13,8 +13,8 @@
 #ifndef _XML_LOAD_H_
 #define _XML_LOAD_H_
 
-void LoadSceneInSilentMode(bool);
+void LoadSceneInSilentMode (bool);
 
-int LoadScene(const char *filename);
+int LoadScene (const char *filename);
 
 #endif//_XML_LOAD_H_

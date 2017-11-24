@@ -32,19 +32,19 @@
 //-------------------------------------------------------------------------
 // Parameters
 static float gammaCorrection = 1.0f;
-static bool sRGBCorrection = false;
+static bool  sRGBCorrection = false;
 static int &bounce = Material::maxBounce;
 static int sppMax = 16, sppMin = 4;
 // Camera parameters
-static float focal = 10.0f, dof = 0.0f;
-static float screenW, screenH, aspect;
+static float  focal = 10.0f, dof = 0.0f;
+static float  screenW, screenH, aspect;
 static Point3 screenX, screenY, screenZ;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
-static Color3c *colorBuffer = NULL; // RGB uint8_t
+static Color24 *colorBuffer = NULL; // RGB uchar
 static float *depthBuffer = NULL;
-static uint8_t *sampleCountBuffer = NULL;
-static uint8_t *maskBuffer = NULL;
+static uchar *sampleCountBuffer = NULL;
+static uchar *maskBuffer = NULL;
 static int pixelW, pixelH;       // global size in pixel
 static int pixelRegion[4] = {0}; // local image offset [x y]
 static int pixelSize[2] = {0}; // local image size
@@ -63,28 +63,32 @@ static std::string mpiPrefix;
 
 //-------------------------------------------------------------------------
 
-float LinearToSRGB(const float c) {
+float LinearToSRGB (const float c)
+{
   const float a = 0.055f;
-  if (c < 0.0031308f) { return 12.92f*c; }
-  else { return (1.f + a)*pow(c, 1.f/2.4f) - a; }
+  if (c < 0.0031308f) { return 12.92f * c; }
+  else { return (1.f + a) * POW(c, 1.f / 2.4f) - a; }
 }
 
 //-------------------------------------------------------------------------
-void PixelRender(const int i, const int j, const int tile_idx) {
+void PixelRender (const int i, const int j, const int tile_idx)
+{
   // initializations
-  SuperSamplerHalton sampler(Color3f(0.005f, 0.001f, 0.005f), sppMin, sppMax);
+  SuperSamplerHalton sampler(Color(0.005f, 0.001f, 0.005f), sppMin, sppMax);
   float depth = 0.0f;
   // start looping
-  while (sampler.Loop()) {
+  while (sampler.Loop())
+  {
     // calculate one sample
     const Point3 texpos = sampler.NewPixelSample() + Point3(i, j, 0.f);
-    const Point3 cpt = screenA + texpos.x*screenU + texpos.y*screenV;
-    const Point3 xpt = screenA + (texpos.x + DiffRay::dx)*screenU + texpos.y*screenV;
-    const Point3 ypt = screenA + texpos.x*screenU + (texpos.y + DiffRay::dy)*screenV;
+    const Point3 cpt = screenA + texpos.x * screenU + texpos.y * screenV;
+    const Point3 xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
+    const Point3 ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
     Point3 campos = camera.pos;
-    if (dof > 0.1f) {
+    if (dof > 0.1f)
+    {
       const Point3 dofSample = sampler.NewDofSample(dof);
-      campos += dofSample.x*screenX + dofSample.y*screenY;
+      campos += dofSample.x * screenX + dofSample.y * screenY;
     }
     DiffRay ray(campos, cpt - campos,
                 campos, xpt - campos,
@@ -92,97 +96,105 @@ void PixelRender(const int i, const int j, const int tile_idx) {
     ray.Normalize();
     DiffHitInfo hInfo;
     hInfo.c.z = BIGFLOAT;
+    hInfo.c.haltonRNG = nullptr;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
-    Color3f localColor;
-    if (hasHit) {
+    Color localColor;
+    if (hasHit)
+    {
       localColor = hInfo.c.node->GetMaterial()->Shade(ray, hInfo, lights, bounce);
-    } else {
-      const float u = texpos.x/pixelW;
-      const float v = texpos.y/pixelH;
+    } else
+    {
+      const float u = texpos.x / pixelW;
+      const float v = texpos.y / pixelH;
       localColor = background.Sample(Point3(u, v, 0.f));
     }
     // calculate depth for the first sample only
-    if (sampler.GetSampleID()==0) { depth = hasHit ? hInfo.c.z : BIGFLOAT; }
+    if (sampler.GetSampleID() == 0) { depth = hasHit ? hInfo.c.z : BIGFLOAT; }
     // calculate moving average
     sampler.Accumulate(localColor);
     // increment
     sampler.Increment();
   }
-  // Post Process Color3f
-  Color3f color = sampler.GetColor();
-  if (sRGBCorrection) {
+  // Post Process Color
+  Color color = sampler.GetColor();
+  if (sRGBCorrection)
+  {
     color.r = LinearToSRGB(color.r);
     color.g = LinearToSRGB(color.g);
     color.b = LinearToSRGB(color.b);
   }
-  if (gammaCorrection!=1.f) {
-    color.r = pow(color.r, 1.f/gammaCorrection);
-    color.g = pow(color.g, 1.f/gammaCorrection);
-    color.b = pow(color.b, 1.f/gammaCorrection);
+  if (gammaCorrection != 1.f)
+  {
+    color.r = POW(color.r, 1.f / gammaCorrection);
+    color.g = POW(color.g, 1.f / gammaCorrection);
+    color.b = POW(color.b, 1.f / gammaCorrection);
   }
-  color.r = max(0.f, min(1.f, color.r));
-  color.g = max(0.f, min(1.f, color.g));
-  color.b = max(0.f, min(1.f, color.b));
+  color.r = MAX(0.f, MIN(1.f, color.r));
+  color.g = MAX(0.f, MIN(1.f, color.g));
+  color.b = MAX(0.f, MIN(1.f, color.b));
   // Write to Framebuffer
-  const int idx = (j - pixelRegion[1])*pixelSize[0] + i - pixelRegion[0];
-  colorBuffer[idx].r = static_cast<uint8_t>(round(color.r*255.f));
-  colorBuffer[idx].g = static_cast<uint8_t>(round(color.g*255.f));
-  colorBuffer[idx].b = static_cast<uint8_t>(round(color.b*255.f));
+  const int idx = (j - pixelRegion[1]) * pixelSize[0] + i - pixelRegion[0];
+  colorBuffer[idx].r = static_cast<uchar>(round(color.r * 255.f));
+  colorBuffer[idx].g = static_cast<uchar>(round(color.g * 255.f));
+  colorBuffer[idx].b = static_cast<uchar>(round(color.b * 255.f));
   depthBuffer[idx] = depth;
-  sampleCountBuffer[idx] = 255.f*sampler.GetSampleID()/(float) sppMax;
+  sampleCountBuffer[idx] = 255.f * sampler.GetSampleID() / (float) sppMax;
   maskBuffer[idx] = 1;
 }
 
-void ThreadRender() {
+void ThreadRender ()
+{
   // Start timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
   double t1, t2;
-  if (mpiSize==1) { TimeFrame(START_FRAME); }
-  else {
+  if (mpiSize == 1) { TimeFrame(START_FRAME); }
+  else
+  {
     t1 = MPI_Wtime();
   }
 #else
   TimeFrame(START_FRAME);
 #endif
   // Rendering
-  if (mpiRank==0) {
+  if (mpiRank == 0)
+  {
     printf("\nRunning with %d threads on rank %d\n", threadSize, mpiRank);
   }
   const auto tileSta(static_cast<size_t>(mpiRank));
-  const auto tileNum(static_cast<size_t>(tileDimX*tileDimY));
+  const auto tileNum(static_cast<size_t>(tileDimX * tileDimY));
   const auto tileStp(static_cast<size_t>(mpiSize));
 #if defined(USE_TBB) && MULTITHREAD
   tbb::task_scheduler_init init(threadSize); // Explicit number of threads
-  tbb::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
+  tbb::parallel_for(tileSta, tileNum, tileStp, [=] (size_t k) {
 #else
 # if MULTITHREAD
-    omp_set_num_threads(threadSize);
+  omp_set_num_threads(threadSize);
 # endif
-    for (size_t k = tileSta; k < tileNum; k += tileStp) {
+  for (size_t k = tileSta; k < tileNum; k += tileStp) {
 #endif
-    const int tileX = static_cast<int>(k%tileDimX);
-    const int tileY = static_cast<int>(k/tileDimX);
+    const int tileX = static_cast<int>(k % tileDimX);
+    const int tileY = static_cast<int>(k / tileDimX);
     const int iStart =
-        min(pixelRegion[2], tileX*tileSize + pixelRegion[0]);
+        MIN(pixelRegion[2], tileX * tileSize + pixelRegion[0]);
     const size_t jStart =
-        min(pixelRegion[3], tileY*tileSize + pixelRegion[1]);
+        MIN(pixelRegion[3], tileY * tileSize + pixelRegion[1]);
     const size_t iEnd =
-        min(pixelRegion[2], (tileX + 1)*tileSize + pixelRegion[0]);
+        MIN(pixelRegion[2], (tileX + 1) * tileSize + pixelRegion[0]);
     const size_t jEnd =
-        min(pixelRegion[3], (tileY + 1)*tileSize + pixelRegion[1]);
-    const size_t numPixels = (iEnd - iStart)*(jEnd - jStart);
+        MIN(pixelRegion[3], (tileY + 1) * tileSize + pixelRegion[1]);
+    const size_t numPixels = (iEnd - iStart) * (jEnd - jStart);
 #if defined(USE_TBB) && MULTITHREAD
-    tbb::parallel_for(size_t(0), numPixels, [=](size_t idx) {
+    tbb::parallel_for(size_t(0), numPixels, [=] (size_t idx) {
 #else
 # if MULTITHREAD
 #   pragma omp parallel for 
 # endif
-      for (size_t idx(0); idx < numPixels; ++idx)
-      {
+    for (size_t idx(0); idx < numPixels; ++idx)
+    {
 #endif
-      const size_t j = jStart + idx/(iEnd - iStart);
-      const size_t i = iStart + idx%(iEnd - iStart);
+      const size_t j = jStart + idx / (iEnd - iStart);
+      const size_t i = iStart + idx % (iEnd - iStart);
       if (!threadStop) { PixelRender(i, j, k); }
 #if defined(USE_TBB) && MULTITHREAD
     });
@@ -195,13 +207,19 @@ void ThreadRender() {
 #else
   }
 #endif
+  debug(TBBHaltonRNG.size());
+  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin(); i != TBBHaltonRNG.end(); ++i)
+  {
+    debug(i->idx);
+  }
   // End timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
-  if (mpiSize==1) { TimeFrame(STOP_FRAME); }
-  else {
+  if (mpiSize == 1) { TimeFrame(STOP_FRAME); }
+  else
+  {
     t2 = MPI_Wtime();
-    if (mpiRank==0) printf("\nElapsed time is %f\n", t2 - t1);
+    if (mpiRank == 0) printf("\nElapsed time is %f\n", t2 - t1);
   }
 #else
   TimeFrame(STOP_FRAME);
@@ -211,37 +229,41 @@ void ThreadRender() {
 //-------------------------------------------------------------------------
 // Initialize the scene parameters
 void DivideLength
-    (const size_t len, const size_t div, const size_t idx, size_t &left, size_t &right) {
-  const size_t H = max(1, static_cast<int>(len/div));
-  if (idx!=div - 1) {
-    left = min((idx)*H, len);
-    right = min((idx + 1)*H, len);
-  } else {
-    left = min((idx)*H, len);
+    (const size_t len, const size_t div, const size_t idx, size_t &left, size_t &right)
+{
+  const size_t H = MAX(1, len / div);
+  if (idx != div - 1)
+  {
+    left = MIN((idx) * H, len);
+    right = MIN((idx + 1) * H, len);
+  } else
+  {
+    left = MIN((idx) * H, len);
     right = len;
   }
 }
 
-void ComputeScene() {
+void ComputeScene ()
+{
   // rendering
   focal = camera.focaldist;
   dof = camera.dof;
   pixelW = camera.imgWidth;
   pixelH = camera.imgHeight;
   aspect =
-      static_cast<float>(camera.imgWidth)/
-          static_cast<float>(camera.imgHeight);
-  screenH = 2.f*focal*std::tan(camera.fov*(float) M_PI/2.f/180.f);
-  screenW = aspect*screenH;
+      static_cast<float>(camera.imgWidth) /
+      static_cast<float>(camera.imgHeight);
+  screenH = 2.f * focal * std::tan(camera.fov * (float)M_PI / 2.f / 180.f);
+  screenW = aspect * screenH;
   Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
   Point3 Y = glm::normalize(glm::cross(X, camera.dir));
   Point3 Z = glm::normalize(-camera.dir);
-  screenU = X*(screenW/camera.imgWidth);
-  screenV = -Y*(screenH/camera.imgHeight);
+  screenU = X * (screenW / camera.imgWidth);
+  screenV = -Y * (screenH / camera.imgHeight);
   screenA = camera.pos
-      - Z*focal
-      + Y*screenH/2.f
-      - X*screenW/2.f;
+            - Z * focal
+            + Y * screenH / 2.f
+            - X * screenW / 2.f;
   screenX = X;
   screenY = Y;
   screenZ = Z;
@@ -257,15 +279,16 @@ void ComputeScene() {
   sampleCountBuffer = renderImage.GetSampleCount();
   maskBuffer = renderImage.GetMasks();
   // multi-threading
-  tileDimX = ceil(static_cast<float>(pixelSize[0])/
-      static_cast<float>(tileSize));
-  tileDimY = ceil(static_cast<float>(pixelSize[1])/
-      static_cast<float>(tileSize));
+  tileDimX = CEIL(static_cast<float>(pixelSize[0]) /
+                  static_cast<float>(tileSize));
+  tileDimY = CEIL(static_cast<float>(pixelSize[1]) /
+                  static_cast<float>(tileSize));
 }
 
 //------------------------------------------------------------------------
 // Called to start rendering (renderer must run in a separate thread)
-void BeginRender() {
+void BeginRender ()
+{
   // Reset
   StopRender();
   renderImage.ResetNumRenderedPixels();
@@ -275,11 +298,13 @@ void BeginRender() {
 }
 
 // Called to end rendering (if it is not already finished)
-void StopRender() {
+void StopRender ()
+{
   // Send stop signal
   threadStop = true;
   // Wait for threads to finish
-  if (threadMain!=nullptr) {
+  if (threadMain != nullptr)
+  {
     threadMain->join();
     delete threadMain;
     threadMain = nullptr;
@@ -287,7 +312,8 @@ void StopRender() {
 }
 
 // Called when the rendering is end successfully
-void CleanRender() {
+void CleanRender ()
+{
   // Save image
   renderImage.ComputeZBufferImage();
   renderImage.ComputeSampleCountImage();
@@ -297,15 +323,18 @@ void CleanRender() {
 }
 
 // Called when the program is stopped
-void KillRender() {
+void KillRender ()
+{
   StopRender();
   TimeFrame(KILL_FRAME);
 }
 
-void OnlineRender() {
+void OnlineRender ()
+{
 #ifdef USE_GUI
-  if (mpiSize==1) { ShowViewport(); }
-  else {
+  if (mpiSize == 1) { ShowViewport(); }
+  else
+  {
     std::cerr << "Warning: Trying to use GUI window in mpi mode" << std::endl;
   }
 #else
@@ -319,25 +348,30 @@ void OnlineRender() {
 //-------------------------------------------------------------------------
 //
 template<typename T>
-void PlaceImage(int srcext[4], size_t dstW, size_t dstH, const uint8_t *mask, const T *src, T *dst) {
-  const size_t xstart = clamp(static_cast<size_t>(srcext[0]), static_cast<size_t>(0), dstW);
-  const size_t ystart = clamp(static_cast<size_t>(srcext[1]), static_cast<size_t>(0), dstH);
-  const size_t xend = clamp(static_cast<size_t>(srcext[2]), static_cast<size_t>(0), dstW);
-  const size_t yend = clamp(static_cast<size_t>(srcext[3]), static_cast<size_t>(0), dstH);
+void PlaceImage
+    (int srcext[4], size_t dstW, size_t dstH, const uchar *mask, const T *src, T *dst)
+{
+  const size_t xstart = CLAMP(srcext[0], 0, dstW);
+  const size_t ystart = CLAMP(srcext[1], 0, dstH);
+  const size_t xend = CLAMP(srcext[2], 0, dstW);
+  const size_t yend = CLAMP(srcext[3], 0, dstH);
   const size_t srcW = srcext[2] - srcext[0];
   const size_t srcH = srcext[3] - srcext[1];
 # pragma omp parallel for collapse(2)
-  for (size_t j = ystart; j < yend; ++j) {
-    for (size_t i = xstart; i < xend; ++i) {
-      const size_t srcidx = (j - ystart)*srcW + i - xstart;
-      const size_t dstidx = j*dstW + i;
-      if (mask[srcidx]!=0)
+  for (size_t j = ystart; j < yend; ++j)
+  {
+    for (size_t i = xstart; i < xend; ++i)
+    {
+      const size_t srcidx = (j - ystart) * srcW + i - xstart;
+      const size_t dstidx = j * dstW + i;
+      if (mask[srcidx] != 0)
         dst[dstidx] = src[srcidx];
     }
   }
 }
 
-void BatchRender() {
+void BatchRender ()
+{
   //-- render locally
   renderImage.ResetNumRenderedPixels();
   threadStop = false;
@@ -353,62 +387,67 @@ void BatchRender() {
   MPI_Barrier(MPI_COMM_WORLD);
   size_t master = 0;
   int tag[5] = {100, 200, 300, 400, 500};
-  if (mpiRank==master) { // reveive data
+  if (mpiRank == master)
+  { // reveive data
     RenderImage finalImage;
     finalImage.Init(pixelW, pixelH);
-    for (int target = 0; target < mpiSize; ++target) {
-      if (target==master) {
+    for (int target = 0; target < mpiSize; ++target)
+    {
+      if (target == master)
+      {
         int imgext[4] = {(int) pixelRegion[0], (int) pixelRegion[1],
                          (int) pixelRegion[2], (int) pixelRegion[3]};
-        PlaceImage<Color3c>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
+        PlaceImage<Color24>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
                             finalImage.GetPixels());
         PlaceImage<float>(imgext, pixelW, pixelH, maskBuffer, depthBuffer,
                           finalImage.GetZBuffer());
-        PlaceImage<uint8_t>(imgext, pixelW, pixelH, maskBuffer, sampleCountBuffer,
-                            finalImage.GetSampleCount());
-      } else {
+        PlaceImage<uchar>(imgext, pixelW, pixelH, maskBuffer, sampleCountBuffer,
+                          finalImage.GetSampleCount());
+      } else
+      {
         int imgext[4];
         MPI_Recv(&imgext, 4, MPI_INT, target, tag[0],
                  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        int buffsize = (imgext[2] - imgext[0])*(imgext[3] - imgext[1]);
-        Color3c *cbuff = new Color3c[buffsize];
+        int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
+        Color24 *cbuff = new Color24[buffsize];
         float *zbuff = new float[buffsize];
-        uint8_t *sbuff = new uint8_t[buffsize];
-        uint8_t *mbuff = new uint8_t[buffsize];
-        MPI_Recv(cbuff, buffsize*sizeof(Color3c), MPI_BYTE,
+        uchar *sbuff = new uchar[buffsize];
+        uchar *mbuff = new uchar[buffsize];
+        MPI_Recv(cbuff, buffsize * sizeof(Color24), MPI_BYTE,
                  target, tag[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(zbuff, buffsize, MPI_FLOAT, target,
                  tag[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(sbuff, buffsize*sizeof(uint8_t), MPI_BYTE, target,
+        MPI_Recv(sbuff, buffsize * sizeof(uchar), MPI_BYTE, target,
                  tag[3], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(mbuff, buffsize*sizeof(uint8_t), MPI_BYTE, target,
+        MPI_Recv(mbuff, buffsize * sizeof(uchar), MPI_BYTE, target,
                  tag[4], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        PlaceImage<Color3c>(imgext, pixelW, pixelH, mbuff, cbuff,
+        PlaceImage<Color24>(imgext, pixelW, pixelH, mbuff, cbuff,
                             finalImage.GetPixels());
         PlaceImage<float>(imgext, pixelW, pixelH, mbuff, zbuff,
                           finalImage.GetZBuffer());
-        PlaceImage<uint8_t>(imgext, pixelW, pixelH, mbuff, sbuff,
-                            finalImage.GetSampleCount());
+        PlaceImage<uchar>(imgext, pixelW, pixelH, mbuff, sbuff,
+                          finalImage.GetSampleCount());
       }
     }
-    finalImage.IncrementNumRenderPixel(pixelW*pixelH);
+    finalImage.IncrementNumRenderPixel(pixelW * pixelH);
     finalImage.ComputeZBufferImage();
     finalImage.ComputeSampleCountImage();
     finalImage.SaveImage("colorBuffer_MPI.png");
     finalImage.SaveZImage("depthBuffer_MPI.png");
     finalImage.SaveSampleCountImage("sampleBuffer_MPI.png");
-  } else {
+  } else
+  {
     int imgext[4] = {(int) pixelRegion[0], (int) pixelRegion[1],
                      (int) pixelRegion[2], (int) pixelRegion[3]};
     MPI_Send(&imgext, 4, MPI_INT, master, tag[0], MPI_COMM_WORLD);
-    int buffsize = (imgext[2] - imgext[0])*(imgext[3] - imgext[1]);
-    MPI_Send(colorBuffer, buffsize*sizeof(Color3c), MPI_BYTE,
+    int buffsize = (imgext[2] - imgext[0]) * (imgext[3] - imgext[1]);
+    MPI_Send(colorBuffer, buffsize * sizeof(Color24), MPI_BYTE,
              master, tag[1], MPI_COMM_WORLD);
     MPI_Send(depthBuffer, buffsize, MPI_FLOAT,
              master, tag[2], MPI_COMM_WORLD);
-    MPI_Send(sampleCountBuffer, buffsize*sizeof(uint8_t), MPI_BYTE,
+    MPI_Send(sampleCountBuffer, buffsize * sizeof(uchar), MPI_BYTE,
              master, tag[3], MPI_COMM_WORLD);
-    MPI_Send(maskBuffer, buffsize*sizeof(uint8_t), MPI_BYTE,
+    MPI_Send(maskBuffer, buffsize * sizeof(uchar), MPI_BYTE,
              master, tag[4], MPI_COMM_WORLD);
   }
 #else
@@ -421,7 +460,8 @@ void BatchRender() {
 }
 
 //-------------------------------------------------------------------------
-int main(int argc, char **argv) {
+int main (int argc, char **argv)
+{
 #ifdef USE_MPI
   // Initialize the MPI environment
   MPI_Init(NULL, NULL);
@@ -434,7 +474,7 @@ int main(int argc, char **argv) {
   int name_len;
   MPI_Get_processor_name(processor_name, &name_len);
   // Setup parameters
-  if (mpiRank==0) { fprintf(stdout, "Number of MPI Ranks: %i\n", mpiSize); }
+  if (mpiRank == 0) { fprintf(stdout, "Number of MPI Ranks: %i\n", mpiSize); }
   mpiPrefix = std::string("rank_") + std::to_string(mpiRank) + "_";
 #endif
 
@@ -453,45 +493,59 @@ int main(int argc, char **argv) {
   // Parse CMD arguments
   bool batchmode = false;
   const char *xmlfile = nullptr;
-  if (argc < 2) {
+  if (argc < 2)
+  {
     std::cerr << "Error: insufficient input" << std::endl;
     return -1;
   }
-  for (int i = 1; i < argc; ++i) {
+  for (int i = 1; i < argc; ++i)
+  {
     std::string str(argv[i]);
-    if (str=="-batch") {
+    if (str == "-batch")
+    {
       batchmode = true;
-    } else if (str=="-spp") {
+    } else if (str == "-spp")
+    {
       sppMin = std::atoi(argv[++i]);
       sppMax = sppMin;
-    } else if (str=="-sppMin") {
+    } else if (str == "-sppMin")
+    {
       sppMin = std::atoi(argv[++i]);
-    } else if (str=="-sppMax") {
+    } else if (str == "-sppMax")
+    {
       sppMax = std::atoi(argv[++i]);
-    } else if (str=="-spp") {
+    } else if (str == "-spp")
+    {
       const int spp = std::atoi(argv[++i]);
       sppMax = sppMin = spp;
-    } else if (str=="-bounce") {
+    } else if (str == "-bounce")
+    {
       bounce = std::atoi(argv[++i]);
-    } else if (str=="-gamma") {
+    } else if (str == "-gamma")
+    {
       gammaCorrection = std::atof(argv[++i]);
-    } else if (str=="-srgb") {
+    } else if (str == "-srgb")
+    {
       sRGBCorrection = true;
-    } else if (str=="-threads") {
+    } else if (str == "-threads")
+    {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }
-    } else {
+    } else
+    {
       xmlfile = argv[i];
     }
   }
 
   // Parse XML input file
-  if (mpiRank!=0) { LoadSceneInSilentMode(true); }
+  if (mpiRank != 0) { LoadSceneInSilentMode(true); }
   LoadScene(xmlfile);
   ComputeScene();
-  if (batchmode) {
+  if (batchmode)
+  {
     BatchRender();
-  } else {
+  } else
+  {
     OnlineRender();
   }
 

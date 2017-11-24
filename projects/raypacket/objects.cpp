@@ -18,24 +18,32 @@ const float RCP_2PI = 1.f / (2.f * M_PI);
 //-------------------------------------------------------------------------------
 
 // Helper functions
-inline bool CheckHitSide(const int &hitSide, const bool &front) {
+inline bool CheckHitSide (const int &hitSide, const bool &front)
+{
   return (((hitSide & ~(HIT_FRONT)) && front) ||
-      ((hitSide & ~(HIT_BACK)) && !front));
+          ((hitSide & ~(HIT_BACK)) && !front));
 }
 
-inline float TriangleArea(size_t i, const Point3 &A, const Point3 &B, const Point3 &C) {
-  switch (i) {
-    case (0):return (B.y - A.y) * (C.z - A.z) - (C.y - A.y) * (B.z - A.z);
-    case (1):return (B.x - A.x) * (C.z - A.z) - (C.x - A.x) * (B.z - A.z);
-    case (2):return (B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y);
-    default:return TriangleArea(i % 3, A, B, C);
+inline float TriangleArea (size_t i, const Point3 &A, const Point3 &B, const Point3 &C)
+{
+  switch (i)
+  {
+    case (0):
+      return (B.y - A.y) * (C.z - A.z) - (C.y - A.y) * (B.z - A.z);
+    case (1):
+      return (B.x - A.x) * (C.z - A.z) - (C.x - A.x) * (B.z - A.z);
+    case (2):
+      return (B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y);
+    default:
+      return TriangleArea(i % 3, A, B, C);
   }
 }
 
 //-------------------------------------------------------------------------------
 
 // Check if ray intersects with the bounding box
-bool Box::IntersectRay(const Ray &r, float t_max) const {
+bool Box::IntersectRay (const Ray &r, float t_max) const
+{
   const float dx = r.dir.x;
   const float dy = r.dir.y;
   const float dz = r.dir.z;
@@ -43,41 +51,49 @@ bool Box::IntersectRay(const Ray &r, float t_max) const {
   const Point3 p0 = -(r.p - pmin) * drcp;;
   const Point3 p1 = -(r.p - pmax) * drcp;;
   Point3 t0, t1;
-  if (abs(dx) < 1e-7f) {
+  if (ABS(dx) < 1e-7f)
+  {
     t0.x = -BIGFLOAT;
     t1.x = BIGFLOAT;
-  } else {
-    t0.x = min(p0.x, p1.x);
-    t1.x = max(p0.x, p1.x);
+  } else
+  {
+    t0.x = MIN(p0.x, p1.x);
+    t1.x = MAX(p0.x, p1.x);
   }
-  if (abs(dy) < 1e-7f) {
+  if (ABS(dy) < 1e-7f)
+  {
     t0.y = -BIGFLOAT;
     t1.y = BIGFLOAT;
-  } else {
-    t0.y = min(p0.y, p1.y);
-    t1.y = max(p0.y, p1.y);
+  } else
+  {
+    t0.y = MIN(p0.y, p1.y);
+    t1.y = MAX(p0.y, p1.y);
   }
-  if (abs(dz) < 1e-7f) {
+  if (ABS(dz) < 1e-7f)
+  {
     t0.z = -BIGFLOAT;
     t1.z = BIGFLOAT;
-  } else {
-    t0.z = min(p0.z, p1.z);
-    t1.z = max(p0.z, p1.z);
+  } else
+  {
+    t0.z = MIN(p0.z, p1.z);
+    t1.z = MAX(p0.z, p1.z);
   }
-  const float entry = max(t0.x, max(t0.y, t0.z));
-  const float exit = min(t1.x, min(t1.y, t1.z));
+  const float entry = MAX(t0.x, MAX(t0.y, t0.z));
+  const float exit = MIN(t1.x, MIN(t1.y, t1.z));
   if (entry > t_max || entry > exit) { return false; }
   else { return true; }
 }
 
 //-------------------------------------------------------------------------------
 // Function return true only if the HitInfo has been updated!
-inline Point3 Sphere_TexCoord(const Point3 &p, const float rcp_l = 1.f) {
+inline Point3 Sphere_TexCoord (const Point3 &p, const float rcp_l = 1.f)
+{
   return Point3(0.5f - atan2(p.x, p.y) * RCP_2PI, 0.5f + asin(p.z * rcp_l) * RCP_PI, 0.f);
 }
 
-bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
-                          DiffRay *diffray, DiffHitInfo *diffhit) const {
+bool Sphere::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
+                           DiffRay *diffray, DiffHitInfo *diffhit) const
+{
   // Here the ray is in model coordinate already !!!
   // Ray transformation must be done before calling this function
   const float a = glm::dot(ray.dir, ray.dir);
@@ -90,20 +106,23 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
   // If there is no hit, return directly
   float t = BIGFLOAT;
   if (delta < 0) { return false; /* do nothing */ }
-  else {
-    if (delta == 0) { /* this section is actually useless */
+  else
+  {
+    if (delta == 0)
+    { /* this section is actually useless */
       const float t0 = -b * rcp2a;
       // Select the valid root
       if (t0 <= bias) { return false; /* do nothing */ }
       else { t = t0; }
-    } else {
-      const float sqrt_delta = sqrt(delta);
+    } else
+    {
+      const float sqrt_delta = SQRT(delta);
       const float t1 = (-b - sqrt_delta) * rcp2a;
       const float t2 = (-b + sqrt_delta) * rcp2a;
       // Select the valid root
       if (t1 <= bias && t2 <= bias) { return false; /* do nothing */ }
-      else if (t1 > bias) { t = min(t, t1); }
-      else if (t2 > bias) { t = min(t, t2); }
+      else if (t1 > bias) { t = MIN(t, t1); }
+      else if (t2 > bias) { t = MIN(t, t2); }
     }
   }
 
@@ -112,14 +131,17 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
   // with the previous hit
   // We select the smaller root and compare it with previous hit
   // update hit info if the previous hit is behind the current hit
-  if (hInfo.z > t) {
+  if (hInfo.z > t)
+  {
     const Point3 p = ray.p + ray.dir * t;
     const Point3 N = glm::normalize(p);
     const bool front = (glm::dot(N, ray.dir) <= 0);
-    if (CheckHitSide(hitSide, front)) {
+    if (CheckHitSide(hitSide, front))
+    {
       hInfo.z = t;
       // non shadow ray
-      if (diffray != NULL && diffhit != NULL) {
+      if (diffray != NULL && diffhit != NULL)
+      {
         hInfo.p = p;
         hInfo.N = N;
         hInfo.hasFrontHit = front;
@@ -127,7 +149,8 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
         hInfo.hasTexture = true;
         hInfo.uvw = Sphere_TexCoord(p);
         // Differential Rays
-        if (diffray->hasDiffRay) {
+        if (diffray->hasDiffRay)
+        {
           const float pz_x = glm::dot((diffray->x.p - p), N);
           const float pz_y = glm::dot((diffray->y.p - p), N);
           const float dz_x = glm::dot(diffray->x.dir, N);
@@ -144,7 +167,8 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
           diffhit->y.N = glm::normalize(p_y);
           hInfo.duvw[0] = DiffRay::rdx * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
           hInfo.duvw[1] = DiffRay::rdy * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
-        } else {
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = N;
@@ -162,27 +186,32 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
 }
 
 //-------------------------------------------------------------------------------
-inline Point3 Plane_TexCoord(const Point3 &p) {
+inline Point3 Plane_TexCoord (const Point3 &p)
+{
   return Point3((p.x + 1.f) * 0.5f, (p.y + 1.f) * 0.5f, 0.f);
 }
 
-bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
-                         DiffRay *diffray, DiffHitInfo *diffhit) const {
+bool Plane::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
+                          DiffRay *diffray, DiffHitInfo *diffhit) const
+{
   static const Point3 N(0, 0, 1);
   const float dz = glm::dot(ray.dir, N);
-  if (abs(dz) < 1e-7f) { return false; /* ray parallel to plane */}
+  if (ABS(dz) < 1e-7f) { return false; /* ray parallel to plane */}
   const float pz = glm::dot(ray.p, N);
   const float t = -pz / dz;
   if (t <= bias) { return false; /* hit is too closed to the previous hit */}
-  if (hInfo.z > t) {
+  if (hInfo.z > t)
+  {
     // Continue Only If This Hit Is Potentially Closer !!!
     const Point3 p = ray.p + ray.dir * t;
-    if (abs(p.x) > 1.f || abs(p.y) > 1.f) { return false; }
+    if (ABS(p.x) > 1.f || ABS(p.y) > 1.f) { return false; }
     const bool front = (glm::dot(N, ray.dir) <= 0);
-    if (CheckHitSide(hitSide, front)) {
+    if (CheckHitSide(hitSide, front))
+    {
       hInfo.z = t;
       // Non-Shadow Ray
-      if (diffray != NULL && diffhit != NULL) {
+      if (diffray != NULL && diffhit != NULL)
+      {
         hInfo.p = p;
         hInfo.N = N;
         hInfo.hasFrontHit = front;
@@ -190,7 +219,8 @@ bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
         hInfo.hasTexture = true;
         hInfo.uvw = Plane_TexCoord(p);
         // Differential Rays
-        if (diffray->hasDiffRay) {
+        if (diffray->hasDiffRay)
+        {
           const float pz_x = glm::dot(diffray->x.p, N);
           const float pz_y = glm::dot(diffray->y.p, N);
           const float dz_x = glm::dot(diffray->x.dir, N);
@@ -209,7 +239,8 @@ bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
               DiffRay::rdx * (Plane_TexCoord(p_x) - hInfo.uvw);
           hInfo.duvw[1] =
               DiffRay::rdy * (Plane_TexCoord(p_y) - hInfo.uvw);
-        } else {
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = N;
@@ -228,9 +259,10 @@ bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
 
 //-------------------------------------------------------------------------------
 
-bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
-                               int hitSide, unsigned int faceID,
-                               DiffRay *diffray, DiffHitInfo *diffhit) const {
+bool TriObj::IntersectTriangle (const Ray &ray, HitInfo &hInfo,
+                                int hitSide, unsigned int faceID,
+                                DiffRay *diffray, DiffHitInfo *diffhit) const
+{
   auto &fidx = F(faceID);
   const auto &tmp_A = V(fidx.v[0]); //!< vertex
   const auto &tmp_B = V(fidx.v[1]); //!< vertex
@@ -241,20 +273,22 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
   const Point3 N = glm::normalize(glm::cross((B - A), (C - A))); //!< face normal
   //! ray - plane intersection
   const float dz = glm::dot(ray.dir, N);
-  if (abs(dz) < 1e-7f) { return false; /* ray parallel to plane */}
+  if (ABS(dz) < 1e-7f) { return false; /* ray parallel to plane */}
   const float pz = glm::dot((ray.p - A), N);
   const float t = -pz / dz;
   if (t <= bias) { return false; /* intersect is too closed to the previous hit */ }
-  if (hInfo.z > t) {
+  if (hInfo.z > t)
+  {
     const bool front = (dz <= 0); //!< roughly check it is a front or back hit
-    if (CheckHitSide(hitSide, front)) {
+    if (CheckHitSide(hitSide, front))
+    {
       // Project Triangle onto 2D Plane
       // Compute Barycentric Coordinate
       const Point3 p = ray.p + t * ray.dir;
       size_t ignoredAxis;
-      const float abs_nx = abs(N.x);
-      const float abs_ny = abs(N.y);
-      const float abs_nz = abs(N.z);
+      const float abs_nx = ABS(N.x);
+      const float abs_ny = ABS(N.y);
+      const float abs_nz = ABS(N.z);
       if (abs_nx > abs_ny && abs_nx > abs_nz) { ignoredAxis = 0; }
       else if (abs_ny > abs_nz) { ignoredAxis = 1; }
       else { ignoredAxis = 2; }
@@ -267,7 +301,8 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
       const Point3 bc(a, b, c);
       hInfo.z = t;
       // Non-Shadow Ray
-      if (diffray != NULL && diffhit != NULL) {
+      if (diffray != NULL && diffhit != NULL)
+      {
         const auto tmp_N = GetNormal(faceID, cyPoint3f(bc.x, bc.y, bc.z));
         hInfo.p = p;
         hInfo.N = Point3(tmp_N.x, tmp_N.y, tmp_N.z);
@@ -276,13 +311,15 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
         // Texture Coordinates
         // TODO: we need to remove cyCodeBase dependencies
         cyPoint3f tmp_uvw, tmp_duvw0, tmp_duvw1;
-        if (HasTextureVertices()) {
+        if (HasTextureVertices())
+        {
           hInfo.hasTexture = true;
           tmp_uvw = GetTexCoord(faceID, cyPoint3f(bc.x, bc.y, bc.z));
           hInfo.uvw = Point3(tmp_uvw.x, tmp_uvw.y, tmp_uvw.z);
         }
         // Ray Differential
-        if (diffray->hasDiffRay) {
+        if (diffray->hasDiffRay)
+        {
           const float pz_x = glm::dot((diffray->x.p - A), N);
           const float pz_y = glm::dot((diffray->y.p - A), N);
           const float dz_x = glm::dot(diffray->x.dir, N);
@@ -303,13 +340,15 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
           diffhit->y.z = t_y;
           diffhit->y.p = p_y;
           diffhit->y.N = hInfo.N;
-          if (HasTextureVertices()) {
+          if (HasTextureVertices())
+          {
             tmp_duvw0 = DiffRay::rdx * (GetTexCoord(faceID, cyPoint3f(ax, bx, cx)) - tmp_uvw);
             tmp_duvw1 = DiffRay::rdy * (GetTexCoord(faceID, cyPoint3f(ay, by, cy)) - tmp_uvw);
             hInfo.duvw[0] = Point3(tmp_duvw0.x, tmp_duvw0.y, tmp_duvw0.z);
             hInfo.duvw[1] = Point3(tmp_duvw1.x, tmp_duvw1.y, tmp_duvw1.z);
           }
-        } else {
+        } else
+        {
           diffhit->x.z = t;
           diffhit->x.p = p;
           diffhit->x.N = hInfo.N;
@@ -328,16 +367,18 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
 
 //-------------------------------------------------------------------------------
 
-bool TriObj::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
-                          DiffRay *diffray, DiffHitInfo *diffhit) const {
+bool TriObj::IntersectRay (const Ray &ray, HitInfo &hInfo, int hitSide,
+                           DiffRay *diffray, DiffHitInfo *diffhit) const
+{
   // ray-box intersection
   if (!GetBoundBox().IntersectRay(ray, hInfo.z)) { return false; }
   // ray-triangle intersection
   return TraceBVHNode(ray, hInfo, hitSide, bvh.GetRootNodeID(), diffray, diffhit);
 }
 
-bool TriObj::TraceBVHNode(const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int nodeID,
-                          DiffRay *diffray, DiffHitInfo *diffhit) const {
+bool TriObj::TraceBVHNode (const Ray &ray, HitInfo &hInfo, int hitSide, unsigned int nodeID,
+                           DiffRay *diffray, DiffHitInfo *diffhit) const
+{
   unsigned int stack_array[40];
   unsigned int stack_idx = 0;
   const float threshold = 1e-7f;
@@ -349,16 +390,20 @@ bool TriObj::TraceBVHNode(const Ray &ray, HitInfo &hInfo, int hitSide, unsigned 
   bool hasHit = false;
   // initialize local stack array
   stack_array[stack_idx++] = nodeID;
-  while (stack_idx != 0) {
+  while (stack_idx != 0)
+  {
     // get working node ID
     const unsigned int currNodeID = stack_array[--stack_idx];
-    if (bvh.IsLeafNode(currNodeID)) { // intersect triangle
+    if (bvh.IsLeafNode(currNodeID))
+    { // intersect triangle
       const unsigned int *triangles = bvh.GetNodeElements(currNodeID);
-      for (unsigned int i = 0; i < bvh.GetNodeElementCount(currNodeID); ++i) {
+      for (unsigned int i = 0; i < bvh.GetNodeElementCount(currNodeID); ++i)
+      {
         if (IntersectTriangle(ray, hInfo, hitSide, triangles[i],
                               diffray, diffhit)) { hasHit = true; }
       }
-    } else { // traverse node
+    } else
+    { // traverse node
       // get two children
       unsigned int child0 = 0, child1 = 0;
       bvh.GetChildNodes(currNodeID, child0, child1);
@@ -371,57 +416,68 @@ bool TriObj::TraceBVHNode(const Ray &ray, HitInfo &hInfo, int hitSide, unsigned 
       const Point3 p10 = -(rpos - box1.pmin) * drcp;
       const Point3 p11 = -(rpos - box1.pmax) * drcp;
       Point3 t00, t01, t10, t11;
-      if (abs(dx) < threshold) {
+      if (ABS(dx) < threshold)
+      {
         t00.x = -BIGFLOAT;
         t01.x = BIGFLOAT;
         t10.x = -BIGFLOAT;
         t11.x = BIGFLOAT;
-      } else {
-        t00.x = min(p00.x, p01.x);
-        t01.x = max(p00.x, p01.x);
-        t10.x = min(p10.x, p11.x);
-        t11.x = max(p10.x, p11.x);
+      } else
+      {
+        t00.x = MIN(p00.x, p01.x);
+        t01.x = MAX(p00.x, p01.x);
+        t10.x = MIN(p10.x, p11.x);
+        t11.x = MAX(p10.x, p11.x);
       }
-      if (abs(dy) < threshold) {
+      if (ABS(dy) < threshold)
+      {
         t00.y = -BIGFLOAT;
         t01.y = BIGFLOAT;
         t10.y = -BIGFLOAT;
         t11.y = BIGFLOAT;
-      } else {
-        t00.y = min(p00.y, p01.y);
-        t01.y = max(p00.y, p01.y);
-        t10.y = min(p10.y, p11.y);
-        t11.y = max(p10.y, p11.y);
+      } else
+      {
+        t00.y = MIN(p00.y, p01.y);
+        t01.y = MAX(p00.y, p01.y);
+        t10.y = MIN(p10.y, p11.y);
+        t11.y = MAX(p10.y, p11.y);
       }
-      if (abs(dz) < threshold) {
+      if (ABS(dz) < threshold)
+      {
         t00.z = -BIGFLOAT;
         t01.z = BIGFLOAT;
         t10.z = -BIGFLOAT;
         t11.z = BIGFLOAT;
-      } else {
-        t00.z = min(p00.z, p01.z);
-        t01.z = max(p00.z, p01.z);
-        t10.z = min(p10.z, p11.z);
-        t11.z = max(p10.z, p11.z);
+      } else
+      {
+        t00.z = MIN(p00.z, p01.z);
+        t01.z = MAX(p00.z, p01.z);
+        t10.z = MIN(p10.z, p11.z);
+        t11.z = MAX(p10.z, p11.z);
       }
       const float t_max = hInfo.z;
-      const float entry0 = max(t00.x, max(t00.y, t00.z));
-      const float entry1 = max(t10.x, max(t10.y, t10.z));
-      const float exit0 = min(t01.x, min(t01.y, t01.z));
-      const float exit1 = min(t11.x, min(t11.y, t11.z));
+      const float entry0 = MAX(t00.x, MAX(t00.y, t00.z));
+      const float entry1 = MAX(t10.x, MAX(t10.y, t10.z));
+      const float exit0 = MIN(t01.x, MIN(t01.y, t01.z));
+      const float exit1 = MIN(t11.x, MIN(t11.y, t11.z));
       const bool hasBoxHit0 = (entry0 < t_max && entry0 < exit0);
       const bool hasBoxHit1 = (entry1 < t_max && entry1 < exit1);
-      if (hasBoxHit0 && hasBoxHit1) {
-        if (entry0 < entry1) {
+      if (hasBoxHit0 && hasBoxHit1)
+      {
+        if (entry0 < entry1)
+        {
           stack_array[stack_idx++] = child1;
           stack_array[stack_idx++] = child0;
-        } else {
+        } else
+        {
           stack_array[stack_idx++] = child0;
           stack_array[stack_idx++] = child1;
         }
-      } else if (hasBoxHit0 && !hasBoxHit1) {
+      } else if (hasBoxHit0 && !hasBoxHit1)
+      {
         stack_array[stack_idx++] = child0;
-      } else if (hasBoxHit1 && !hasBoxHit0) {
+      } else if (hasBoxHit1 && !hasBoxHit0)
+      {
         stack_array[stack_idx++] = child1;
       }
     }

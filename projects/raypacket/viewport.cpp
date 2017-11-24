@@ -39,13 +39,15 @@
 
 //------------------------------------------------------------------------------
 
-enum Mode {
+enum Mode
+{
   MODE_READY,    // Ready to render
   MODE_RENDERING,  // Rendering the image
   MODE_RENDER_DONE  // Rendering is finished
 };
 
-enum ViewMode {
+enum ViewMode
+{
   VIEWMODE_OPENGL,
   VIEWMODE_IMAGE,
   VIEWMODE_Z,
@@ -53,7 +55,8 @@ enum ViewMode {
   VIEWMODE_IRRADCOMP,
 };
 
-enum MouseMode {
+enum MouseMode
+{
   MOUSEMODE_NONE,
   MOUSEMODE_DEBUG,
   MOUSEMODE_ROTATE,
@@ -67,34 +70,36 @@ static int mouseX = 0, mouseY = 0;
 static float viewAngle1 = 0, viewAngle2 = 0;
 static GLuint viewTexture;
 static int dofDrawCount = 0;
-static Color3f *dofImage = NULL;
-static Color3c *dofBuffer = NULL;
+static Color *dofImage = NULL;
+static Color24 *dofBuffer = NULL;
 #define MAX_DOF_DRAW 32
 #endif
 //------------------------------------------------------------------------------
 
-void GlutDisplay();
+void GlutDisplay ();
 
-void GlutReshape(int w, int h);
+void GlutReshape (int w, int h);
 
-void GlutIdle();
+void GlutIdle ();
 
-void GlutKeyboard(unsigned char key, int x, int y);
+void GlutKeyboard (unsigned char key, int x, int y);
 
-void GlutMouse(int button, int state, int x, int y);
+void GlutMouse (int button, int state, int x, int y);
 
-void GlutMotion(int x, int y);
+void GlutMotion (int x, int y);
 
 //------------------------------------------------------------------------------
 
-void ShowViewport() {
+void ShowViewport ()
+{
 #ifdef USE_GUI
   int argc = 1;
   char argstr[] = "raytrace";
   char *argv = argstr;
   glutInit(&argc, &argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-  if (glutGet(GLUT_SCREEN_WIDTH) > 0 && glutGet(GLUT_SCREEN_HEIGHT) > 0) {
+  if (glutGet(GLUT_SCREEN_WIDTH) > 0 && glutGet(GLUT_SCREEN_HEIGHT) > 0)
+  {
     glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - camera.imgWidth) / 2,
                            (glutGet(GLUT_SCREEN_HEIGHT) - camera.imgHeight) / 2);
   } else glutInitWindowPosition(50, 50);
@@ -106,7 +111,7 @@ void ShowViewport() {
   glutKeyboardFunc(GlutKeyboard);
   glutMouseFunc(GlutMouse);
   glutMotionFunc(GlutMotion);
-  Color3f bg = background.GetColor();
+  Color bg = background.GetColor();
   glClearColor(bg.r, bg.g, bg.b, 0);
   glPointSize(3.0);
   glEnable(GL_CULL_FACE);
@@ -115,10 +120,11 @@ void ShowViewport() {
   glEnable(GL_NORMALIZE);
   glLineWidth(2);
 
-  if (camera.dof > 0) {
-    dofBuffer = new Color3c[camera.imgWidth * camera.imgHeight];
-    dofImage = new Color3f[camera.imgWidth * camera.imgHeight];
-    memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color3f));
+  if (camera.dof > 0)
+  {
+    dofBuffer = new Color24[camera.imgWidth * camera.imgHeight];
+    dofImage = new Color[camera.imgWidth * camera.imgHeight];
+    memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color));
   }
 
   glGenTextures(1, &viewTexture);
@@ -131,11 +137,14 @@ void ShowViewport() {
 
 //------------------------------------------------------------------------------
 
-void GlutReshape(int w, int h) {
+void GlutReshape (int w, int h)
+{
 #ifdef USE_GUI
-  if (w != camera.imgWidth || h != camera.imgHeight) {
+  if (w != camera.imgWidth || h != camera.imgHeight)
+  {
     glutReshapeWindow(camera.imgWidth, camera.imgHeight);
-  } else {
+  } else
+  {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -150,7 +159,8 @@ void GlutReshape(int w, int h) {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void DrawNode(Node *node) {
+void DrawNode (Node *node)
+{
   glPushMatrix();
   const Material *mtl = node->GetMaterial();
   if (mtl) mtl->SetViewportMaterial();
@@ -166,7 +176,8 @@ void DrawNode(Node *node) {
   glMultMatrixf(m);
   Object *obj = node->GetNodeObj();
   if (obj) obj->ViewportDisplay(mtl);
-  for (int i = 0; i < node->GetNumChild(); i++) {
+  for (int i = 0; i < node->GetNumChild(); i++)
+  {
     DrawNode(node->GetChild(i));
   }
   glPopMatrix();
@@ -176,18 +187,21 @@ void DrawNode(Node *node) {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void DrawScene() {
+void DrawScene ()
+{
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   const TextureMap *bgMap = background.GetTexture();
-  if (bgMap) {
+  if (bgMap)
+  {
     glDepthMask(GL_FALSE);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
-    Color3f c = background.GetColor();
+    Color c = background.GetColor();
     glColor3f(c.r, c.g, c.b);
-    if (bgMap->SetViewportTexture()) {
+    if (bgMap->SetViewportTexture())
+    {
       glEnable(GL_TEXTURE_2D);
       glMatrixMode(GL_TEXTURE);
       Matrix3 tm = bgMap->GetInverseTransform();
@@ -201,7 +215,8 @@ void DrawScene() {
                      -p.x, -p.y, -p.z, 1};
       glLoadMatrixf(m);
       glMatrixMode(GL_MODELVIEW);
-    } else {
+    } else
+    {
       glDisable(GL_TEXTURE_2D);
     }
     glBegin(GL_QUADS);
@@ -226,7 +241,8 @@ void DrawScene() {
   Point3 p = camera.pos;
   Point3 t = camera.pos + camera.dir * camera.focaldist;
   Point3 u = camera.up;
-  if (camera.dof > 0) {
+  if (camera.dof > 0)
+  {
     Point3 v = glm::cross(camera.dir, camera.up);
     float r = sqrtf(float(rand()) / RAND_MAX) * camera.dof;
     float a = float(M_PI) * 2.0f * float(rand()) / RAND_MAX;
@@ -235,11 +251,14 @@ void DrawScene() {
   gluLookAt(p.x, p.y, p.z, t.x, t.y, t.z, u.x, u.y, u.z);
   glRotatef(viewAngle1, 1, 0, 0);
   glRotatef(viewAngle2, 0, 0, 1);
-  if (lights.size() > 0) {
-    for (unsigned int i = 0; i < lights.size(); i++) {
+  if (lights.size() > 0)
+  {
+    for (unsigned int i = 0; i < lights.size(); i++)
+    {
       lights[i]->SetViewportLight(i);
     }
-  } else {
+  } else
+  {
     float white[] = {1, 1, 1, 1};
     float black[] = {0, 0, 0, 0};
     Point4 p(camera.pos, 1);
@@ -260,7 +279,8 @@ void DrawScene() {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void DrawImage(void *data, GLenum type, GLenum format) {
+void DrawImage (void *data, GLenum type, GLenum format)
+{
   glBindTexture(GL_TEXTURE_2D, viewTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                renderImage.GetWidth(), renderImage.GetHeight(), 0, format, type, data);
@@ -291,7 +311,8 @@ void DrawImage(void *data, GLenum type, GLenum format) {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void DrawProgressBar(float done) {
+void DrawProgressBar (float done)
+{
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -311,7 +332,8 @@ void DrawProgressBar(float done) {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void DrawRenderProgressBar() {
+void DrawRenderProgressBar ()
+{
   int rp = renderImage.GetNumRenderedPixels();
   int np = renderImage.GetWidth() * renderImage.GetHeight();
   if (rp >= np) return;
@@ -322,43 +344,55 @@ void DrawRenderProgressBar() {
 #endif
 
 //------------------------------------------------------------------------------
-void GlutDisplay() {
+void GlutDisplay ()
+{
 #ifdef USE_GUI
-  switch (viewMode) {
+  switch (viewMode)
+  {
     case VIEWMODE_OPENGL:
-      if (dofImage) {
-        if (dofDrawCount < MAX_DOF_DRAW) {
+      if (dofImage)
+      {
+        if (dofDrawCount < MAX_DOF_DRAW)
+        {
           DrawScene();
           glReadPixels(0, 0, camera.imgWidth, camera.imgHeight, GL_RGB, GL_UNSIGNED_BYTE, dofBuffer);
-          for (int i = 0, y = 0; y < camera.imgHeight; y++) {
+          for (int i = 0, y = 0; y < camera.imgHeight; y++)
+          {
             int j = (camera.imgHeight - y - 1) * camera.imgWidth;
-            for (int x = 0; x < camera.imgWidth; x++, i++, j++) {
-              dofImage[i] = (dofImage[i] * float(dofDrawCount) + ToColor3f(dofBuffer[j])) / float(dofDrawCount + 1);
+            for (int x = 0; x < camera.imgWidth; x++, i++, j++)
+            {
+              dofImage[i] = (dofImage[i] * float(dofDrawCount) + ToColor(dofBuffer[j])) / float(dofDrawCount + 1);
             }
           }
           dofDrawCount++;
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         DrawImage(dofImage, GL_FLOAT, GL_RGB);
-        if (dofDrawCount < MAX_DOF_DRAW) {
+        if (dofDrawCount < MAX_DOF_DRAW)
+        {
           DrawProgressBar(float(dofDrawCount) / MAX_DOF_DRAW);
           glutPostRedisplay();
         }
-      } else {
+      } else
+      {
         DrawScene();
       }
       break;
-    case VIEWMODE_IMAGE:DrawImage(renderImage.GetPixels(), GL_UNSIGNED_BYTE, GL_RGB);
+    case VIEWMODE_IMAGE:
+      DrawImage(renderImage.GetPixels(), GL_UNSIGNED_BYTE, GL_RGB);
       DrawRenderProgressBar();
       break;
-    case VIEWMODE_Z:if (!renderImage.GetZBufferImage()) renderImage.ComputeZBufferImage();
+    case VIEWMODE_Z:
+      if (!renderImage.GetZBufferImage()) renderImage.ComputeZBufferImage();
       DrawImage(renderImage.GetZBufferImage(), GL_UNSIGNED_BYTE, GL_LUMINANCE);
       break;
-    case VIEWMODE_SAMPLECOUNT:if (!renderImage.GetSampleCountImage()) renderImage.ComputeSampleCountImage();
+    case VIEWMODE_SAMPLECOUNT:
+      if (!renderImage.GetSampleCountImage()) renderImage.ComputeSampleCountImage();
       DrawImage(renderImage.GetSampleCountImage(), GL_UNSIGNED_BYTE, GL_LUMINANCE);
       break;
     case VIEWMODE_IRRADCOMP:
-      if (renderImage.GetIrradianceComputationImage()) {
+      if (renderImage.GetIrradianceComputationImage())
+      {
         DrawImage(renderImage.GetIrradianceComputationImage(), GL_UNSIGNED_BYTE, GL_LUMINANCE);
       }
       break;
@@ -368,10 +402,13 @@ void GlutDisplay() {
 }
 
 //------------------------------------------------------------------------------
-void GlutIdle() {
+void GlutIdle ()
+{
 #ifdef USE_GUI
-  if (mode == MODE_RENDERING) {
-    if (renderImage.IsRenderDone()) {
+  if (mode == MODE_RENDERING)
+  {
+    if (renderImage.IsRenderDone())
+    {
       mode = MODE_RENDER_DONE;
       CleanRender();
     }
@@ -382,31 +419,39 @@ void GlutIdle() {
 }
 
 //------------------------------------------------------------------------------
-void GlutKeyboard(unsigned char key, int x, int y) {
+void GlutKeyboard (unsigned char key, int x, int y)
+{
 #ifdef USE_GUI
-  switch (key) {
+  switch (key)
+  {
     case 27:  // ESC
       KillRender();
       exit(0);
       break;
     case ' ':
-      switch (mode) {
-        case MODE_READY:mode = MODE_RENDERING;
+      switch (mode)
+      {
+        case MODE_READY:
+          mode = MODE_RENDERING;
           viewMode = VIEWMODE_IMAGE;
-          if (dofImage) {
-            Color3c *p = renderImage.GetPixels();
-            for (int i = 0; i < camera.imgWidth * camera.imgHeight; i++) p[i] = Color3c(dofImage[i]);
-          } else {
+          if (dofImage)
+          {
+            Color24 *p = renderImage.GetPixels();
+            for (int i = 0; i < camera.imgWidth * camera.imgHeight; i++) p[i] = Color24(dofImage[i]);
+          } else
+          {
             DrawScene();
             glReadPixels(0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE,
                          renderImage.GetPixels());
             {
-              Color3c *c = renderImage.GetPixels();
-              for (int y0 = 0, y1 = renderImage.GetHeight() - 1; y0 < y1; y0++, y1--) {
+              Color24 *c = renderImage.GetPixels();
+              for (int y0 = 0, y1 = renderImage.GetHeight() - 1; y0 < y1; y0++, y1--)
+              {
                 int i0 = y0 * renderImage.GetWidth();
                 int i1 = y1 * renderImage.GetWidth();
-                for (int x = 0; x < renderImage.GetWidth(); x++, i0++, i1++) {
-                  Color3c t = c[i0];
+                for (int x = 0; x < renderImage.GetWidth(); x++, i0++, i1++)
+                {
+                  Color24 t = c[i0];
                   c[i0] = c[i1];
                   c[i1] = t;
                 }
@@ -415,30 +460,37 @@ void GlutKeyboard(unsigned char key, int x, int y) {
           }
           BeginRender();
           break;
-        case MODE_RENDERING:mode = MODE_READY;
+        case MODE_RENDERING:
+          mode = MODE_READY;
           StopRender();
           glutPostRedisplay();
           break;
-        case MODE_RENDER_DONE:mode = MODE_READY;
+        case MODE_RENDER_DONE:
+          mode = MODE_READY;
           viewMode = VIEWMODE_OPENGL;
           glutPostRedisplay();
           break;
       }
       break;
-    case '1':viewAngle1 = viewAngle2 = 0;
+    case '1':
+      viewAngle1 = viewAngle2 = 0;
       viewMode = VIEWMODE_OPENGL;
       glutPostRedisplay();
       break;
-    case '2':viewMode = VIEWMODE_IMAGE;
+    case '2':
+      viewMode = VIEWMODE_IMAGE;
       glutPostRedisplay();
       break;
-    case '3':viewMode = VIEWMODE_Z;
+    case '3':
+      viewMode = VIEWMODE_Z;
       glutPostRedisplay();
       break;
-    case '4':viewMode = VIEWMODE_SAMPLECOUNT;
+    case '4':
+      viewMode = VIEWMODE_SAMPLECOUNT;
       glutPostRedisplay();
       break;
-    case '5':viewMode = VIEWMODE_IRRADCOMP;
+    case '5':
+      viewMode = VIEWMODE_IRRADCOMP;
       glutPostRedisplay();
       break;
   }
@@ -447,14 +499,17 @@ void GlutKeyboard(unsigned char key, int x, int y) {
 //------------------------------------------------------------------------------
 #ifdef USE_GUI
 
-void PrintPixelData(int x, int y) {
-  if (x < renderImage.GetWidth() && y < renderImage.GetHeight()) {
-    Color3c *colors = renderImage.GetPixels();
+void PrintPixelData (int x, int y)
+{
+  if (x < renderImage.GetWidth() && y < renderImage.GetHeight())
+  {
+    Color24 *colors = renderImage.GetPixels();
     float *zbuffer = renderImage.GetZBuffer();
     int i = (y) * renderImage.GetWidth() + x;
-    printf("Pixel [ %d, %d ] Color3c: %d, %d, %d   Z: %f\n",
+    printf("Pixel [ %d, %d ] Color24: %d, %d, %d   Z: %f\n",
            x, y, colors[i].r, colors[i].g, colors[i].b, zbuffer[i]);
-  } else {
+  } else
+  {
     printf("-- Invalid pixel (%d,%d) --\n", x, y);
   }
 }
@@ -462,16 +517,22 @@ void PrintPixelData(int x, int y) {
 #endif
 
 //------------------------------------------------------------------------------
-void GlutMouse(int button, int state, int x, int y) {
+void GlutMouse (int button, int state, int x, int y)
+{
 #ifdef USE_GUI
-  if (state == GLUT_UP) {
+  if (state == GLUT_UP)
+  {
     mouseMode = MOUSEMODE_NONE;
-  } else {
-    switch (button) {
-      case GLUT_LEFT_BUTTON:mouseMode = MOUSEMODE_DEBUG;
+  } else
+  {
+    switch (button)
+    {
+      case GLUT_LEFT_BUTTON:
+        mouseMode = MOUSEMODE_DEBUG;
         PrintPixelData(x, y);
         break;
-      case GLUT_RIGHT_BUTTON:mouseMode = MOUSEMODE_ROTATE;
+      case GLUT_RIGHT_BUTTON:
+        mouseMode = MOUSEMODE_ROTATE;
         mouseX = x;
         mouseY = y;
         break;
@@ -482,18 +543,23 @@ void GlutMouse(int button, int state, int x, int y) {
 
 //------------------------------------------------------------------------------
 
-void GlutMotion(int x, int y) {
+void GlutMotion (int x, int y)
+{
 #ifdef USE_GUI
-  switch (mouseMode) {
-    case MOUSEMODE_DEBUG:PrintPixelData(x, y);
+  switch (mouseMode)
+  {
+    case MOUSEMODE_DEBUG:
+      PrintPixelData(x, y);
       break;
-    case GLUT_RIGHT_BUTTON:viewAngle1 -= 0.2f * (mouseY - y);
+    case GLUT_RIGHT_BUTTON:
+      viewAngle1 -= 0.2f * (mouseY - y);
       viewAngle2 -= 0.2f * (mouseX - x);
       mouseX = x;
       mouseY = y;
       glutPostRedisplay();
       break;
-    default:break;
+    default:
+      break;
   }
 #endif
 }
@@ -501,10 +567,12 @@ void GlutMotion(int x, int y) {
 //------------------------------------------------------------------------------
 // Viewport Methods for various classes
 //------------------------------------------------------------------------------
-void Sphere::ViewportDisplay(const Material *mtl) const {
+void Sphere::ViewportDisplay (const Material *mtl) const
+{
 #ifdef USE_GUI
   static GLUquadric *q = NULL;
-  if (q == NULL) {
+  if (q == NULL)
+  {
     q = gluNewQuadric();
     gluQuadricTexture(q, true);
   }
@@ -512,7 +580,8 @@ void Sphere::ViewportDisplay(const Material *mtl) const {
 #endif
 }
 
-void Plane::ViewportDisplay(const Material *mtl) const {
+void Plane::ViewportDisplay (const Material *mtl) const
+{
 #ifdef USE_GUI
   const int resolution = 32;
   float xyInc = 2.0f / resolution;
@@ -521,9 +590,11 @@ void Plane::ViewportDisplay(const Material *mtl) const {
   glNormal3f(0, 0, 1);
   glBegin(GL_QUADS);
   float y1 = -1, y2 = xyInc - 1, v1 = 0, v2 = uvInc;
-  for (int y = 0; y < resolution; y++) {
+  for (int y = 0; y < resolution; y++)
+  {
     float x1 = -1, x2 = xyInc - 1, u1 = 0, u2 = uvInc;
-    for (int x = 0; x < resolution; x++) {
+    for (int x = 0; x < resolution; x++)
+    {
       glTexCoord2f(u1, v1);
       glVertex3f(x1, y1, 0);
       glTexCoord2f(u2, v1);
@@ -547,20 +618,25 @@ void Plane::ViewportDisplay(const Material *mtl) const {
 #endif
 }
 
-void TriObj::ViewportDisplay(const Material *mtl) const {
+void TriObj::ViewportDisplay (const Material *mtl) const
+{
 #ifdef USE_GUI
   unsigned int nextMtlID = 0;
   unsigned int nextMtlSwith = NF();
-  if (mtl && NM() > 0) {
+  if (mtl && NM() > 0)
+  {
     mtl->SetViewportMaterial(0);
     nextMtlSwith = GetMaterialFaceCount(0);
     nextMtlID = 1;
   }
   glBegin(GL_TRIANGLES);
-  for (unsigned int i = 0; i < NF(); i++) {
-    while (i >= nextMtlSwith) {
+  for (unsigned int i = 0; i < NF(); i++)
+  {
+    while (i >= nextMtlSwith)
+    {
       if (nextMtlID >= NM()) nextMtlSwith = NF();
-      else {
+      else
+      {
         glEnd();
         nextMtlSwith += GetMaterialFaceCount(nextMtlID);
         mtl->SetViewportMaterial(nextMtlID);
@@ -568,7 +644,8 @@ void TriObj::ViewportDisplay(const Material *mtl) const {
         glBegin(GL_TRIANGLES);
       }
     }
-    for (int j = 0; j < 3; j++) {
+    for (int j = 0; j < 3; j++)
+    {
       if (HasTextureVertices()) glTexCoord3fv(&VT(FT(i).v[j]).x);
       if (HasNormals()) glNormal3fv(&VN(FN(i).v[j]).x);
       glVertex3fv(&V(F(i).v[j]).x);
@@ -579,18 +656,20 @@ void TriObj::ViewportDisplay(const Material *mtl) const {
 }
 
 //------------------------------------------------------------------------------
-void MtlBlinn_PathTracing::SetViewportMaterial(int subMtlID) const {
+void MtlBlinn_PathTracing::SetViewportMaterial (int subMtlID) const
+{
 #ifdef USE_GUI
-  Color4f c;
-  c = Color4f(diffuse.GetColor(), 1.f);
+  ColorA c;
+  c = ColorA(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = Color4f(specular.GetColor(), 1.f);
+  c = ColorA(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, specularGlossiness * 1.5f);
-  c = Color4f(emission.GetColor(), 1.f);
+  c = ColorA(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
-  if (dm && dm->SetViewportTexture()) {
+  if (dm && dm->SetViewportTexture())
+  {
     glEnable(GL_TEXTURE_2D);
     glMatrixMode(GL_TEXTURE);
     Matrix3 tm = dm->GetInverseTransform();
@@ -604,24 +683,27 @@ void MtlBlinn_PathTracing::SetViewportMaterial(int subMtlID) const {
                    -p.x, -p.y, -p.z, 1};
     glLoadMatrixf(m);
     glMatrixMode(GL_MODELVIEW);
-  } else {
+  } else
+  {
     glDisable(GL_TEXTURE_2D);
   }
 #endif
 }
 
-void MtlBlinn_MonteCarloGI::SetViewportMaterial(int subMtlID) const {
+void MtlBlinn_MonteCarloGI::SetViewportMaterial (int subMtlID) const
+{
 #ifdef USE_GUI
-  Color4f c;
-  c = Color4f(diffuse.GetColor(), 1.f);
+  ColorA c;
+  c = ColorA(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = Color4f(specular.GetColor(), 1.f);
+  c = ColorA(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = Color4f(emission.GetColor(), 1.f);
+  c = ColorA(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
-  if (dm && dm->SetViewportTexture()) {
+  if (dm && dm->SetViewportTexture())
+  {
     glEnable(GL_TEXTURE_2D);
     glMatrixMode(GL_TEXTURE);
     Matrix3 tm = dm->GetInverseTransform();
@@ -635,24 +717,27 @@ void MtlBlinn_MonteCarloGI::SetViewportMaterial(int subMtlID) const {
                    -p.x, -p.y, -p.z, 1};
     glLoadMatrixf(m);
     glMatrixMode(GL_MODELVIEW);
-  } else {
+  } else
+  {
     glDisable(GL_TEXTURE_2D);
   }
 #endif
 }
 
-void MtlBlinn_Basic::SetViewportMaterial(int subMtlID) const {
+void MtlBlinn_Basic::SetViewportMaterial (int subMtlID) const
+{
 #ifdef USE_GUI
-  Color4f c;
-  c = Color4f(diffuse.GetColor(), 1.f);
+  ColorA c;
+  c = ColorA(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = Color4f(specular.GetColor(), 1.f);
+  c = ColorA(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = Color4f(emission.GetColor(), 1.f);
+  c = ColorA(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
-  if (dm && dm->SetViewportTexture()) {
+  if (dm && dm->SetViewportTexture())
+  {
     glEnable(GL_TEXTURE_2D);
     glMatrixMode(GL_TEXTURE);
     Matrix3 tm = dm->GetInverseTransform();
@@ -666,24 +751,27 @@ void MtlBlinn_Basic::SetViewportMaterial(int subMtlID) const {
                    -p.x, -p.y, -p.z, 1};
     glLoadMatrixf(m);
     glMatrixMode(GL_MODELVIEW);
-  } else {
+  } else
+  {
     glDisable(GL_TEXTURE_2D);
   }
 #endif
 }
 
-void MtlPhong_Basic::SetViewportMaterial(int subMtlID) const {
+void MtlPhong_Basic::SetViewportMaterial (int subMtlID) const
+{
 #ifdef USE_GUI
-  Color4f c;
-  c = Color4f(diffuse.GetColor(), 1.f);
+  ColorA c;
+  c = ColorA(diffuse.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
-  c = Color4f(specular.GetColor(), 1.f);
+  c = ColorA(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
   glMaterialf(GL_FRONT, GL_SHININESS, glossiness * 1.5f);
-  c = Color4f(emission.GetColor(), 1.f);
+  c = ColorA(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
-  if (dm && dm->SetViewportTexture()) {
+  if (dm && dm->SetViewportTexture())
+  {
     glEnable(GL_TEXTURE_2D);
     glMatrixMode(GL_TEXTURE);
     Matrix3 tm = dm->GetInverseTransform();
@@ -697,23 +785,27 @@ void MtlPhong_Basic::SetViewportMaterial(int subMtlID) const {
                    -p.x, -p.y, -p.z, 1};
     glLoadMatrixf(m);
     glMatrixMode(GL_MODELVIEW);
-  } else {
+  } else
+  {
     glDisable(GL_TEXTURE_2D);
   }
 #endif
 }
 
 //------------------------------------------------------------------------------
-bool TextureFile::SetViewportTexture() const {
+bool TextureFile::SetViewportTexture () const
+{
 #ifdef USE_GUI
-  if (viewportTextureID == 0) {
-    std::vector<uint8_t> flip(width * height * 3, 0);
-    for (int y = 0; y < height; ++y) {
+  if (viewportTextureID == 0)
+  {
+    std::vector<uchar> flip(width * height * 3, 0);
+    for (int y = 0; y < height; ++y)
+    {
       const auto dst_idx = 3 * ((height - y - 1) * width + 0);
       const auto src_idx = y * width + 0;
       std::memcpy(&flip[dst_idx],
                   &(data[src_idx].r),
-                  3 * width * sizeof(uint8_t));
+                  3 * width * sizeof(uchar));
     }
     glGenTextures(1, &viewportTextureID);
     glBindTexture(GL_TEXTURE_2D, viewportTextureID);
@@ -732,18 +824,21 @@ bool TextureFile::SetViewportTexture() const {
 
 }
 
-bool TextureChecker::SetViewportTexture() const {
+bool TextureChecker::SetViewportTexture () const
+{
 #ifdef USE_GUI
-  if (viewportTextureID == 0) {
+  if (viewportTextureID == 0)
+  {
     const int texSize = 256;
     glGenTextures(1, &viewportTextureID);
     glBindTexture(GL_TEXTURE_2D, viewportTextureID);
-    Color3c c[2] = {
-        Color3c(color1 * 255.f),
-        Color3c(color2 * 255.f)
+    Color24 c[2] = {
+        Color24(color1 * 255.f),
+        Color24(color2 * 255.f)
     };
-    Color3c *tex = new Color3c[texSize * texSize];
-    for (int i = 0; i < texSize * texSize; i++) {
+    Color24 *tex = new Color24[texSize * texSize];
+    for (int i = 0; i < texSize * texSize; i++)
+    {
       int ix = (i % texSize) < 128 ? 0 : 1;
       if (i / 256 >= 128) ix = 1 - ix;
       tex[i] = c[ix];
@@ -764,7 +859,8 @@ bool TextureChecker::SetViewportTexture() const {
 }
 
 //------------------------------------------------------------------------------
-void GenLight::SetViewportParam(int lightID, Color4f ambient, Color4f intensity, Point4 pos) const {
+void GenLight::SetViewportParam (int lightID, ColorA ambient, ColorA intensity, Point4 pos) const
+{
 #ifdef USE_GUI
   glEnable(GL_LIGHT0 + lightID);
   glLightfv(GL_LIGHT0 + lightID, GL_AMBIENT, &ambient.r);

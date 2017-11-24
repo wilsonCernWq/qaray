@@ -14,11 +14,14 @@
 
 //-------------------------------------------------------------------------------
 
-int ReadLine(FILE *fp, int size, char *buffer) {
+int ReadLine (FILE *fp, int size, char *buffer)
+{
   int i;
-  for (i = 0; i < size; i++) {
+  for (i = 0; i < size; i++)
+  {
     buffer[i] = fgetc(fp);
-    if (feof(fp) || buffer[i] == '\n' || buffer[i] == '\r') {
+    if (feof(fp) || buffer[i] == '\n' || buffer[i] == '\r')
+    {
       buffer[i] = '\0';
       return i + 1;
     }
@@ -28,7 +31,8 @@ int ReadLine(FILE *fp, int size, char *buffer) {
 
 //-------------------------------------------------------------------------------
 
-bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color3c> &data) {
+bool LoadPPM (FILE *fp, int &width, int &height, std::vector<Color24> &data)
+{
   const int bufferSize = 1024;
   char buffer[bufferSize];
   ReadLine(fp, bufferSize, buffer);
@@ -45,14 +49,15 @@ bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color3c> &data) {
   // last read line should be "255\n"
 
   data.resize(width * height);
-  fread(data.data(), sizeof(Color3c), width * height, fp);
+  fread(data.data(), sizeof(Color24), width * height, fp);
 
   return true;
 }
 
 //-------------------------------------------------------------------------------
 
-bool TextureFile::Load() {
+bool TextureFile::Load ()
+{
   data.clear();
   width = 0;
   height = 0;
@@ -66,18 +71,21 @@ bool TextureFile::Load() {
 
   char ext[3] = {(char) tolower(name[len - 3]), (char) tolower(name[len - 2]), (char) tolower(name[len - 1])};
 
-  if (strncmp(ext, "png", 3) == 0) {
+  if (strncmp(ext, "png", 3) == 0)
+  {
     std::vector<unsigned char> d;
     unsigned int w, h;
     unsigned int error = lodepng::decode(d, w, h, name, LCT_RGB);
-    if (error == 0) {
+    if (error == 0)
+    {
       width = w;
       height = h;
       data.resize(width * height);
       memcpy(data.data(), d.data(), width * height * 3);
     }
     success = (error == 0);
-  } else if (strncmp(ext, "ppm", 3) == 0) {
+  } else if (strncmp(ext, "ppm", 3) == 0)
+  {
     FILE *fp = fopen(name, "rb");
     if (!fp) return false;
     success = LoadPPM(fp, width, height, data);
@@ -89,8 +97,9 @@ bool TextureFile::Load() {
 
 //-------------------------------------------------------------------------------
 
-Color3f TextureFile::Sample(const Point3 &uvw) const {
-  if (width + height == 0) return Color3f(0, 0, 0);
+Color TextureFile::Sample (const Point3 &uvw) const
+{
+  if (width + height == 0) return Color(0, 0, 0);
 
   Point3 fliped_uvw(uvw.x, 1.f - uvw.y, uvw.z);
   Point3 u = TileClamp(fliped_uvw);
@@ -112,19 +121,22 @@ Color3f TextureFile::Sample(const Point3 &uvw) const {
   if (iyp >= height) iyp -= height;
 
   return
-      ToColor3f(data[iy * width + ix]) * ((1 - fx) * (1 - fy)) +
-      ToColor3f(data[iy * width + ixp]) * (fx * (1 - fy)) +
-      ToColor3f(data[iyp * width + ix]) * ((1 - fx) * fy) +
-      ToColor3f(data[iyp * width + ixp]) * (fx * fy);
+      ToColor(data[iy * width + ix]) * ((1 - fx) * (1 - fy)) +
+      ToColor(data[iy * width + ixp]) * (fx * (1 - fy)) +
+      ToColor(data[iyp * width + ix]) * ((1 - fx) * fy) +
+      ToColor(data[iyp * width + ixp]) * (fx * fy);
 }
 
 //-------------------------------------------------------------------------------
 
-Color3f TextureChecker::Sample(const Point3 &uvw) const {
+Color TextureChecker::Sample (const Point3 &uvw) const
+{
   Point3 u = TileClamp(uvw);
-  if (u.x <= 0.5f) {
+  if (u.x <= 0.5f)
+  {
     return u.y <= 0.5f ? color1 : color2;
-  } else {
+  } else
+  {
     return u.y <= 0.5f ? color2 : color1;
   }
 }

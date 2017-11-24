@@ -11,15 +11,16 @@
 
 #include "materials.h"
 
-int Material::maxBounce = 3;
+int Material::maxBounce = 1;
 
 //------------------------------------------------------------------------------
 
-Color3f Attenuation(const Color3f &absorption, const float l) {
+Color Attenuation (const Color &absorption, const float l)
+{
   const float R = exp(-absorption.r * l);
   const float G = exp(-absorption.g * l);
   const float B = exp(-absorption.b * l);
-  return Color3f(R, G, B); // attenuation
+  return Color(R, G, B); // attenuation
 }
 
 //------------------------------------------------------------------------------
