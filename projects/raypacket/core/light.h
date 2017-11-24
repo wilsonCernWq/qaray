@@ -42,7 +42,6 @@ class Light : public ItemBase {
   // used for OpenGL display
   virtual void SetViewportLight(int lightID) const {}
 };
-class LightList : public ItemList<Light> {};
 }
 
 #endif //QARAY_LIGHT_H

@@ -26,3 +26,8 @@
 ///--------------------------------------------------------------------------//
 
 #include "object.h"
+#include "core/items.h"
+
+namespace qaray {
+template class ItemFileList<Object>;
+}

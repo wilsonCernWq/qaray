@@ -43,17 +43,18 @@ class DiffRay;
 class DiffHitInfo;
 class HitInfo;
 class Light;
-class LightList;
 class ItemBase;
+class Material;
+class MaterialList;
 class Node;
+class Object;
 class Ray;
 class Sampler;
 class Transformation;
-class Object;
-class Material;
-class MaterialList;
 template<class T> class ItemList;
 template<class T> class ItemFileList;
+typedef ItemList<Light>      LightList;
+typedef ItemFileList<Object> ObjFileList;
 };
 
 #endif //QARAY_CORE_H

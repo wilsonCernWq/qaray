@@ -47,7 +47,6 @@ class Object {
   // Used for OpenGL display
   virtual void ViewportDisplay(const Material *mtl) const {}
 };
-typedef ItemFileList<Object> ObjFileList;
 }
 
 #endif //QARAY_OBJECT_H

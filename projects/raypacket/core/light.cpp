@@ -26,3 +26,7 @@
 ///--------------------------------------------------------------------------//
 
 #include "light.h"
+
+namespace qaray {
+template class ItemList<Light>;
+}
