@@ -6,9 +6,8 @@
 
 //-----------------------------------------------------------------------------
 
-class RenderImage
-{
-private:
+class RenderImage {
+ private:
   uchar *mask;
   Color24 *img;
   float *zbuffer;
@@ -18,55 +17,55 @@ private:
   uchar *irradComp;
   int width, height;
   std::atomic<int> numRenderedPixels;
-public:
-  RenderImage ();
+ public:
+  RenderImage();
 
-  ~RenderImage ();
+  ~RenderImage();
 
-  void Init (int w, int h);
+  void Init(int w, int h);
 
-  void AllocateIrradianceComputationImage ();
+  void AllocateIrradianceComputationImage();
 
-  int GetWidth () const { return width; }
+  int GetWidth() const { return width; }
 
-  int GetHeight () const { return height; }
+  int GetHeight() const { return height; }
 
-  Color24 *GetPixels () { return img; }
+  Color24 *GetPixels() { return img; }
 
-  uchar *GetMasks () { return mask; }
+  uchar *GetMasks() { return mask; }
 
-  float *GetZBuffer () { return zbuffer; }
+  float *GetZBuffer() { return zbuffer; }
 
-  uchar *GetZBufferImage () { return zbufferImg; }
+  uchar *GetZBufferImage() { return zbufferImg; }
 
-  uchar *GetSampleCount () { return sampleCount; }
+  uchar *GetSampleCount() { return sampleCount; }
 
-  uchar *GetSampleCountImage () { return sampleCountImg; }
+  uchar *GetSampleCountImage() { return sampleCountImg; }
 
-  uchar *GetIrradianceComputationImage () { return irradComp; }
+  uchar *GetIrradianceComputationImage() { return irradComp; }
 
-  void ResetNumRenderedPixels ();
+  void ResetNumRenderedPixels();
 
-  int GetNumRenderedPixels () const { return numRenderedPixels; }
+  int GetNumRenderedPixels() const { return numRenderedPixels; }
 
-  void IncrementNumRenderPixel (int n) { numRenderedPixels += n; }
+  void IncrementNumRenderPixel(int n) { numRenderedPixels += n; }
 
-  bool IsRenderDone () const { return numRenderedPixels >= width * height; }
+  bool IsRenderDone() const { return numRenderedPixels >= width * height; }
 
-  void ComputeZBufferImage ();
+  void ComputeZBufferImage();
 
-  int ComputeSampleCountImage ();
+  int ComputeSampleCountImage();
 
-  bool SaveImage (const char *filename) const;
+  bool SaveImage(const char *filename) const;
 
-  bool SaveZImage (const char *filename) const;
+  bool SaveZImage(const char *filename) const;
 
-  bool SaveSampleCountImage (const char *filename) const;
+  bool SaveSampleCountImage(const char *filename) const;
 
-  bool SaveIrradianceComputationImage (const char *filename) const;
+  bool SaveIrradianceComputationImage(const char *filename) const;
 
-private:
-  bool SavePNG (const char *filename, uchar *data, int compCount) const;
+ private:
+  bool SavePNG(const char *filename, uchar *data, int compCount) const;
 };
 
 //-----------------------------------------------------------------------------

@@ -21,14 +21,17 @@ qaFLOAT Sampler_Marsaglia::xorshift32()
   seed = x;
   return x / (qaFLOAT) (pow(2, 32) - 1);
 }
-void Sampler_Marsaglia::Get1f(qaFLOAT &r1) {
+void Sampler_Marsaglia::Get1f(qaFLOAT &r1)
+{
   r1 = xorshift32();
 }
-void Sampler_Marsaglia::Get2f(qaFLOAT &r1, qaFLOAT &r2) {
+void Sampler_Marsaglia::Get2f(qaFLOAT &r1, qaFLOAT &r2)
+{
   r1 = xorshift32();
   r2 = xorshift32();
 }
-void Sampler_Marsaglia::Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3) {
+void Sampler_Marsaglia::Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3)
+{
   r1 = xorshift32();
   r2 = xorshift32();
   r3 = xorshift32();

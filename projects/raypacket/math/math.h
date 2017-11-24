@@ -56,12 +56,11 @@ DEFINE_ALL_DEC(int, i);
 DEFINE_ALL_DEC(float, f);
 DEFINE_ALL_DEC(double, d);
 
-namespace qaray
-{
-  typedef vec3f Color3f;
-  typedef vec3c Color3c;
-  typedef vec4f Color4f;
-  typedef vec4c Color4c;
+namespace qaray {
+typedef vec3f Color3f;
+typedef vec3c Color3c;
+typedef vec4f Color4f;
+typedef vec4c Color4c;
 };
 
 // TODO temporary
@@ -75,7 +74,7 @@ typedef qaray::Color4f ColorA;
 typedef qaray::Color3c Color24;
 typedef unsigned char uchar;
 
-inline Color ToColor (const Color24 &c)
+inline Color ToColor(const Color24 &c)
 {
   return Color(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 }

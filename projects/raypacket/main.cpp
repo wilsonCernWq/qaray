@@ -32,12 +32,12 @@
 //-------------------------------------------------------------------------
 // Parameters
 static float gammaCorrection = 1.0f;
-static bool  sRGBCorrection = false;
+static bool sRGBCorrection = false;
 static int &bounce = Material::maxBounce;
 static int sppMax = 16, sppMin = 4;
 // Camera parameters
-static float  focal = 10.0f, dof = 0.0f;
-static float  screenW, screenH, aspect;
+static float focal = 10.0f, dof = 0.0f;
+static float screenW, screenH, aspect;
 static Point3 screenX, screenY, screenZ;
 static Point3 screenU, screenV, screenA;
 // Frame Buffer parameters
@@ -63,7 +63,7 @@ static std::string mpiPrefix;
 
 //-------------------------------------------------------------------------
 
-float LinearToSRGB (const float c)
+float LinearToSRGB(const float c)
 {
   const float a = 0.055f;
   if (c < 0.0031308f) { return 12.92f * c; }
@@ -71,22 +71,22 @@ float LinearToSRGB (const float c)
 }
 
 //-------------------------------------------------------------------------
-void PixelRender (const int i, const int j, const int tile_idx)
+void PixelRender(const int i, const int j, const int tile_idx)
 {
   // initializations
   SuperSamplerHalton sampler(Color(0.005f, 0.001f, 0.005f), sppMin, sppMax);
   float depth = 0.0f;
   // start looping
-  while (sampler.Loop())
-  {
+  while (sampler.Loop()) {
     // calculate one sample
     const Point3 texpos = sampler.NewPixelSample() + Point3(i, j, 0.f);
     const Point3 cpt = screenA + texpos.x * screenU + texpos.y * screenV;
-    const Point3 xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
-    const Point3 ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
+    const Point3
+        xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
+    const Point3
+        ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
     Point3 campos = camera.pos;
-    if (dof > 0.1f)
-    {
+    if (dof > 0.1f) {
       const Point3 dofSample = sampler.NewDofSample(dof);
       campos += dofSample.x * screenX + dofSample.y * screenY;
     }
@@ -99,11 +99,10 @@ void PixelRender (const int i, const int j, const int tile_idx)
     hInfo.c.haltonRNG = nullptr;
     bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
     Color localColor;
-    if (hasHit)
-    {
-      localColor = hInfo.c.node->GetMaterial()->Shade(ray, hInfo, lights, bounce);
-    } else
-    {
+    if (hasHit) {
+      localColor =
+          hInfo.c.node->GetMaterial()->Shade(ray, hInfo, lights, bounce);
+    } else {
       const float u = texpos.x / pixelW;
       const float v = texpos.y / pixelH;
       localColor = background.Sample(Point3(u, v, 0.f));
@@ -117,14 +116,12 @@ void PixelRender (const int i, const int j, const int tile_idx)
   }
   // Post Process Color
   Color color = sampler.GetColor();
-  if (sRGBCorrection)
-  {
+  if (sRGBCorrection) {
     color.r = LinearToSRGB(color.r);
     color.g = LinearToSRGB(color.g);
     color.b = LinearToSRGB(color.b);
   }
-  if (gammaCorrection != 1.f)
-  {
+  if (gammaCorrection != 1.f) {
     color.r = POW(color.r, 1.f / gammaCorrection);
     color.g = POW(color.g, 1.f / gammaCorrection);
     color.b = POW(color.b, 1.f / gammaCorrection);
@@ -142,23 +139,21 @@ void PixelRender (const int i, const int j, const int tile_idx)
   maskBuffer[idx] = 1;
 }
 
-void ThreadRender ()
+void ThreadRender()
 {
   // Start timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
   double t1, t2;
   if (mpiSize == 1) { TimeFrame(START_FRAME); }
-  else
-  {
+  else {
     t1 = MPI_Wtime();
   }
 #else
   TimeFrame(START_FRAME);
 #endif
   // Rendering
-  if (mpiRank == 0)
-  {
+  if (mpiRank == 0) {
     printf("\nRunning with %d threads on rank %d\n", threadSize, mpiRank);
   }
   const auto tileSta(static_cast<size_t>(mpiRank));
@@ -166,12 +161,12 @@ void ThreadRender ()
   const auto tileStp(static_cast<size_t>(mpiSize));
 #if defined(USE_TBB) && MULTITHREAD
   tbb::task_scheduler_init init(threadSize); // Explicit number of threads
-  tbb::parallel_for(tileSta, tileNum, tileStp, [=] (size_t k) {
+  tbb::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
 #else
 # if MULTITHREAD
-  omp_set_num_threads(threadSize);
+    omp_set_num_threads(threadSize);
 # endif
-  for (size_t k = tileSta; k < tileNum; k += tileStp) {
+    for (size_t k = tileSta; k < tileNum; k += tileStp) {
 #endif
     const int tileX = static_cast<int>(k % tileDimX);
     const int tileY = static_cast<int>(k / tileDimX);
@@ -185,13 +180,13 @@ void ThreadRender ()
         MIN(pixelRegion[3], (tileY + 1) * tileSize + pixelRegion[1]);
     const size_t numPixels = (iEnd - iStart) * (jEnd - jStart);
 #if defined(USE_TBB) && MULTITHREAD
-    tbb::parallel_for(size_t(0), numPixels, [=] (size_t idx) {
+    tbb::parallel_for(size_t(0), numPixels, [=](size_t idx) {
 #else
 # if MULTITHREAD
 #   pragma omp parallel for 
 # endif
-    for (size_t idx(0); idx < numPixels; ++idx)
-    {
+      for (size_t idx(0); idx < numPixels; ++idx)
+      {
 #endif
       const size_t j = jStart + idx / (iEnd - iStart);
       const size_t i = iStart + idx % (iEnd - iStart);
@@ -208,16 +203,15 @@ void ThreadRender ()
   }
 #endif
   debug(TBBHaltonRNG.size());
-  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin(); i != TBBHaltonRNG.end(); ++i)
-  {
+  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin();
+       i != TBBHaltonRNG.end(); ++i) {
     debug(i->idx);
   }
   // End timing
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
   if (mpiSize == 1) { TimeFrame(STOP_FRAME); }
-  else
-  {
+  else {
     t2 = MPI_Wtime();
     if (mpiRank == 0) printf("\nElapsed time is %f\n", t2 - t1);
   }
@@ -229,21 +223,23 @@ void ThreadRender ()
 //-------------------------------------------------------------------------
 // Initialize the scene parameters
 void DivideLength
-    (const size_t len, const size_t div, const size_t idx, size_t &left, size_t &right)
+    (const size_t len,
+     const size_t div,
+     const size_t idx,
+     size_t &left,
+     size_t &right)
 {
   const size_t H = MAX(1, len / div);
-  if (idx != div - 1)
-  {
+  if (idx != div - 1) {
     left = MIN((idx) * H, len);
     right = MIN((idx + 1) * H, len);
-  } else
-  {
+  } else {
     left = MIN((idx) * H, len);
     right = len;
   }
 }
 
-void ComputeScene ()
+void ComputeScene()
 {
   // rendering
   focal = camera.focaldist;
@@ -252,8 +248,8 @@ void ComputeScene ()
   pixelH = camera.imgHeight;
   aspect =
       static_cast<float>(camera.imgWidth) /
-      static_cast<float>(camera.imgHeight);
-  screenH = 2.f * focal * std::tan(camera.fov * (float)M_PI / 2.f / 180.f);
+          static_cast<float>(camera.imgHeight);
+  screenH = 2.f * focal * std::tan(camera.fov * (float) M_PI / 2.f / 180.f);
   screenW = aspect * screenH;
   Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
   Point3 Y = glm::normalize(glm::cross(X, camera.dir));
@@ -261,9 +257,9 @@ void ComputeScene ()
   screenU = X * (screenW / camera.imgWidth);
   screenV = -Y * (screenH / camera.imgHeight);
   screenA = camera.pos
-            - Z * focal
-            + Y * screenH / 2.f
-            - X * screenW / 2.f;
+      - Z * focal
+      + Y * screenH / 2.f
+      - X * screenW / 2.f;
   screenX = X;
   screenY = Y;
   screenZ = Z;
@@ -280,14 +276,14 @@ void ComputeScene ()
   maskBuffer = renderImage.GetMasks();
   // multi-threading
   tileDimX = CEIL(static_cast<float>(pixelSize[0]) /
-                  static_cast<float>(tileSize));
+      static_cast<float>(tileSize));
   tileDimY = CEIL(static_cast<float>(pixelSize[1]) /
-                  static_cast<float>(tileSize));
+      static_cast<float>(tileSize));
 }
 
 //------------------------------------------------------------------------
 // Called to start rendering (renderer must run in a separate thread)
-void BeginRender ()
+void BeginRender()
 {
   // Reset
   StopRender();
@@ -298,13 +294,12 @@ void BeginRender ()
 }
 
 // Called to end rendering (if it is not already finished)
-void StopRender ()
+void StopRender()
 {
   // Send stop signal
   threadStop = true;
   // Wait for threads to finish
-  if (threadMain != nullptr)
-  {
+  if (threadMain != nullptr) {
     threadMain->join();
     delete threadMain;
     threadMain = nullptr;
@@ -312,7 +307,7 @@ void StopRender ()
 }
 
 // Called when the rendering is end successfully
-void CleanRender ()
+void CleanRender()
 {
   // Save image
   renderImage.ComputeZBufferImage();
@@ -323,18 +318,17 @@ void CleanRender ()
 }
 
 // Called when the program is stopped
-void KillRender ()
+void KillRender()
 {
   StopRender();
   TimeFrame(KILL_FRAME);
 }
 
-void OnlineRender ()
+void OnlineRender()
 {
 #ifdef USE_GUI
   if (mpiSize == 1) { ShowViewport(); }
-  else
-  {
+  else {
     std::cerr << "Warning: Trying to use GUI window in mpi mode" << std::endl;
   }
 #else
@@ -349,7 +343,12 @@ void OnlineRender ()
 //
 template<typename T>
 void PlaceImage
-    (int srcext[4], size_t dstW, size_t dstH, const uchar *mask, const T *src, T *dst)
+    (int srcext[4],
+     size_t dstW,
+     size_t dstH,
+     const uchar *mask,
+     const T *src,
+     T *dst)
 {
   const size_t xstart = CLAMP(srcext[0], 0, dstW);
   const size_t ystart = CLAMP(srcext[1], 0, dstH);
@@ -358,10 +357,8 @@ void PlaceImage
   const size_t srcW = srcext[2] - srcext[0];
   const size_t srcH = srcext[3] - srcext[1];
 # pragma omp parallel for collapse(2)
-  for (size_t j = ystart; j < yend; ++j)
-  {
-    for (size_t i = xstart; i < xend; ++i)
-    {
+  for (size_t j = ystart; j < yend; ++j) {
+    for (size_t i = xstart; i < xend; ++i) {
       const size_t srcidx = (j - ystart) * srcW + i - xstart;
       const size_t dstidx = j * dstW + i;
       if (mask[srcidx] != 0)
@@ -370,7 +367,7 @@ void PlaceImage
   }
 }
 
-void BatchRender ()
+void BatchRender()
 {
   //-- render locally
   renderImage.ResetNumRenderedPixels();
@@ -387,14 +384,11 @@ void BatchRender ()
   MPI_Barrier(MPI_COMM_WORLD);
   size_t master = 0;
   int tag[5] = {100, 200, 300, 400, 500};
-  if (mpiRank == master)
-  { // reveive data
+  if (mpiRank == master) { // reveive data
     RenderImage finalImage;
     finalImage.Init(pixelW, pixelH);
-    for (int target = 0; target < mpiSize; ++target)
-    {
-      if (target == master)
-      {
+    for (int target = 0; target < mpiSize; ++target) {
+      if (target == master) {
         int imgext[4] = {(int) pixelRegion[0], (int) pixelRegion[1],
                          (int) pixelRegion[2], (int) pixelRegion[3]};
         PlaceImage<Color24>(imgext, pixelW, pixelH, maskBuffer, colorBuffer,
@@ -403,8 +397,7 @@ void BatchRender ()
                           finalImage.GetZBuffer());
         PlaceImage<uchar>(imgext, pixelW, pixelH, maskBuffer, sampleCountBuffer,
                           finalImage.GetSampleCount());
-      } else
-      {
+      } else {
         int imgext[4];
         MPI_Recv(&imgext, 4, MPI_INT, target, tag[0],
                  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -435,8 +428,7 @@ void BatchRender ()
     finalImage.SaveImage("colorBuffer_MPI.png");
     finalImage.SaveZImage("depthBuffer_MPI.png");
     finalImage.SaveSampleCountImage("sampleBuffer_MPI.png");
-  } else
-  {
+  } else {
     int imgext[4] = {(int) pixelRegion[0], (int) pixelRegion[1],
                      (int) pixelRegion[2], (int) pixelRegion[3]};
     MPI_Send(&imgext, 4, MPI_INT, master, tag[0], MPI_COMM_WORLD);
@@ -460,7 +452,7 @@ void BatchRender ()
 }
 
 //-------------------------------------------------------------------------
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 #ifdef USE_MPI
   // Initialize the MPI environment
@@ -493,46 +485,34 @@ int main (int argc, char **argv)
   // Parse CMD arguments
   bool batchmode = false;
   const char *xmlfile = nullptr;
-  if (argc < 2)
-  {
+  if (argc < 2) {
     std::cerr << "Error: insufficient input" << std::endl;
     return -1;
   }
-  for (int i = 1; i < argc; ++i)
-  {
+  for (int i = 1; i < argc; ++i) {
     std::string str(argv[i]);
-    if (str == "-batch")
-    {
+    if (str == "-batch") {
       batchmode = true;
-    } else if (str == "-spp")
-    {
+    } else if (str == "-spp") {
       sppMin = std::atoi(argv[++i]);
       sppMax = sppMin;
-    } else if (str == "-sppMin")
-    {
+    } else if (str == "-sppMin") {
       sppMin = std::atoi(argv[++i]);
-    } else if (str == "-sppMax")
-    {
+    } else if (str == "-sppMax") {
       sppMax = std::atoi(argv[++i]);
-    } else if (str == "-spp")
-    {
+    } else if (str == "-spp") {
       const int spp = std::atoi(argv[++i]);
       sppMax = sppMin = spp;
-    } else if (str == "-bounce")
-    {
+    } else if (str == "-bounce") {
       bounce = std::atoi(argv[++i]);
-    } else if (str == "-gamma")
-    {
+    } else if (str == "-gamma") {
       gammaCorrection = std::atof(argv[++i]);
-    } else if (str == "-srgb")
-    {
+    } else if (str == "-srgb") {
       sRGBCorrection = true;
-    } else if (str == "-threads")
-    {
+    } else if (str == "-threads") {
       int tmp = std::atoi(argv[++i]);
       if (0 < tmp && tmp < threadSize) { threadSize = tmp; }
-    } else
-    {
+    } else {
       xmlfile = argv[i];
     }
   }
@@ -541,11 +521,9 @@ int main (int argc, char **argv)
   if (mpiRank != 0) { LoadSceneInSilentMode(true); }
   LoadScene(xmlfile);
   ComputeScene();
-  if (batchmode)
-  {
+  if (batchmode) {
     BatchRender();
-  } else
-  {
+  } else {
     OnlineRender();
   }
 

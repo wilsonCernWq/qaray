@@ -20,13 +20,12 @@
 #include "lights.h"
 #include "texture.h"
 
-enum TimeState
-{
+enum TimeState {
   START_FRAME, STOP_FRAME, KILL_FRAME
 };
 
 //------------------------------------------------------------------------------
-void TimeFrame (TimeState state);
+void TimeFrame(TimeState state);
 
 //------------------------------------------------------------------------------
 // unique

@@ -17,9 +17,9 @@ class Sampler_Marsaglia : public Sampler {
   uint32_t seed;
   qaFLOAT xorshift32(); /* type: uint32 */
  public:
-  void Get1f(qaFLOAT &r1) override ;
-  void Get2f(qaFLOAT &r1, qaFLOAT &r2) override ;
-  void Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3) override ;
+  void Get1f(qaFLOAT &r1) override;
+  void Get2f(qaFLOAT &r1, qaFLOAT &r2) override;
+  void Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3) override;
 };
 }
 

@@ -16,18 +16,17 @@
 
 //-------------------------------------------------------------------------------
 
-class TextureFile : public Texture
-{
-public:
-  TextureFile () : width(0), height(0), viewportTextureID(0) {}
+class TextureFile : public Texture {
+ public:
+  TextureFile() : width(0), height(0), viewportTextureID(0) {}
 
-  bool Load ();
+  bool Load();
 
-  virtual Color Sample (const Point3 &uvw) const;
+  virtual Color Sample(const Point3 &uvw) const;
 
-  virtual bool SetViewportTexture () const;
+  virtual bool SetViewportTexture() const;
 
-private:
+ private:
   std::vector<Color24> data;
   int width, height;
   mutable unsigned int viewportTextureID;
@@ -35,20 +34,19 @@ private:
 
 //-------------------------------------------------------------------------------
 
-class TextureChecker : public Texture
-{
-public:
-  TextureChecker () : color1(0, 0, 0), color2(1, 1, 1), viewportTextureID(0) {}
+class TextureChecker : public Texture {
+ public:
+  TextureChecker() : color1(0, 0, 0), color2(1, 1, 1), viewportTextureID(0) {}
 
-  void SetColor1 (const Color &c) { color1 = c; }
+  void SetColor1(const Color &c) { color1 = c; }
 
-  void SetColor2 (const Color &c) { color2 = c; }
+  void SetColor2(const Color &c) { color2 = c; }
 
-  virtual Color Sample (const Point3 &uvw) const;
+  virtual Color Sample(const Point3 &uvw) const;
 
-  virtual bool SetViewportTexture () const;
+  virtual bool SetViewportTexture() const;
 
-private:
+ private:
   Color color1, color2;
   mutable unsigned int viewportTextureID;
 };

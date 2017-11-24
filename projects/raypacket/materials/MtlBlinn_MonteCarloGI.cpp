@@ -3,7 +3,7 @@
 
 //------------------------------------------------------------------------------
 
-MtlBlinn_MonteCarloGI::MtlBlinn_MonteCarloGI () :
+MtlBlinn_MonteCarloGI::MtlBlinn_MonteCarloGI() :
     diffuse(0.5f, 0.5f, 0.5f),
     specular(0.7f, 0.7f, 0.7f),
     glossiness(20.0f),
@@ -30,20 +30,23 @@ const float diffuse_color_threshold = 0.001f;
 
 //------------------------------------------------------------------------------
 
-Color MtlBlinn_MonteCarloGI::Shade (const DiffRay &ray,
-                                    const DiffHitInfo &hInfo,
-                                    const LightList &lights,
-                                    int bounceCount)
+Color MtlBlinn_MonteCarloGI::Shade(const DiffRay &ray,
+                                   const DiffHitInfo &hInfo,
+                                   const LightList &lights,
+                                   int bounceCount)
 const
 {
   // input parameters
   Color color = hInfo.c.hasTexture ?
-                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission.GetColor();
-  const auto N = glm::normalize(hInfo.c.N);   // surface normal in world coordinate
+                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission
+                    .GetColor();
+  const auto
+      N = glm::normalize(hInfo.c.N);   // surface normal in world coordinate
   const auto V = glm::normalize(-ray.c.dir); // ray incoming direction
   const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
   const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
-  const auto p = hInfo.c.p;                  // surface position in world coordinate
+  const auto
+      p = hInfo.c.p;                  // surface position in world coordinate
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
 
@@ -58,16 +61,13 @@ const
   // refraction and reflection
   float cosI, sinI;
   Point3 tDir, rDir, txDir, rxDir, tyDir, ryDir;
-  do
-  {
+  do {
     // jitter normal
     Point3 tjN = N, rjN = N;
-    if (refractionGlossiness > glossy_threshold)
-    {
+    if (refractionGlossiness > glossy_threshold) {
       tjN = glm::normalize(N + rng->UniformBall(refractionGlossiness));
     }
-    if (reflectionGlossiness > glossy_threshold)
-    {
+    if (reflectionGlossiness > glossy_threshold) {
       rjN = glm::normalize(N + rng->UniformBall(reflectionGlossiness));
     }
 
@@ -97,11 +97,11 @@ const
     if (refractionGlossiness > glossy_threshold ||
         reflectionGlossiness > glossy_threshold) { break; }
   } while ((glm::dot(tDir, Y) > refraction_angle_threshold) ||
-           (glm::dot(txDir, Y) > refraction_angle_threshold) ||
-           (glm::dot(tyDir, Y) > refraction_angle_threshold) ||
-           (glm::dot(rDir, Y) < -reflection_angle_threshold) ||
-           (glm::dot(rxDir, Y) < -reflection_angle_threshold) ||
-           (glm::dot(ryDir, Y) < -reflection_angle_threshold));
+      (glm::dot(txDir, Y) > refraction_angle_threshold) ||
+      (glm::dot(tyDir, Y) > refraction_angle_threshold) ||
+      (glm::dot(rDir, Y) < -reflection_angle_threshold) ||
+      (glm::dot(rxDir, Y) < -reflection_angle_threshold) ||
+      (glm::dot(ryDir, Y) < -reflection_angle_threshold));
 
   // reflection and transmission coefficients
   const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
@@ -126,22 +126,19 @@ const
   //!--- refraction ---
   if (bounceCount > 0 &&
       (tK.x > refraction_color_threshold ||
-       tK.y > refraction_color_threshold ||
-       tK.z > refraction_color_threshold))
-  {
+          tK.y > refraction_color_threshold ||
+          tK.z > refraction_color_threshold)) {
     DiffRay tRay(p, tDir, px, txDir, py, tyDir);
     DiffHitInfo tHit;
     tHit.c.z = BIGFLOAT;
     tRay.Normalize();
-    if (TraceNodeNormal(rootNode, tRay, tHit))
-    {
+    if (TraceNodeNormal(rootNode, tRay, tHit)) {
       const auto K = tK * (tHit.c.hasFrontHit ?
                            Color(1.f) :
                            Attenuation(absorption, tHit.c.z));
       const auto *tMtl = tHit.c.node->GetMaterial();
       color += K * tMtl->Shade(tRay, tHit, lights, bounceCount - 1);
-    } else
-    {
+    } else {
       color += tK * environment.SampleEnvironment(tRay.c.dir);
     }
   }
@@ -149,22 +146,19 @@ const
   //!--- reflection ---
   if (bounceCount > 0 &&
       (rK.x > reflection_color_threshold ||
-       rK.y > reflection_color_threshold ||
-       rK.z > reflection_color_threshold))
-  {
+          rK.y > reflection_color_threshold ||
+          rK.z > reflection_color_threshold)) {
     DiffRay rRay(p, rDir, px, rxDir, py, ryDir);
     DiffHitInfo rHit;
     rRay.Normalize();
     rHit.c.z = BIGFLOAT;
-    if (TraceNodeNormal(rootNode, rRay, rHit))
-    {
+    if (TraceNodeNormal(rootNode, rRay, rHit)) {
       const auto K = rK * (rHit.c.hasFrontHit ?
                            Color(1.f) :
                            Attenuation(absorption, rHit.c.z));
       const auto *rMtl = rHit.c.node->GetMaterial();
       color += K * rMtl->Shade(rRay, rHit, lights, bounceCount - 1);
-    } else
-    {
+    } else {
       color += rK * environment.SampleEnvironment(rRay.c.dir);
     }
   }
@@ -181,34 +175,29 @@ const
   const int numSampleMC =
       ((Material::maxBounce - maxBounceMC - bounceCount >= 0) ?
        1 : maxMCSample);
-  if (hInfo.c.hasFrontHit)
-  {
+  if (hInfo.c.hasFrontHit) {
     // Directional Lights
     Color directShadecolor = Color(0.f);
     const float normCoeDI = 1.f;
-    for (auto &light : lights)
-    {
-      if (light->IsAmbient())
-      {
+    for (auto &light : lights) {
+      if (light->IsAmbient()) {
         // color += sampleDiffuse * Intensity;
-      } else
-      {
+      } else {
         auto Intensity = light->Illuminate(p, N) * normCoeDI;
         auto L = glm::normalize(-light->Direction(p));
         auto H = glm::normalize(V + L);
         auto cosNL = MAX(0.f, glm::dot(N, L));
         auto cosNH = MAX(0.f, glm::dot(N, H));
-        directShadecolor += (sampleDiffuse * cosNL + sampleSpecular * POW(cosNH, glossiness)) *
-                            Intensity;
+        directShadecolor +=
+            (sampleDiffuse * cosNL + sampleSpecular * POW(cosNH, glossiness)) *
+                Intensity;
       }
     }
     // Monte Carlo GI
     Color indirectShadecolor = Color(0.f);
     const float normCoeGI = 1.f / numSampleMC;
-    if (bounceCount > 0)
-    {
-      for (int i = 0; i < numSampleMC; ++i)
-      {
+    if (bounceCount > 0) {
+      for (int i = 0; i < numSampleMC; ++i) {
         //-- Sampling Hemisphere
         //-- Method 1
         // Point3 mc_coe;
@@ -242,11 +231,9 @@ const
         //
         //-- Method 2
         Point3 new_x, new_y, new_z = N;
-        if (ABS(new_z.x) > ABS(new_z.y))
-        {
+        if (ABS(new_z.x) > ABS(new_z.y)) {
           new_y = glm::normalize(Point3(new_z.z, 0, -new_z.x));
-        } else
-        {
+        } else {
           new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
         }
         new_x = glm::normalize(glm::cross(new_y, new_z));
@@ -258,19 +245,18 @@ const
         hitMC.c.z = BIGFLOAT;
         rayMC.Normalize();
         Color Intensity;
-        if (TraceNodeNormal(rootNode, rayMC, hitMC))
-        {
+        if (TraceNodeNormal(rootNode, rayMC, hitMC)) {
           Intensity =
-              hitMC.c.node->GetMaterial()->Shade(rayMC, hitMC, lights, bounceCount - 1);
-        } else
-        {
+              hitMC.c.node->GetMaterial()
+                  ->Shade(rayMC, hitMC, lights, bounceCount - 1);
+        } else {
           Intensity = environment.SampleEnvironment(rayMC.c.dir);
         }
         auto H = glm::normalize(V + dirMC);
         auto cosNL = MAX(0.f, glm::dot(N, dirMC));
         auto cosNH = MAX(0.f, glm::dot(N, H));
         indirectShadecolor += Intensity *
-                              (cosNL * sampleSpecular * POW(cosNH, glossiness) + sampleDiffuse);
+            (cosNL * sampleSpecular * POW(cosNH, glossiness) + sampleDiffuse);
       }
       indirectShadecolor *= normCoeGI;
     }

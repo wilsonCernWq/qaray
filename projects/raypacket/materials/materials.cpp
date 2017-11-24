@@ -15,7 +15,7 @@ int Material::maxBounce = 1;
 
 //------------------------------------------------------------------------------
 
-Color Attenuation (const Color &absorption, const float l)
+Color Attenuation(const Color &absorption, const float l)
 {
   const float R = exp(-absorption.r * l);
   const float G = exp(-absorption.g * l);
