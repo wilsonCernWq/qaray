@@ -79,3 +79,5 @@ inline Color ToColor (const Color24 &c)
 {
   return Color(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 }
+
+using namespace qaray;

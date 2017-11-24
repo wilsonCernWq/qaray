@@ -80,7 +80,7 @@ uint32_t UniformRandom_Marsaglia::seed = 123456789;
 
 //------------------------------------------------------------------------------
 
-UniformRandom *rng = new UniformRandom_Marsaglia;
+Sampler *rng = new Sampler_Marsaglia;
 
 //------------------------------------------------------------------------------
 

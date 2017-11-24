@@ -58,17 +58,17 @@
 
 //------------------------------------------------------------------------------
 
-inline float Halton (int index, int base)
-{
-  float r = 0;
-  float f = 1.0f / (float) base;
-  for (int i = index; i > 0; i /= base)
-  {
-    r += f * (i % base);
-    f /= (float) base;
-  }
-  return r;
-}
+/* inline float Halton (int index, int base) */
+/* { */
+/*   float r = 0; */
+/*   float f = 1.0f / (float) base; */
+/*   for (int i = index; i > 0; i /= base) */
+/*   { */
+/*     r += f * (i % base); */
+/*     f /= (float) base; */
+/*   } */
+/*   return r; */
+/* } */
 
 struct HaltonRandom
 {
@@ -87,7 +87,7 @@ struct UniformRandom
   virtual float Get () = 0;
 };
 
-extern UniformRandom *rng;
+extern Sampler *rng;
 
 Point3 GetCirclePoint (const float size);
 
