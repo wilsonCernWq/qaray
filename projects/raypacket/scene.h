@@ -89,16 +89,16 @@ struct UniformRandom
 
 extern Sampler *rng;
 
-Point3 GetCirclePoint (const float size);
-
-Point3 UniformSampleHemiSphere (const float r1, const float r2);
-
-Point3 CosWeightedSampleHemiSphere (const float r1, const float r2);
-
-Point3 CosLobeWeightedSampleHemiSphere (const float r1, const float r2,
-					const int N, const int theta_max = 90);
-
-float CosLobeWeightedNormalization (const int n, const Point3 axis, const Point3 norm);
+//Point3 GetCirclePoint (const float size);
+//
+//Point3 UniformSampleHemiSphere (const float r1, const float r2);
+//
+//Point3 CosWeightedSampleHemiSphere (const float r1, const float r2);
+//
+//Point3 CosLobeWeightedSampleHemiSphere (const float r1, const float r2,
+//					const int N, const int theta_max = 90);
+//
+//float CosLobeWeightedNormalization (const int n, const Point3 axis, const Point3 norm);
 
 //-----------------------------------------------------------------------------
 

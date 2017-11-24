@@ -58,11 +58,11 @@ const
     Point3 tjN = N, rjN = N;
     if (refractionGlossiness > glossy_threshold)
     {
-      tjN = glm::normalize(N + GetCirclePoint(refractionGlossiness));
+      tjN = glm::normalize(N + rng->UniformBall(refractionGlossiness));
     }
     if (reflectionGlossiness > glossy_threshold)
     {
-      rjN = glm::normalize(N + GetCirclePoint(reflectionGlossiness));
+      rjN = glm::normalize(N + rng->UniformBall(reflectionGlossiness));
     }
     // incidence angle & refraction angle
     cosI = glm::dot(tjN, V);

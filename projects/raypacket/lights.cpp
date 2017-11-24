@@ -54,7 +54,7 @@ Color PointLight::Illuminate (const Point3 &p, const Point3 &N) const
     float inshadow = 0.0f;
     while (s < spp)
     {
-      const Point3 dir = position + GetCirclePoint(size) - p;
+      const Point3 dir = position + rng->UniformBall(size) - p;
       Ray ray(p, dir);
       ray.Normalize();
       inshadow += (Shadow(ray, glm::length(dir)) - inshadow) *

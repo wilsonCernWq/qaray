@@ -12,7 +12,7 @@
 #include "scene.h"
 #include <random>
 #include <thread>
-
+#include "samplers/Sampler_Marsaglia.h"
 //------------------------------------------------------------------------------
 
 TBBHalton TBBHaltonRNG(HaltonRandom(0));
@@ -87,11 +87,13 @@ Sampler *rng = new Sampler_Marsaglia;
 Point3 GetCirclePoint (float R)
 {
   Point3 p;
+  float r1, r2, r3;
+  rng->Get3f(r1, r2, r3);
   do
   {
-    p.x = (2.f * rng->Get() - 1.f) * R;
-    p.y = (2.f * rng->Get() - 1.f) * R;
-    p.z = (2.f * rng->Get() - 1.f) * R;
+    p.x = (2.f * r1 - 1.f) * R;
+    p.y = (2.f * r2 - 1.f) * R;
+    p.z = (2.f * r3 - 1.f) * R;
   } while (glm::length(p) > R);
   return p;
 }
@@ -252,8 +254,9 @@ Point3 SuperSamplerHalton::NewPixelSample ()
 
 Point3 SuperSamplerHalton::NewDofSample (const float R)
 {
-  const float r = R * SQRT(rng->Get());
-  const float t = rng->Get() * 2.f * M_PI;
+  float r1, r2; rng->Get2f(r1, r2);
+  const float r = R * SQRT(r1);
+  const float t = r2 * 2.f * M_PI;
   return Point3(r * cos(t), r * sin(t), 0.f);
 }
 

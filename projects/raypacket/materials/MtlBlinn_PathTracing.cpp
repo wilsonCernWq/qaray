@@ -21,8 +21,8 @@ float ColorMax (const Color &c) { return MAX(c.x, MAX(c.y, c.z)); }
 
 void GetRandomSamples(const DiffHitInfo& hInfo, float& r1, float& r2)
 {
-  r1 = rng->Get();
-  r2 = rng->Get();
+//  r1 = rng->Get();
+//  r2 = rng->Get();
   //TBBHaltonRNG.local().Get(r1, r2);
 }
 
@@ -115,7 +115,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
   //
   // Throw A Dice
   //
-  const float select = rng->Get();
+  float select; rng->Get1f(select);
   float coefDirectLight = 0.f;
   float coefRefraction = ColorMax(sampleRefraction);
   float coefReflection = ColorMax(sampleReflection);
@@ -182,7 +182,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
         /* Random Sampling for Glossy Surface */
 	float r1, r2;
 	GetRandomSamples(hInfo, r1, r2);
-        const Point3 sample = glm::normalize(CosWeightedSampleHemiSphere(r1, r2));
+        const Point3 sample = glm::normalize(rng->CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
 	/* PDF */
         PDF = coefRefraction / (float) M_PI;
@@ -210,7 +210,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	/* Random Sampling for Glossy Surface */
 	float r1, r2;
 	GetRandomSamples(hInfo, r1, r2);
-        const Point3 sample = glm::normalize(CosWeightedSampleHemiSphere(r1, r2));
+        const Point3 sample = glm::normalize(rng->CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
 	/* PDF */
 	PDF = coefReflection / (float) M_PI;
@@ -239,7 +239,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	  /* Random Sampling for Glossy Surface */
 	  float r1, r2;
 	  GetRandomSamples(hInfo, r1, r2);
-	  const Point3 sample = glm::normalize(CosWeightedSampleHemiSphere(r1, r2));
+	  const Point3 sample = glm::normalize(rng->CosWeightedHemisphere());
 	  sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
 	  /* PDF */
 	  PDF = coefSpecular / (float) M_PI;
@@ -260,7 +260,7 @@ Color MtlBlinn_PathTracing::Shade (const DiffRay &ray,
 	/* Generate Random Sample */
 	float r1, r2;
 	GetRandomSamples(hInfo, r1, r2);
-	const Point3 sample = glm::normalize(CosWeightedSampleHemiSphere(r1, r2));
+	const Point3 sample = glm::normalize(rng->CosWeightedHemisphere());
 	sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
 	/* PDF */
 	PDF = coefDiffuse / (float) M_PI;
