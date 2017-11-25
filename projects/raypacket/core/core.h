@@ -35,6 +35,7 @@
 #include <atomic>
 
 #define debug(x) (std::cout << #x << " " << (x) << std::endl)
+#define TEXTURE_SAMPLE_COUNT 32
 
 namespace qaray {
 class Box;
@@ -50,6 +51,9 @@ class Node;
 class Object;
 class Ray;
 class Sampler;
+class Texture;
+class TextureMap;
+class TexturedColor;
 class Transformation;
 template<class T> class ItemList;
 template<class T> class ItemFileList;

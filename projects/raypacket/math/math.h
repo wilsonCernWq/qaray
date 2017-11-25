@@ -93,7 +93,11 @@ inline Color3f ToColor(const Color3c &c)
 template<typename T>
 qaFLOAT length(const T& v) { return glm::length(v); }
 template<typename T>
-qaFLOAT dot(const T& a, const T& b) { return glm::dot(a,b); }
+qaFLOAT length2(const T &v) { return glm::length2(v); }
+template<typename T>
+qaFLOAT dot(const T &a, const T &b) { return glm::dot(a, b); }
+template<typename T>
+T cross(const T &a, const T &b) { return glm::cross(a, b); }
 };
 //-----------------------------------------------------------------------------
 using namespace qaray;
