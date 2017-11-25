@@ -29,7 +29,7 @@
 #define QARAY_OBJECT_H
 #pragma once
 
-#include "core/core.h"
+#include "core/setup.h"
 #include "core/ray.h"
 #include "math/math.h"
 

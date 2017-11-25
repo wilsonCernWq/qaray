@@ -1,7 +1,6 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Created by Qi WU on 11/24/17.                                             //
-/// Copyright (c) 2017 University of Utah. All rights reserved.             //
+/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -25,51 +24,50 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_HITINFO_H
-#define QARAY_HITINFO_H
+#ifndef QARAY_SETUP_H
+#define QARAY_SETUP_H
 #pragma once
 
-#include "core/setup.h"
-#include "math/math.h"
+#include <cassert>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <atomic>
+
+#define debug(x) (std::cout << #x << " " << (x) << std::endl)
+#define TEXTURE_SAMPLE_COUNT 32
+
+#define HIT_NONE           1<<0
+#define HIT_FRONT          1<<1
+#define HIT_BACK           1<<2
+#define HIT_FRONT_AND_BACK (HIT_FRONT|HIT_BACK)
+
+#define BIGFLOAT 1.0e30f
 
 namespace qaray {
-class HitInfo {
- public:
-  float z;            // the distance from the ray center to the hit point
-  Point3 p;           // position of the hit point
-  Point3 N;           // surface normal at the hit point
-  Point3 uvw;         // texture coordinate at the hit point
-  Point3 duvw[2];     // derivatives of the texture coordinate
-  int mtlID;          // sub-material index
-  const Node *node;   // the object node that was hit, false if the ray hits the back side
-  bool hasFrontHit;   // true if the ray hits the front side,
-  bool hasTexture;
- public:
-  HitInfo() { Init(); }
-  void Init();
+class Box;
+class Camera;
+class DiffRay;
+class DiffHitInfo;
+class HitInfo;
+class Light;
+class ItemBase;
+class Material;
+class MaterialList;
+class Node;
+class Object;
+class Ray;
+class Sampler;
+class Texture;
+class TextureMap;
+class TexturedColor;
+class Transformation;
+template<class T>
+class ItemList;
+template<class T>
+class ItemFileList;
+typedef ItemList<Light> LightList;
+typedef ItemFileList<Object> ObjFileList;
 };
-class HitInfoCore {
- public:
-  float z;  // the distance from the ray center to the hit point
-  Point3 p; // position of the hit point
-  Point3 N; // surface normal at the hit point
- public:
-  HitInfoCore() { Init(); }
-  void Init() { z = BIGFLOAT; }
-};
-class DiffHitInfo {
- public:
-  HitInfo c;
-  HitInfoCore x, y;
- public:
-  DiffHitInfo() { Init(); }
-  void Init()
-  {
-    c.Init();
-    x.Init();
-    y.Init();
-  }
-};
-}
 
-#endif //QARAY_HITINFO_H
+#endif //QARAY_SETUP_H

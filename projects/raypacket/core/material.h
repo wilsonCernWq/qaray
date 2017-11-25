@@ -29,7 +29,7 @@
 #define QARAY_MATERIAL_H
 #pragma once
 
-#include "core/core.h"
+#include "core/setup.h"
 #include "core/items.h"
 
 namespace qaray {

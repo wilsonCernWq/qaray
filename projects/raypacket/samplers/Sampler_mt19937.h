@@ -29,7 +29,6 @@
 #pragma once
 
 #include <random>
-#include "core/core.h"
 #include "core/sampler.h"
 #include "math/math.h"
 

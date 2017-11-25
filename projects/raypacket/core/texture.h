@@ -29,7 +29,7 @@
 #define QARAY_TEXTURE_H
 #pragma once
 
-#include "core/core.h"
+#include "core/setup.h"
 #include "core/items.h"
 #include "core/transform.h"
 #include "math/math.h"

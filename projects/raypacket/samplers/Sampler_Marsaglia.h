@@ -28,7 +28,6 @@
 #define QARAY_SAMPLER_MARSAGLIA_H
 #pragma once
 
-#include "core/core.h"
 #include "core/sampler.h"
 #include "math/math.h"
 

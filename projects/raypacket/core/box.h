@@ -29,7 +29,7 @@
 #define QARAY_BOX_H
 #pragma once
 
-#include "core/core.h"
+#include "core/setup.h"
 #include "math/math.h"
 
 namespace qaray {

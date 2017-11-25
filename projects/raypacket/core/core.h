@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 11/24/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -26,39 +27,18 @@
 
 #ifndef QARAY_CORE_H
 #define QARAY_CORE_H
-#pragma once
 
-#include <cassert>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <atomic>
-
-#define debug(x) (std::cout << #x << " " << (x) << std::endl)
-#define TEXTURE_SAMPLE_COUNT 32
-
-namespace qaray {
-class Box;
-class Camera;
-class DiffRay;
-class DiffHitInfo;
-class HitInfo;
-class Light;
-class ItemBase;
-class Material;
-class MaterialList;
-class Node;
-class Object;
-class Ray;
-class Sampler;
-class Texture;
-class TextureMap;
-class TexturedColor;
-class Transformation;
-template<class T> class ItemList;
-template<class T> class ItemFileList;
-typedef ItemList<Light>      LightList;
-typedef ItemFileList<Object> ObjFileList;
-};
+#include "core/box.h"
+#include "core/camera.h"
+#include "core/hitinfo.h"
+#include "core/items.h"
+#include "core/light.h"
+#include "core/material.h"
+#include "core/node.h"
+#include "core/object.h"
+#include "core/ray.h"
+#include "core/sampler.h"
+#include "core/texture.h"
+#include "core/transform.h"
 
 #endif //QARAY_CORE_H

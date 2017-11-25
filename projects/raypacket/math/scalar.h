@@ -9,7 +9,8 @@
 
 #pragma once
 
-#include "macro.h"
+#define SIMDPP_ARCH_X86_AVX512F
+#define PACKET_SIZE 16
 
 #include <type_traits>
 #include <iostream>

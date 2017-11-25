@@ -14,27 +14,12 @@
 
 //-----------------------------------------------------------------------------
 
-
-#include <cassert>
-#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <atomic>
 
-#include "core/sampler.h"
-#include "core/camera.h"
-#include "core/transform.h"
-#include "core/box.h"
-#include "core/ray.h"
-#include "core/hitinfo.h"
-#include "core/light.h"
-#include "core/material.h"
-#include "core/object.h"
-#include "core/items.h"
-#include "core/node.h"
-#include "core/texture.h"
-
+#include "core/core.h"
 #include "math/math.h"
 
 #ifdef USE_TBB

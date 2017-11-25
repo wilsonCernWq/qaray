@@ -61,6 +61,8 @@ Point3 Texture::TileClamp(const Point3 &uvw)
   if (u.z < 0) u.z += 1;
   return u;
 }
+template
+class ItemFileList<Texture>;
 //-----------------------------------------------------------------------------
 Color3f TextureMap::Sample(const Point3 &uvw) const
 {

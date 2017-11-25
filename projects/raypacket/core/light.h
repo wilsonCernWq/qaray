@@ -29,7 +29,7 @@
 #define QARAY_LIGHT_H
 #pragma once
 
-#include "core/core.h"
+#include "core/setup.h"
 #include "core/items.h"
 #include "math/math.h"
 
