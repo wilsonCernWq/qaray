@@ -23,16 +23,10 @@ if (NOT CONFIGFOUND)
 endif()
 #
 # load required libraries
-INCLUDE(cmake/common.cmake)
+include(cmake/common.cmake)
 #
 # load projects
-SET(projdir ${CMAKE_CURRENT_LIST_DIR}/projects)
-FILE(GLOB children RELATIVE ${projdir} ${projdir}/*)
-FOREACH(child ${children})
-  IF(IS_DIRECTORY ${projdir}/${child})
-      add_subdirectory(${projdir}/${child})
-  ENDIF()
-ENDFOREACH()
+add_subdirectory(src)
 #
 # deploy mesh
 file(GLOB OBJS     ${CMAKE_CURRENT_LIST_DIR}/assets/*.obj)
