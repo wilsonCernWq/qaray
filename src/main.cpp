@@ -163,9 +163,11 @@ void ThreadRender()
   tbb::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
 #else
 # if MULTITHREAD
-    omp_set_num_threads(threadSize);
+#  ifdef USE_OMP
+  omp_set_num_threads(threadSize);
+#endif
 # endif
-    for (size_t k = tileSta; k < tileNum; k += tileStp) {
+  for (size_t k = tileSta; k < tileNum; k += tileStp) {
 #endif
     const int tileX = static_cast<int>(k % tileDimX);
     const int tileY = static_cast<int>(k / tileDimX);

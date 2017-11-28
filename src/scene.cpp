@@ -78,7 +78,11 @@
 
 //------------------------------------------------------------------------------
 
+#ifdef USE_TBB
 TBBSampler rng(new Sampler_Marsaglia);
+#else
+SamplerWrapper rng(new Sampler_Marsaglia);
+#endif
 
 //------------------------------------------------------------------------------
 

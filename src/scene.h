@@ -65,8 +65,17 @@
 //  virtual float Get() = 0;
 //};
 
+#ifdef USE_TBB
 typedef tbb::enumerable_thread_specific<Sampler*> TBBSampler;
 extern TBBSampler rng;
+#else
+struct SamplerWrapper {
+  Sampler* engine = nullptr;
+  SamplerWrapper(Sampler* t) : engine(t) {}
+  Sampler* local() { return engine; }
+};
+extern SamplerWrapper rng;
+#endif
 
 //-----------------------------------------------------------------------------
 
