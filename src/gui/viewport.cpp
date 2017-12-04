@@ -15,12 +15,11 @@
 
 #include "viewport.h"
 #include "scene/scene.h"
-#include "objects/objects.h"
 #include "lights/lights.h"
+#include "objects/objects.h"
 #include "materials/materials.h"
 #include "textures/texture.h"
-#include "globalvar.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <chrono>
 
 #ifdef USE_GUI

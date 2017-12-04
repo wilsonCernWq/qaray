@@ -12,11 +12,10 @@
 #include "xmlload.h"
 
 #include "scene/scene.h"
+#include "lights/lights.h"
 #include "objects/objects.h"
 #include "materials/materials.h"
-#include "lights/lights.h"
 #include "textures/texture.h"
-#include "globalvar.h"
 
 #include <tinyxml/tinyxml.h>
 
