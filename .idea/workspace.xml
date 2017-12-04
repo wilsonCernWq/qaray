@@ -23,21 +23,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="Create Scene class to contain everything scene related.">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/lights.cpp" afterPath="$PROJECT_DIR$/src/lights/lights.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/lights.h" afterPath="$PROJECT_DIR$/src/lights/lights.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/materials.h" afterPath="$PROJECT_DIR$/src/materials/materials.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/objects.cpp" afterPath="$PROJECT_DIR$/src/objects/objects.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/objects.h" afterPath="$PROJECT_DIR$/src/objects/objects.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/texture.cpp" afterPath="$PROJECT_DIR$/src/textures/texture.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/texture.h" afterPath="$PROJECT_DIR$/src/textures/texture.h" />
+    <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CMakeLists.txt" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/globalvar.h" afterPath="$PROJECT_DIR$/src/globalvar.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scene.cpp" afterPath="$PROJECT_DIR$/src/scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/viewport.cpp" afterPath="$PROJECT_DIR$/src/viewport.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/xmlload.cpp" afterPath="$PROJECT_DIR$/src/xmlload.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/lights/lights.h" afterPath="$PROJECT_DIR$/src/lights/lights.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -409,7 +397,7 @@
       <workItem from="1511654035309" duration="93000" />
       <workItem from="1512262433518" duration="2880000" />
       <workItem from="1512285470024" duration="438000" />
-      <workItem from="1512335386540" duration="13945000" />
+      <workItem from="1512335386540" duration="13994000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -453,11 +441,18 @@
       <option name="project" value="LOCAL" />
       <updated>1512351579274</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Shuffle file structures to make it more reasonable">
+      <created>1512353424117</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1512353424117</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="87264000" />
+    <option name="totallyTimeSpent" value="87313000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -527,7 +522,8 @@
     <MESSAGE value="Include CLion's configuration files" />
     <MESSAGE value="Split multi-threading into tasking/parallel_for.h" />
     <MESSAGE value="Create Scene class to contain everything scene related." />
-    <option name="LAST_COMMIT_MESSAGE" value="Create Scene class to contain everything scene related." />
+    <MESSAGE value="Shuffle file structures to make it more reasonable" />
+    <option name="LAST_COMMIT_MESSAGE" value="Shuffle file structures to make it more reasonable" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
