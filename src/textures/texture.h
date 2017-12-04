@@ -12,7 +12,7 @@
 #ifndef _TEXTURE_H_INCLUDED_
 #define _TEXTURE_H_INCLUDED_
 
-#include "scene.h"
+#include "scene/scene.h"
 
 //-------------------------------------------------------------------------------
 

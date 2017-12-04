@@ -13,13 +13,6 @@
 #ifndef _GLOBALVAR_H_
 #define _GLOBALVAR_H_
 
-
-#include "scene.h"
-#include "objects/objects.h"
-#include "materials/materials.h"
-#include "lights/lights.h"
-#include "textures/texture.h"
-
 enum TimeState {
   START_FRAME, STOP_FRAME, KILL_FRAME
 };
@@ -39,8 +32,7 @@ void TimeFrame(TimeState state);
 //extern TexturedColor environment;
 //extern TextureList textureList;
 // objects
-extern Sphere theSphere;
-extern Plane thePlane;
+
 //------------------------------------------------------------------------------
 
 #endif//_GLOBALVAR_H_

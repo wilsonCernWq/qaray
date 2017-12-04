@@ -14,7 +14,7 @@
 #endif
 
 #include "viewport.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "objects/objects.h"
 #include "lights/lights.h"
 #include "materials/materials.h"

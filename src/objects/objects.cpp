@@ -12,6 +12,9 @@
 #include "objects.h"
 #include <stack>
 
+Sphere theSphere;
+Plane thePlane;
+
 #define bias 0.005f
 const float RCP_PI = 1.f / PI;
 const float RCP_2PI = 1.f / (2.f * PI);

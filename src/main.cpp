@@ -12,8 +12,10 @@
 #endif
 
 #include "globalvar.h"
-#include "xmlload.h"
-#include "viewport.h"
+#include "scene/scene.h"
+
+#include "parser/xmlload.h"
+#include "gui/viewport.h"
 
 //#undef USE_TBB
 //#undef USE_OMP

@@ -11,7 +11,7 @@
 
 #include "xmlload.h"
 
-#include "scene.h"
+#include "scene/scene.h"
 #include "objects/objects.h"
 #include "materials/materials.h"
 #include "lights/lights.h"

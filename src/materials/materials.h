@@ -8,10 +8,11 @@
 /// \brief Example source for CS 6620 - University of Utah.
 ///
 //------------------------------------------------------------------------------
-#ifndef _MATERIALS_H_INCLUDED_
-#define _MATERIALS_H_INCLUDED_
+#ifndef QARAY_MATERIALS_H
+#define QARAY_MATERIALS_H
+#pragma once
 
-#include "scene.h"
+#include "scene/scene.h"
 
 //------------------------------------------------------------------------------
 
@@ -63,4 +64,4 @@ class MultiMtl : public Material {
 
 //------------------------------------------------------------------------------
 
-#endif
+#endif//QARAY_MATERIALS_H

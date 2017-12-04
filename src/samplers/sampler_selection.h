@@ -25,94 +25,20 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_SCENE_H
-#define QARAY_SCENE_H
+#ifndef QARAY_SAMPLER_SELECTION_H
+#define QARAY_SAMPLER_SELECTION_H
 #pragma once
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <atomic>
-
-///--------------------------------------------------------------------------//
-#include "math/math.h"
-#include "core/core.h"
-///--------------------------------------------------------------------------//
-#include "fb/framebuffer.h"
 ///--------------------------------------------------------------------------//
 #include "tasking/parallel_for.h"
 #include "samplers/Sampler_Marsaglia.h"
 #include "samplers/Sampler_Halton.h"
 #include "samplers/Sampler_mt19937.h"
 ///--------------------------------------------------------------------------//
-
 namespace qaray {
-///--------------------------------------------------------------------------//
-class Scene {
- public:
-  Node rootNode;
-  Camera camera;
-  MaterialList materials;
-  LightList lights;
-  ObjFileList objList;
-  TexturedColor background;
-  TexturedColor environment;
-  TextureList textureList;
- public:
-  bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
-  bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);
-};
-extern Scene scene;
-///--------------------------------------------------------------------------//
-extern RenderImage renderImage;
 ///--------------------------------------------------------------------------//
 typedef tasking::ThreadLocalStorage<Sampler_Marsaglia> ThreadSampler;
 extern ThreadSampler *rng;
 ///--------------------------------------------------------------------------//
 }
-//-----------------------------------------------------------------------------
 
-class SuperSampler {
- public:
-  virtual const Color3f &GetColor() const = 0;
-
-  virtual int GetSampleID() const = 0;
-
-  virtual bool Loop() const = 0;
-
-  virtual Point3 NewPixelSample() = 0;
-
-  virtual Point3 NewDofSample(const float) = 0;
-
-  virtual void Accumulate(const Color3f &localColor) = 0;
-
-  virtual void Increment() = 0;
-};
-
-class SuperSamplerHalton : public SuperSampler {
- private:
-  const Color3f th;
-  const int sppMin, sppMax;
-  Color3f color_std = Color3f(0.0f, 0.0f, 0.0f);
-  Color3f color = Color3f(0.0f, 0.0f, 0.0f);
-  int s = 0;
- public:
-  SuperSamplerHalton(const Color3f th, const int sppMin, const int sppMax);
-
-  const Color3f &GetColor() const;
-
-  int GetSampleID() const;
-
-  bool Loop() const;
-
-  Point3 NewPixelSample();
-
-  Point3 NewDofSample(const float);
-
-  void Accumulate(const Color3f &localColor);
-
-  void Increment();
-};
-//-----------------------------------------------------------------------------
-
-#endif//QARAY_SCENE_H
+#endif //QARAY_SAMPLER_SELECTION_H

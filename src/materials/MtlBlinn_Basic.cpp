@@ -1,5 +1,6 @@
-#include "globalvar.h"
-#include "MtlPhong_Basic.h"
+#include "lights/lights.h"
+#include "materials/materials.h"
+#include "MtlBlinn_Basic.h"
 
 //------------------------------------------------------------------------------
 
@@ -88,12 +89,12 @@ const
     // loop early termination
     if (refractionGlossiness > glossy_threshold ||
         reflectionGlossiness > glossy_threshold) { break; }
-  } while ((glm::dot(tDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(txDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(tyDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(rDir, Y) < -reflection_angle_threshold) ||
-      (glm::dot(rxDir, Y) < -reflection_angle_threshold) ||
-      (glm::dot(ryDir, Y) < -reflection_angle_threshold));
+  } while ((dot(tDir, Y) > refraction_angle_threshold) ||
+      (dot(txDir, Y) > refraction_angle_threshold) ||
+      (dot(tyDir, Y) > refraction_angle_threshold) ||
+      (dot(rDir, Y) < -reflection_angle_threshold) ||
+      (dot(rxDir, Y) < -reflection_angle_threshold) ||
+      (dot(ryDir, Y) < -reflection_angle_threshold));
 
   // reflection and transmission coefficients  
   const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));

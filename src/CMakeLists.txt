@@ -51,11 +51,16 @@ qw_add_library(tasking)
 qw_add_library(math)
 qw_add_library(fb math)
 qw_add_library(core math)
-qw_add_library(lights core math)
-qw_add_library(materials core math)
-qw_add_library(objects core math)
 qw_add_library(samplers core math)
-qw_add_library(textures core math)
+qw_add_library(scene core math)
+qw_add_library(lights scene core math)
+qw_add_library(materials scene core math)
+qw_add_library(objects scene core math)
+qw_add_library(textures scene core math)
+qw_add_library(gui
+    lights materials objects textures scene samplers core math)
+qw_add_library(parser
+    lights materials objects textures scene samplers core math)
 #
 # search for executable source files
 #

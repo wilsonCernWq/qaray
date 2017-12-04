@@ -1,4 +1,5 @@
-#include "globalvar.h"
+#include "lights/lights.h"
+#include "materials/materials.h"
 #include "MtlBlinn_PathTracing.h"
 
 //------------------------------------------------------------------------------

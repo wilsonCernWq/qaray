@@ -11,6 +11,7 @@
 
 #include "globalvar.h"
 #include <chrono>      /* C11 */
+#include <iostream>
 
 //------------------------------------------------------------------------------
 void TimeFrame(TimeState state)
@@ -44,7 +45,5 @@ void TimeFrame(TimeState state)
 //TexturedColor background;
 //TexturedColor environment;
 //TextureList textureList;
-// objects
-Sphere theSphere;
-Plane thePlane;
+
 //------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
-#include "globalvar.h"
+#include "lights/lights.h"
+#include "materials/materials.h"
 #include "MtlPhong_Basic.h"
 
 //------------------------------------------------------------------------------

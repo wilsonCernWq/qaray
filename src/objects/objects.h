@@ -12,7 +12,10 @@
 #ifndef _OBJECTS_H_INCLUDED_
 #define _OBJECTS_H_INCLUDED_
 
-#include "scene.h"
+#include "math/math.h"
+#include "core/core.h"
+#include "samplers/sampler_selection.h"
+
 #include "cyTriMesh.h"
 #include "cyBVH.h"
 
