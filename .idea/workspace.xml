@@ -22,14 +22,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/qwu.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/file.template.settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/fileTemplates/includes/C File Header.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/fileTemplates/internal/C++ Class Header.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/raytracing.iml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/renderer.cpp" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/renderer.h" />
@@ -37,16 +29,11 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/samplers/Sampler_Halton.h" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/tasking/parallel_for.cpp" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/tasking/parallel_for.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CMakeLists.txt" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/sampler.h" afterPath="$PROJECT_DIR$/src/core/sampler.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/lights.cpp" afterPath="$PROJECT_DIR$/src/lights.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scene.cpp" afterPath="$PROJECT_DIR$/src/scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scene.h" afterPath="$PROJECT_DIR$/src/scene.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -177,6 +164,7 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="Qi WU &lt;ubuntu@home.com&gt;" />
         <option value="Qi WU &lt;wilson.over.cloud@gmail.com&gt;" />
       </list>
     </option>
@@ -461,7 +449,7 @@
       <workItem from="1511654035309" duration="93000" />
       <workItem from="1512262433518" duration="2880000" />
       <workItem from="1512285470024" duration="438000" />
-      <workItem from="1512335386540" duration="9511000" />
+      <workItem from="1512335386540" duration="9638000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -477,11 +465,25 @@
       <option name="project" value="LOCAL" />
       <updated>1511652332146</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Include CLion's configuration files">
+      <created>1512349005372</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1512349005372</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Split multi-threading into tasking/parallel_for.h">
+      <created>1512349059932</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1512349059932</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="82830000" />
+    <option name="totallyTimeSpent" value="82957000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -548,7 +550,9 @@
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="split Texture, TextureMap, texturedColor classes out of the scene.h" />
     <MESSAGE value="rename the original core.h to setup.h" />
-    <option name="LAST_COMMIT_MESSAGE" value="rename the original core.h to setup.h" />
+    <MESSAGE value="Include CLion's configuration files" />
+    <MESSAGE value="Split multi-threading into tasking/parallel_for.h" />
+    <option name="LAST_COMMIT_MESSAGE" value="Split multi-threading into tasking/parallel_for.h" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -680,7 +684,7 @@
             <element signature="e#1#19#0" expanded="false" />
             <element signature="e#234#256#0" expanded="false" />
             <element signature="e#4713#4736#0" expanded="false" />
-            <element signature="e#6390#6412#0" expanded="false" />
+            <element signature="e#6385#6407#0" expanded="false" />
           </folding>
         </state>
       </provider>

@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 12/3/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,34 +25,49 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_SAMPLER_H
-#define QARAY_SAMPLER_H
-
-#include "core/setup.h"
-#include "math/math.h"
+#include <ctime>
+#include <cstdlib>
+#include "Sampler_Halton.h"
 
 namespace qaray {
-
-qaFLOAT Halton(qaINT index, qaINT base);
-
-class Sampler {
- public:
-  Sampler() = default;
-  virtual ~Sampler() = default;
-  virtual void Get1f(qaFLOAT &r) = 0;
-  virtual void Get2f(qaFLOAT &,
-                     qaFLOAT &) = 0;
-  virtual void Get3f(qaFLOAT &,
-                     qaFLOAT &,
-                     qaFLOAT &) = 0;
-  Point3 UniformBall(qaFLOAT radius);
-  Point3 UniformHemisphere();
-  Point3 CosWeightedHemisphere();
-  Point3 CosLobeWeightedHemisphere(qaINT N, qaINT theta_max = 90);
-  qaFLOAT CosLobeWeightedHemisphereNormalization(qaINT N,
-                                                 const Point3 &axis,
-                                                 const Point3 &normal);
-};
+void Sampler_Halton::Init()
+{
+  if (!initialized) {
+    printf("Init\n");
+    /* The seed word must be initialized to non-zero */
+    srand(static_cast<unsigned int>(time(nullptr)));
+    seed = static_cast<qaUINT>(rand()) % 256 + 1;
+    initialized = true;
+  }
 }
-
-#endif //QARAY_SAMPLER_H
+qaFLOAT Sampler_Halton::sample(qaINT index, qaINT base)
+{
+  qaFLOAT r = 0;
+  qaFLOAT f = 1.0f / (qaFLOAT) base;
+  for (qaINT i = index; i > 0; i /= base) {
+    r += f * (i % base);
+    f /= (qaFLOAT) base;
+  }
+  return r;
+}
+void Sampler_Halton::Get1f(qaFLOAT &r1)
+{
+  Init();
+  r1 = sample(seed++, 2);
+}
+void Sampler_Halton::Get2f(qaFLOAT &r1, qaFLOAT &r2)
+{
+  Init();
+  r1 = sample(seed, 2);
+  r2 = sample(seed, 3);
+  ++seed;
+}
+void Sampler_Halton::Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3)
+{
+  Init();
+  r1 = sample(seed, 2);
+  r2 = sample(seed, 3);
+  r3 = sample(seed, 5);
+  ++seed;
+}
+}

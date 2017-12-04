@@ -116,7 +116,7 @@ const
   // Throw A Dice
   //
   float select;
-  rng.local()->Get1f(select);
+  rng->local().Get1f(select);
   float coefDirectLight = 0.f;
   float coefRefraction = ColorMax(sampleRefraction);
   float coefReflection = ColorMax(sampleReflection);
@@ -183,7 +183,8 @@ const
         /* Random Sampling for Glossy Surface */
         float r1, r2;
         GetRandomSamples(hInfo, r1, r2);
-        const Point3 sample = glm::normalize(rng.local()->CosWeightedHemisphere());
+        const Point3
+            sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
         PDF = coefRefraction / (float) M_PI;
@@ -209,7 +210,8 @@ const
         /* Random Sampling for Glossy Surface */
         float r1, r2;
         GetRandomSamples(hInfo, r1, r2);
-        const Point3 sample = glm::normalize(rng.local()->CosWeightedHemisphere());
+        const Point3
+            sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
         PDF = coefReflection / (float) M_PI;
@@ -236,7 +238,8 @@ const
           /* Random Sampling for Glossy Surface */
           float r1, r2;
           GetRandomSamples(hInfo, r1, r2);
-          const Point3 sample = glm::normalize(rng.local()->CosWeightedHemisphere());
+          const Point3
+              sample = glm::normalize(rng->local().CosWeightedHemisphere());
           sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
           /* PDF */
           PDF = coefSpecular / (float) M_PI;
@@ -255,7 +258,8 @@ const
         /* Generate Random Sample */
         float r1, r2;
         GetRandomSamples(hInfo, r1, r2);
-        const Point3 sample = glm::normalize(rng.local()->CosWeightedHemisphere());
+        const Point3
+            sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
         PDF = coefDiffuse / (float) M_PI;

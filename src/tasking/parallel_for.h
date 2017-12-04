@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 12/3/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,34 +25,67 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_SAMPLER_H
-#define QARAY_SAMPLER_H
+#ifndef QARAY_PARALLEL_FOR_H
+#define QARAY_PARALLEL_FOR_H
+#pragma once
 
-#include "core/setup.h"
-#include "math/math.h"
+#ifndef USE_MULTI_THREADING
+# define USE_MULTI_THREADING 1
+#endif
+
+#if USE_MULTI_THREADING
+#else
+# undef USE_TBB
+# undef USE_OMP
+#endif
+
+#ifdef USE_TBB
+# include <tbb/enumerable_thread_specific.h>
+#endif
+#ifdef USE_OMP
+# include <omp.h>
+#endif
+
+#include <cstddef>
+#include <vector>
+#include <functional>
+#include <atomic>
 
 namespace qaray {
+namespace tasking {
+size_t get_num_of_threads();
+void set_num_of_threads(size_t num_of_threads);
+void init();
+void parallel_for(size_t start, size_t end, size_t step,
+                  const std::function<void(size_t)> &T);
 
-qaFLOAT Halton(qaINT index, qaINT base);
-
-class Sampler {
- public:
-  Sampler() = default;
-  virtual ~Sampler() = default;
-  virtual void Get1f(qaFLOAT &r) = 0;
-  virtual void Get2f(qaFLOAT &,
-                     qaFLOAT &) = 0;
-  virtual void Get3f(qaFLOAT &,
-                     qaFLOAT &,
-                     qaFLOAT &) = 0;
-  Point3 UniformBall(qaFLOAT radius);
-  Point3 UniformHemisphere();
-  Point3 CosWeightedHemisphere();
-  Point3 CosLobeWeightedHemisphere(qaINT N, qaINT theta_max = 90);
-  qaFLOAT CosLobeWeightedHemisphereNormalization(qaINT N,
-                                                 const Point3 &axis,
-                                                 const Point3 &normal);
+#if defined(USE_TBB)
+template<typename T>
+struct ThreadLocalStorage : public tbb::enumerable_thread_specific<T> {
+  explicit ThreadLocalStorage(const T &t) :
+      tbb::enumerable_thread_specific<T>(t) {};
 };
+#elif defined(USE_OMP)
+template<typename T>
+struct ThreadLocalStorage {
+  const T data;
+  explicit ThreadLocalStorage(const T &t) : data(t) {};
+  T& local() {
+    static std::vector<T*> list(get_num_of_threads(), nullptr);
+    int tid = omp_get_thread_num();
+    if (list[tid] == nullptr) { list[tid] = new T(data); }
+    return *list[tid];
+  }
+};
+#else
+template<typename T>
+struct ThreadLocalStorage {
+  T data;
+  explicit ThreadLocalStorage(const T &t) : data(t) {}
+  T& local() { return data; }
+};
+#endif
+}
 }
 
-#endif //QARAY_SAMPLER_H
+#endif //QARAY_PARALLEL_FOR_H

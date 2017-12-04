@@ -1,6 +1,7 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Copyright(c) 2017-2018, Qi WU (University of Utah)                       //
+/// Created by Qi WU on 12/3/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.             //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
 /// modification, are permitted provided that the following conditions are   //
@@ -24,34 +25,25 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#ifndef QARAY_SAMPLER_H
-#define QARAY_SAMPLER_H
+#ifndef QARAY_SAMPLER_HALTON_H
+#define QARAY_SAMPLER_HALTON_H
+#pragma once
 
-#include "core/setup.h"
+#include "core/sampler.h"
 #include "math/math.h"
 
 namespace qaray {
-
-qaFLOAT Halton(qaINT index, qaINT base);
-
-class Sampler {
+class Sampler_Halton : public Sampler {
+ private:
+  bool initialized = false;
+  qaUINT seed = 0;
+  qaFLOAT sample(qaINT index, qaINT base);
+  void Init();
  public:
-  Sampler() = default;
-  virtual ~Sampler() = default;
-  virtual void Get1f(qaFLOAT &r) = 0;
-  virtual void Get2f(qaFLOAT &,
-                     qaFLOAT &) = 0;
-  virtual void Get3f(qaFLOAT &,
-                     qaFLOAT &,
-                     qaFLOAT &) = 0;
-  Point3 UniformBall(qaFLOAT radius);
-  Point3 UniformHemisphere();
-  Point3 CosWeightedHemisphere();
-  Point3 CosLobeWeightedHemisphere(qaINT N, qaINT theta_max = 90);
-  qaFLOAT CosLobeWeightedHemisphereNormalization(qaINT N,
-                                                 const Point3 &axis,
-                                                 const Point3 &normal);
+  void Get1f(qaFLOAT &r1) override;
+  void Get2f(qaFLOAT &r1, qaFLOAT &r2) override;
+  void Get3f(qaFLOAT &r1, qaFLOAT &r2, qaFLOAT &r3) override;
 };
 }
 
-#endif //QARAY_SAMPLER_H
+#endif //QARAY_SAMPLER_HALTON_H

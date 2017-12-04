@@ -65,18 +65,18 @@ const
     // jitter normal
     Point3 tjN = N, rjN = N;
     if (refractionGlossiness > glossy_threshold) {
-      tjN = glm::normalize(N + rng.local()->UniformBall(refractionGlossiness));
+      tjN = glm::normalize(N + rng->local().UniformBall(refractionGlossiness));
     }
     if (reflectionGlossiness > glossy_threshold) {
-      rjN = glm::normalize(N + rng.local()->UniformBall(reflectionGlossiness));
+      rjN = glm::normalize(N + rng->local().UniformBall(reflectionGlossiness));
     }
 
     // incidence angle & refraction angle
-    cosI = glm::dot(tjN, V);
+    cosI = dot(tjN, V);
     sinI = SQRT(1 - cosI * cosI);
-    const float cosIx = glm::dot(tjN, Vx);
+    const float cosIx = dot(tjN, Vx);
     const float sinIx = SQRT(1 - cosIx * cosIx);
-    const float cosIy = glm::dot(tjN, Vy);
+    const float cosIy = dot(tjN, Vy);
     const float sinIy = SQRT(1 - cosIy * cosIy);
     const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
     const float cosO = SQRT(1.f - sinO * sinO);
@@ -209,7 +209,7 @@ const
         // mc_coe = glm::normalize(mc_coe);
         //
         //-- Method 2
-        Point3 mc_coe = glm::normalize(rng.local()->CosWeightedHemisphere());
+        Point3 mc_coe = glm::normalize(rng->local().CosWeightedHemisphere());
         //
         //-- Method 3 (the idx_halton can go out of limit)
         // static std::atomic<int> idx_halton(1);
