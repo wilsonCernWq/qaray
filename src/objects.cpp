@@ -13,8 +13,8 @@
 #include <stack>
 
 #define bias 0.005f
-const float RCP_PI = 1.f / M_PI;
-const float RCP_2PI = 1.f / (2.f * M_PI);
+const float RCP_PI = 1.f / PI;
+const float RCP_2PI = 1.f / (2.f * PI);
 //-------------------------------------------------------------------------------
 
 // Helper functions
@@ -55,9 +55,9 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
 {
   // Here the ray is in model coordinate already !!!
   // Ray transformation must be done before calling this function
-  const float a = glm::dot(ray.dir, ray.dir);
-  const float b = 2.f * glm::dot(ray.p, ray.dir);
-  const float c = glm::dot(ray.p, ray.p) - 1;
+  const float a = dot(ray.dir, ray.dir);
+  const float b = 2.f * dot(ray.p, ray.dir);
+  const float c = dot(ray.p, ray.p) - 1;
   const float rcp2a = 1.f / (2.f * a);
   const float delta = b * b - 4 * a * c;
 
@@ -89,8 +89,8 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
   // update hit info if the previous hit is behind the current hit
   if (hInfo.z > t) {
     const Point3 p = ray.p + ray.dir * t;
-    const Point3 N = glm::normalize(p);
-    const bool front = (glm::dot(N, ray.dir) <= 0);
+    const Point3 N = normalize(p);
+    const bool front = (dot(N, ray.dir) <= 0);
     if (CheckHitSide(hitSide, front)) {
       hInfo.z = t;
       // non shadow ray
@@ -103,10 +103,10 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
         hInfo.uvw = Sphere_TexCoord(p);
         // Differential Rays
         if (diffray->hasDiffRay) {
-          const float pz_x = glm::dot((diffray->x.p - p), N);
-          const float pz_y = glm::dot((diffray->y.p - p), N);
-          const float dz_x = glm::dot(diffray->x.dir, N);
-          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float pz_x = dot((diffray->x.p - p), N);
+          const float pz_y = dot((diffray->y.p - p), N);
+          const float dz_x = dot(diffray->x.dir, N);
+          const float dz_y = dot(diffray->y.dir, N);
           const float t_x = -pz_x / dz_x;
           const float t_y = -pz_y / dz_y;
           const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
@@ -118,9 +118,9 @@ bool Sphere::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
           diffhit->y.p = p_y;
           diffhit->y.N = glm::normalize(p_y);
           hInfo.duvw[0] = DiffRay::rdx
-              * (Sphere_TexCoord(p_x, 1.f / glm::length(p_x)) - hInfo.uvw);
+              * (Sphere_TexCoord(p_x, 1.f / length(p_x)) - hInfo.uvw);
           hInfo.duvw[1] = DiffRay::rdy
-              * (Sphere_TexCoord(p_y, 1.f / glm::length(p_y)) - hInfo.uvw);
+              * (Sphere_TexCoord(p_y, 1.f / length(p_y)) - hInfo.uvw);
         } else {
           diffhit->x.z = t;
           diffhit->x.p = p;
@@ -148,16 +148,16 @@ bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
                          DiffRay *diffray, DiffHitInfo *diffhit) const
 {
   static const Point3 N(0, 0, 1);
-  const float dz = glm::dot(ray.dir, N);
+  const float dz = dot(ray.dir, N);
   if (ABS(dz) < 1e-7f) { return false; /* ray parallel to plane */}
-  const float pz = glm::dot(ray.p, N);
+  const float pz = dot(ray.p, N);
   const float t = -pz / dz;
   if (t <= bias) { return false; /* hit is too closed to the previous hit */}
   if (hInfo.z > t) {
     // Continue Only If This Hit Is Potentially Closer !!!
     const Point3 p = ray.p + ray.dir * t;
     if (ABS(p.x) > 1.f || ABS(p.y) > 1.f) { return false; }
-    const bool front = (glm::dot(N, ray.dir) <= 0);
+    const bool front = (dot(N, ray.dir) <= 0);
     if (CheckHitSide(hitSide, front)) {
       hInfo.z = t;
       // Non-Shadow Ray
@@ -170,10 +170,10 @@ bool Plane::IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
         hInfo.uvw = Plane_TexCoord(p);
         // Differential Rays
         if (diffray->hasDiffRay) {
-          const float pz_x = glm::dot(diffray->x.p, N);
-          const float pz_y = glm::dot(diffray->y.p, N);
-          const float dz_x = glm::dot(diffray->x.dir, N);
-          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float pz_x = dot(diffray->x.p, N);
+          const float pz_y = dot(diffray->y.p, N);
+          const float dz_x = dot(diffray->x.dir, N);
+          const float dz_y = dot(diffray->y.dir, N);
           const float t_x = -pz_x / dz_x;
           const float t_y = -pz_y / dz_y;
           const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;
@@ -219,11 +219,11 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
   const Point3 B = Point3(tmp_B.x, tmp_B.y, tmp_B.z); //!< vertex
   const Point3 C = Point3(tmp_C.x, tmp_C.y, tmp_C.z); //!< vertex
   const Point3
-      N = glm::normalize(glm::cross((B - A), (C - A))); //!< face normal
+      N = normalize(cross((B - A), (C - A))); //!< face normal
   //! ray - plane intersection
-  const float dz = glm::dot(ray.dir, N);
+  const float dz = dot(ray.dir, N);
   if (ABS(dz) < 1e-7f) { return false; /* ray parallel to plane */}
-  const float pz = glm::dot((ray.p - A), N);
+  const float pz = dot((ray.p - A), N);
   const float t = -pz / dz;
   if (t
       <= bias) { return false; /* intersect is too closed to the previous hit */ }
@@ -266,10 +266,10 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
         }
         // Ray Differential
         if (diffray->hasDiffRay) {
-          const float pz_x = glm::dot((diffray->x.p - A), N);
-          const float pz_y = glm::dot((diffray->y.p - A), N);
-          const float dz_x = glm::dot(diffray->x.dir, N);
-          const float dz_y = glm::dot(diffray->y.dir, N);
+          const float pz_x = dot((diffray->x.p - A), N);
+          const float pz_y = dot((diffray->y.p - A), N);
+          const float dz_x = dot(diffray->x.dir, N);
+          const float dz_y = dot(diffray->y.dir, N);
           const float t_x = -pz_x / dz_x;
           const float t_y = -pz_y / dz_y;
           const Point3 p_x = diffray->x.p + diffray->x.dir * t_x;

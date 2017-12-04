@@ -96,11 +96,12 @@ void ShowViewport()
   glutInit(&argc, &argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
   if (glutGet(GLUT_SCREEN_WIDTH) > 0 && glutGet(GLUT_SCREEN_HEIGHT) > 0) {
-    glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - camera.imgWidth) / 2,
-                           (glutGet(GLUT_SCREEN_HEIGHT) - camera.imgHeight)
+    glutInitWindowPosition(
+        (glutGet(GLUT_SCREEN_WIDTH) - scene.camera.imgWidth) / 2,
+        (glutGet(GLUT_SCREEN_HEIGHT) - scene.camera.imgHeight)
                                / 2);
   } else glutInitWindowPosition(50, 50);
-  glutInitWindowSize(camera.imgWidth, camera.imgHeight);
+  glutInitWindowSize(scene.camera.imgWidth, scene.camera.imgHeight);
   glutCreateWindow("Ray Tracer - CS 6620");
   glutDisplayFunc(GlutDisplay);
   glutReshapeFunc(GlutReshape);
@@ -108,7 +109,7 @@ void ShowViewport()
   glutKeyboardFunc(GlutKeyboard);
   glutMouseFunc(GlutMouse);
   glutMotionFunc(GlutMotion);
-  Color3f bg = background.GetColor();
+  Color3f bg = scene.background.GetColor();
   glClearColor(bg.r, bg.g, bg.b, 0);
   glPointSize(3.0);
   glEnable(GL_CULL_FACE);
@@ -117,10 +118,12 @@ void ShowViewport()
   glEnable(GL_NORMALIZE);
   glLineWidth(2);
 
-  if (camera.depthOfField > 0) {
-    dofBuffer = new Color3c[camera.imgWidth * camera.imgHeight];
-    dofImage = new Color3f[camera.imgWidth * camera.imgHeight];
-    memset(dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color3f));
+  if (scene.camera.depthOfField > 0) {
+    dofBuffer = new Color3c[scene.camera.imgWidth * scene.camera.imgHeight];
+    dofImage = new Color3f[scene.camera.imgWidth * scene.camera.imgHeight];
+    memset(dofImage,
+           0,
+           scene.camera.imgWidth * scene.camera.imgHeight * sizeof(Color3f));
   }
 
   glGenTextures(1, &viewTexture);
@@ -136,14 +139,14 @@ void ShowViewport()
 void GlutReshape(int w, int h)
 {
 #ifdef USE_GUI
-  if (w != camera.imgWidth || h != camera.imgHeight) {
-    glutReshapeWindow(camera.imgWidth, camera.imgHeight);
+  if (w != scene.camera.imgWidth || h != scene.camera.imgHeight) {
+    glutReshapeWindow(scene.camera.imgWidth, scene.camera.imgHeight);
   } else {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     float r = (float) w / float(h);
-    gluPerspective(camera.fovy, r, 0.02, 1000.0);
+    gluPerspective(scene.camera.fovy, r, 0.02, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
   }
@@ -183,14 +186,14 @@ void DrawNode(Node *node)
 void DrawScene()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  const TextureMap *bgMap = background.GetTexture();
+  const TextureMap *bgMap = scene.background.GetTexture();
   if (bgMap) {
     glDepthMask(GL_FALSE);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
-    Color3f c = background.GetColor();
+    Color3f c = scene.background.GetColor();
     glColor3f(c.r, c.g, c.b);
     if (bgMap->SetViewportTexture()) {
       glEnable(GL_TEXTURE_2D);
@@ -228,33 +231,33 @@ void DrawScene()
   glEnable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
   glPushMatrix();
-  Point3 p = camera.pos;
-  Point3 t = camera.pos + camera.dir * camera.focalDistance;
-  Point3 u = camera.up;
-  if (camera.depthOfField > 0) {
-    Point3 v = glm::cross(camera.dir, camera.up);
-    float r = sqrtf(float(rand()) / RAND_MAX) * camera.depthOfField;
+  Point3 p = scene.camera.pos;
+  Point3 t = scene.camera.pos + scene.camera.dir * scene.camera.focalDistance;
+  Point3 u = scene.camera.up;
+  if (scene.camera.depthOfField > 0) {
+    Point3 v = glm::cross(scene.camera.dir, scene.camera.up);
+    float r = sqrtf(float(rand()) / RAND_MAX) * scene.camera.depthOfField;
     float a = float(M_PI) * 2.0f * float(rand()) / RAND_MAX;
     p += r * cosf(a) * v + r * sinf(a) * u;
   }
   gluLookAt(p.x, p.y, p.z, t.x, t.y, t.z, u.x, u.y, u.z);
   glRotatef(viewAngle1, 1, 0, 0);
   glRotatef(viewAngle2, 0, 0, 1);
-  if (lights.size() > 0) {
-    for (unsigned int i = 0; i < lights.size(); i++) {
-      lights[i]->SetViewportLight(i);
+  if (scene.lights.size() > 0) {
+    for (unsigned int i = 0; i < scene.lights.size(); i++) {
+      scene.lights[i]->SetViewportLight(i);
     }
   } else {
     float white[] = {1, 1, 1, 1};
     float black[] = {0, 0, 0, 0};
-    Point4 p(camera.pos, 1);
+    Point4 p(scene.camera.pos, 1);
     glEnable(GL_LIGHT0);
     glLightfv(GL_LIGHT0, GL_AMBIENT, black);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
     glLightfv(GL_LIGHT0, GL_SPECULAR, white);
     glLightfv(GL_LIGHT0, GL_POSITION, &p.x);
   }
-  DrawNode(&rootNode);
+  DrawNode(&(scene.rootNode));
   glPopMatrix();
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
@@ -347,14 +350,14 @@ void GlutDisplay()
           DrawScene();
           glReadPixels(0,
                        0,
-                       camera.imgWidth,
-                       camera.imgHeight,
+                       scene.camera.imgWidth,
+                       scene.camera.imgHeight,
                        GL_RGB,
                        GL_UNSIGNED_BYTE,
                        dofBuffer);
-          for (int i = 0, y = 0; y < camera.imgHeight; y++) {
-            int j = (camera.imgHeight - y - 1) * camera.imgWidth;
-            for (int x = 0; x < camera.imgWidth; x++, i++, j++) {
+          for (int i = 0, y = 0; y < scene.camera.imgHeight; y++) {
+            int j = (scene.camera.imgHeight - y - 1) * scene.camera.imgWidth;
+            for (int x = 0; x < scene.camera.imgWidth; x++, i++, j++) {
               dofImage[i] =
                   (dofImage[i] * float(dofDrawCount) + ToColor(dofBuffer[j]))
                       / float(dofDrawCount + 1);
@@ -433,7 +436,8 @@ void GlutKeyboard(unsigned char key, int x, int y)
           viewMode = VIEWMODE_IMAGE;
           if (dofImage) {
             Color3c *p = renderImage.GetPixels();
-            for (int i = 0; i < camera.imgWidth * camera.imgHeight; i++)
+            for (int i = 0; i < scene.camera.imgWidth * scene.camera.imgHeight;
+                 i++)
               p[i] = Color3c(dofImage[i]);
           } else {
             DrawScene();

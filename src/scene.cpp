@@ -1,131 +1,88 @@
-//------------------------------------------------------------------------------
-///
-/// \file       objects.cpp 
-/// \author     Qi WU
-/// \version    1.0
-/// \date       August, 2017
-///
-/// \brief Source for CS 6620 - University of Utah.
-///
-//------------------------------------------------------------------------------
+///--------------------------------------------------------------------------//
+///                                                                          //
+/// Created by Qi WU on 12/3/17.                                             //
+/// Copyright (c) 2017 University of Utah. All rights reserved.              //
+///                                                                          //
+/// Redistribution and use in source and binary forms, with or without       //
+/// modification, are permitted provided that the following conditions are   //
+/// met:                                                                     //
+///  - Redistributions of source code must retain the above copyright        //
+///    notice, this list of conditions and the following disclaimer.         //
+///  - Redistributions in binary form must reproduce the above copyright     //
+///    notice, this list of conditions and the following disclaimer in the   //
+///    documentation and/or other materials provided with the distribution.  //
+/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS  //
+/// IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED    //
+/// TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A          //
+/// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT       //
+/// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,   //
+/// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT         //
+/// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,    //
+/// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY    //
+/// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT      //
+/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE    //
+/// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     //
+///                                                                          //
+///--------------------------------------------------------------------------//
 
 #include "scene.h"
 #include <random>
 #include <thread>
-//------------------------------------------------------------------------------
 
-//TBBHalton TBBHaltonRNG(HaltonRandom(0));
-//
-//HaltonRandom::HaltonRandom(int seed)
-//{
-//  idx = seed;
-//};
-//void HaltonRandom::Seed(int seed)
-//{
-//  idx = seed;
-//}
-//void HaltonRandom::Get(float &r1, float &r2)
-//{
-//  r1 = Halton(idx, 2);
-//  r2 = Halton(idx, 3);
-//  Increment();
-//}
-//void HaltonRandom::Increment()
-//{
-//  idx = idx + 1;
-//}
-
-//------------------------------------------------------------------------------
-//
-//// rendering example_project9.xml takes 23.224073 s
-//struct UniformRandom_mt19937 : public UniformRandom {
-//  std::mt19937 rng;
-//  std::uniform_real_distribution<float> dist; // distribution in range [0, 1]
-//  UniformRandom_mt19937()
-//  {
-//    rng.seed(std::random_device()());
-//    dist = std::uniform_real_distribution<float>(0.0, 1.0);
-//  }
-//
-//  float Get() { return dist(rng); }
-//};
-//
-//// reference https://en.wikipedia.org/wiki/Xorshift
-//// rendering example_project9.xml takes 20.582386 s
-//struct UniformRandom_Marsaglia : public UniformRandom {
-//  static uint32_t seed;
-//
-//  /* The state word must be initialized to non-zero */
-//  uint32_t xorshift32()
-//  {
-//    /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
-//    uint32_t x = seed;
-//    x ^= x << 13;
-//    x ^= x >> 17;
-//    x ^= x << 5;
-//    seed = x;
-//    return x;
-//  }
-//
-//  float Get()
-//  {
-//    return xorshift32() / (float) (POW(2, 32) - 1);
-//  }
-//};
-//
-//uint32_t UniformRandom_Marsaglia::seed = 123456789;
-
-//------------------------------------------------------------------------------
-
-ThreadSampler *rng = new ThreadSampler(Sampler_Marsaglia());
-
-//------------------------------------------------------------------------------
-
-
+namespace qaray {
 
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children
 //------------------------------------------------------------------------------
-
-bool TraceNodeShadow
-    (Node &node, Ray &ray, HitInfo &hInfo)
+bool Scene::TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo)
 {
   Ray nodeRay = node.ToNodeCoords(ray);
   if (node.GetNodeObj() != NULL) {
     if (node.GetNodeObj()
         ->IntersectRay(nodeRay, hInfo, HIT_FRONT_AND_BACK)) { return true; }
   }
-  for (size_t c = 0; c < node.GetNumChild(); ++c) {
+  for (int c = 0; c < node.GetNumChild(); ++c) {
     if (TraceNodeShadow(*(node.GetChild(c)), nodeRay, hInfo)) { return true; }
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-
-bool TraceNodeNormal
-    (Node &node, DiffRay &ray, DiffHitInfo &hInfo /* it stores results */)
+// Trace the ray within this node and all its children
+//------------------------------------------------------------------------------
+bool Scene::TraceNodeNormal(Node &node, DiffRay &ray,
+                            DiffHitInfo &hInfo /* it stores results */)
 {
   bool hasHit = false;
   // We first check if this ray will intersect with the object held by
   // this node
   DiffRay nodeRay = node.ToNodeCoords(ray);
   if (node.GetNodeObj() != NULL) {
-    if (node.GetNodeObj()->IntersectRay(nodeRay.c, hInfo.c, HIT_FRONT_AND_BACK,
+    if (node.GetNodeObj()->IntersectRay(nodeRay.c, hInfo.c,
+                                        HIT_FRONT_AND_BACK,
                                         &nodeRay, &hInfo)) {
       hInfo.c.node = &node;
       hasHit = true;
     }
   }
-  // Now we still need to check all the childs contained by this node
+  // Now we still need to check all the children contained by this node
   for (int c = 0; c < node.GetNumChild(); ++c) {
     // Reaches here means this node has at lease one child
-    if (TraceNodeNormal(*(node.GetChild(c)), nodeRay, hInfo)) { hasHit = true; }
+    if (TraceNodeNormal(*(node.GetChild(c)), nodeRay, hInfo)) {
+      hasHit = true;
+    }
   }
   if (hasHit) { node.FromNodeCoords(hInfo); }
   return hasHit;
 }
-
+///--------------------------------------------------------------------------//
+Scene scene;
+///--------------------------------------------------------------------------//
+RenderImage renderImage;
+///--------------------------------------------------------------------------//
+ThreadSampler *rng = new ThreadSampler(Sampler_Marsaglia());
+///--------------------------------------------------------------------------//
+}
 //------------------------------------------------------------------------------
 
 SuperSamplerHalton::SuperSamplerHalton(const Color3f th,

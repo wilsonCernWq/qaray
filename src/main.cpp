@@ -1,7 +1,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <string>
 #include <thread>      /* C11 std::thread */
 #include <atomic>      /* C11 */
 #include <algorithm>
@@ -77,7 +76,7 @@ void PixelRender(const int i, const int j, const int tile_idx)
         xpt = screenA + (texpos.x + DiffRay::dx) * screenU + texpos.y * screenV;
     const Point3
         ypt = screenA + texpos.x * screenU + (texpos.y + DiffRay::dy) * screenV;
-    Point3 campos = camera.pos;
+    Point3 campos = scene.camera.pos;
     if (dof > 0.1f) {
       const Point3 dofSample = sampler.NewDofSample(dof);
       campos += dofSample.x * screenX + dofSample.y * screenY;
@@ -88,15 +87,15 @@ void PixelRender(const int i, const int j, const int tile_idx)
     ray.Normalize();
     DiffHitInfo hInfo;
     hInfo.c.z = BIGFLOAT;
-    bool hasHit = TraceNodeNormal(rootNode, ray, hInfo);
+    bool hasHit = scene.TraceNodeNormal(scene.rootNode, ray, hInfo);
     Color3f localColor;
     if (hasHit) {
       localColor =
-          hInfo.c.node->GetMaterial()->Shade(ray, hInfo, lights, bounce);
+          hInfo.c.node->GetMaterial()->Shade(ray, hInfo, scene.lights, bounce);
     } else {
       const float u = texpos.x / pixelW;
       const float v = texpos.y / pixelH;
-      localColor = background.Sample(Point3(u, v, 0.f));
+      localColor = scene.background.Sample(Point3(u, v, 0.f));
     }
     // calculate depth for the first sample only
     if (sampler.GetSampleID() == 0) { depth = hasHit ? hInfo.c.z : BIGFLOAT; }
@@ -214,21 +213,22 @@ void DivideLength
 void ComputeScene()
 {
   // rendering
-  focal = camera.focalDistance;
-  dof = camera.depthOfField;
-  pixelW = camera.imgWidth;
-  pixelH = camera.imgHeight;
+  focal = scene.camera.focalDistance;
+  dof = scene.camera.depthOfField;
+  pixelW = scene.camera.imgWidth;
+  pixelH = scene.camera.imgHeight;
   aspect =
-      static_cast<float>(camera.imgWidth) /
-          static_cast<float>(camera.imgHeight);
-  screenH = 2.f * focal * std::tan(camera.fovy * (float) M_PI / 2.f / 180.f);
+      static_cast<float>(scene.camera.imgWidth) /
+          static_cast<float>(scene.camera.imgHeight);
+  screenH =
+      2.f * focal * std::tan(scene.camera.fovy * (float) M_PI / 2.f / 180.f);
   screenW = aspect * screenH;
-  Point3 X = glm::normalize(glm::cross(camera.dir, camera.up));
-  Point3 Y = glm::normalize(glm::cross(X, camera.dir));
-  Point3 Z = glm::normalize(-camera.dir);
-  screenU = X * (screenW / camera.imgWidth);
-  screenV = -Y * (screenH / camera.imgHeight);
-  screenA = camera.pos
+  Point3 X = glm::normalize(glm::cross(scene.camera.dir, scene.camera.up));
+  Point3 Y = glm::normalize(glm::cross(X, scene.camera.dir));
+  Point3 Z = glm::normalize(-scene.camera.dir);
+  screenU = X * (screenW / scene.camera.imgWidth);
+  screenV = -Y * (screenH / scene.camera.imgHeight);
+  screenA = scene.camera.pos
       - Z * focal
       + Y * screenH / 2.f
       - X * screenW / 2.f;

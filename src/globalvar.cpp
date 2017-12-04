@@ -35,15 +35,15 @@ void TimeFrame(TimeState state)
 
 //------------------------------------------------------------------------------
 // unique
-Node rootNode;
-Camera camera;
-RenderImage renderImage;
-MaterialList materials;
-LightList lights;
-ObjFileList objList;
-TexturedColor background;
-TexturedColor environment;
-TextureList textureList;
+//Node rootNode;
+//Camera camera;
+//RenderImage renderImage;
+//MaterialList materials;
+//LightList lights;
+//ObjFileList objList;
+//TexturedColor background;
+//TexturedColor environment;
+//TextureList textureList;
 // objects
 Sphere theSphere;
 Plane thePlane;

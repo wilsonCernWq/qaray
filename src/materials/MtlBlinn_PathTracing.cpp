@@ -278,7 +278,7 @@ const
       sampleRay.Normalize();
       // Integrate Incoming Ray
       Color3f incoming(0.f);
-      if (TraceNodeNormal(rootNode, sampleRay, sampleHInfo)) {
+      if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
         // Attenuation When the Ray Travels Inside the Material
         if (!sampleHInfo.c.hasFrontHit) {
           incoming *= Attenuation(absorption, sampleHInfo.c.z);
@@ -286,7 +286,7 @@ const
         const auto *mtl = sampleHInfo.c.node->GetMaterial();
         incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
       } else {
-        incoming = environment.SampleEnvironment(sampleRay.c.dir);
+        incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
       }
       Point3 outgoing = incoming * BxDF / PDF;
       // Attenuate Outgoing Ray

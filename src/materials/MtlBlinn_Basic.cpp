@@ -124,14 +124,14 @@ const
     DiffHitInfo tHit;
     tHit.c.z = BIGFLOAT;
     tRay.Normalize();
-    if (TraceNodeNormal(rootNode, tRay, tHit)) {
+    if (scene.TraceNodeNormal(scene.rootNode, tRay, tHit)) {
       const auto K = tK * (tHit.c.hasFrontHit ?
                            Color3f(1.f) :
                            Attenuation(absorption, tHit.c.z));
       const auto *tMtl = tHit.c.node->GetMaterial();
       color += K * tMtl->Shade(tRay, tHit, lights, bounceCount - 1);
     } else {
-      color += tK * environment.SampleEnvironment(tRay.c.dir);
+      color += tK * scene.environment.SampleEnvironment(tRay.c.dir);
     }
   }
 
@@ -144,14 +144,14 @@ const
     DiffHitInfo rHit;
     rRay.Normalize();
     rHit.c.z = BIGFLOAT;
-    if (TraceNodeNormal(rootNode, rRay, rHit)) {
+    if (scene.TraceNodeNormal(scene.rootNode, rRay, rHit)) {
       const auto K = rK * (rHit.c.hasFrontHit ?
                            Color3f(1.f) :
                            Attenuation(absorption, rHit.c.z));
       const auto *rMtl = rHit.c.node->GetMaterial();
       color += K * rMtl->Shade(rRay, rHit, lights, bounceCount - 1);
     } else {
-      color += rK * environment.SampleEnvironment(rRay.c.dir);
+      color += rK * scene.environment.SampleEnvironment(rRay.c.dir);
     }
   }
 
@@ -172,8 +172,8 @@ const
       } else {
         auto L = glm::normalize(-light->Direction(p));
         auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, glm::dot(N, L));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
+        auto cosNL = MAX(0.f, dot(N, L));
+        auto cosNH = MAX(0.f, dot(N, H));
         color += sampleDiffuse * Intensity * cosNL;
         color += sampleSpecular * Intensity * POW(cosNH, glossiness) * cosNL;
       }

@@ -13,7 +13,7 @@
 #ifndef _GLOBALVAR_H_
 #define _GLOBALVAR_H_
 
-#include "fb/framebuffer.h"
+
 #include "scene.h"
 #include "objects.h"
 #include "materials.h"
@@ -29,15 +29,15 @@ void TimeFrame(TimeState state);
 
 //------------------------------------------------------------------------------
 // unique
-extern Node rootNode;
-extern Camera camera;
-extern RenderImage renderImage;
-extern MaterialList materials;
-extern LightList lights;
-extern ObjFileList objList;
-extern TexturedColor background;
-extern TexturedColor environment;
-extern TextureList textureList;
+//extern Node rootNode;
+//extern Camera camera;
+//extern RenderImage renderImage;
+//extern MaterialList materials;
+//extern LightList lights;
+//extern ObjFileList objList;
+//extern TexturedColor background;
+//extern TexturedColor environment;
+//extern TextureList textureList;
 // objects
 extern Sphere theSphere;
 extern Plane thePlane;

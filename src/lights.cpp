@@ -11,7 +11,6 @@
 
 #include "lights.h"
 
-extern Node rootNode;
 //------------------------------------------------------------------------------
 
 int GenLight::shadow_spp_min = 16;
@@ -23,7 +22,7 @@ void DisableInverseSquareFalloff() { useInverseSquareFalloff = false; }
 float InverseSquareFalloff(const Point3 &v)
 {
   if (useInverseSquareFalloff) {
-    return MIN(100.f, 100.f / glm::length2(v));
+    return MIN(100.f, 100.f / length2(v));
   } else {
     return 1.f;
   }
@@ -33,7 +32,7 @@ float GenLight::Shadow(Ray ray, float t_max)
 {
   HitInfo hInfo;
   hInfo.z = t_max;
-  if (TraceNodeShadow(rootNode, ray, hInfo)) {
+  if (scene.TraceNodeShadow(scene.rootNode, ray, hInfo)) {
     return 0.0f;
   } else {
     return 1.0f;

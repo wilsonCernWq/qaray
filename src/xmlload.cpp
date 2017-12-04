@@ -95,52 +95,53 @@ int LoadScene(const char *filename)
   }
 
   nodeMtlList.clear();
-  rootNode.Init();
-  materials.DeleteAll();
-  lights.DeleteAll();
-  objList.Clear();
-  textureList.Clear();
+  qaray::scene.rootNode.Init();
+  qaray::scene.materials.DeleteAll();
+  qaray::scene.lights.DeleteAll();
+  qaray::scene.objList.Clear();
+  qaray::scene.textureList.Clear();
   LoadScene(scene);
 
-  rootNode.ComputeChildBoundBox();
+  qaray::scene.rootNode.ComputeChildBoundBox();
 
   // Assign materials
   int numNodes = nodeMtlList.size();
   for (int i = 0; i < numNodes; i++) {
-    Material *mtl = materials.Find(nodeMtlList[i].mtlName);
+    Material *mtl = qaray::scene.materials.Find(nodeMtlList[i].mtlName);
     if (mtl) nodeMtlList[i].node->SetMaterial(mtl);
   }
   nodeMtlList.clear();
 
   // Load Camera
-  camera.Init();
-  camera.dir += camera.pos;
+  qaray::scene.camera.Init();
+  qaray::scene.camera.dir += qaray::scene.camera.pos;
   TiXmlElement *camChild = cam->FirstChildElement();
   while (camChild) {
     if (COMPARE(camChild->Value(), "position"))
       ReadVector(camChild,
-                 camera.pos);
+                 qaray::scene.camera.pos);
     else if (COMPARE(camChild->Value(), "target"))
       ReadVector(camChild,
-                 camera.dir);
+                 qaray::scene.camera.dir);
     else if (COMPARE(camChild->Value(), "up"))
-      ReadVector(camChild, camera.up);
+      ReadVector(camChild, qaray::scene.camera.up);
     else if (COMPARE(camChild->Value(), "fov"))
-      ReadFloat(camChild, camera.fovy);
+      ReadFloat(camChild, qaray::scene.camera.fovy);
     else if (COMPARE(camChild->Value(), "focaldist"))
-      ReadFloat(camChild, camera.focalDistance);
+      ReadFloat(camChild, qaray::scene.camera.focalDistance);
     else if (COMPARE(camChild->Value(), "dof"))
-      ReadFloat(camChild, camera.depthOfField);
+      ReadFloat(camChild, qaray::scene.camera.depthOfField);
     else if (COMPARE(camChild->Value(), "width"))
-      camChild->QueryIntAttribute("value", &camera.imgWidth);
+      camChild->QueryIntAttribute("value", &qaray::scene.camera.imgWidth);
     else if (COMPARE(camChild->Value(), "height"))
-      camChild->QueryIntAttribute("value", &camera.imgHeight);
+      camChild->QueryIntAttribute("value", &qaray::scene.camera.imgHeight);
     camChild = camChild->NextSiblingElement();
   }
-  camera.dir -= camera.pos;
-  camera.dir = glm::normalize(camera.dir);
-  Point3 x = glm::cross(camera.dir, camera.up);
-  camera.up = glm::normalize(glm::cross(x, camera.dir));
+  qaray::scene.camera.dir -= qaray::scene.camera.pos;
+  qaray::scene.camera.dir = glm::normalize(qaray::scene.camera.dir);
+  Point3 x = glm::cross(qaray::scene.camera.dir, qaray::scene.camera.up);
+  qaray::scene.camera.up =
+      glm::normalize(glm::cross(x, qaray::scene.camera.dir));
 
   // renderImage.Init( camera.imgWidth, camera.imgHeight );
 
@@ -164,17 +165,17 @@ void LoadScene(TiXmlElement *element)
     if (COMPARE(child->Value(), "background")) {
       Color3f c(1, 1, 1);
       ReadColor(child, c);
-      background.SetColor(c);
+      qaray::scene.background.SetColor(c);
       PRINTF("Background %f %f %f\n", c.r, c.g, c.b);
-      background.SetTexture(ReadTexture(child));
+      qaray::scene.background.SetTexture(ReadTexture(child));
     } else if (COMPARE(child->Value(), "environment")) {
       Color3f c(1, 1, 1);
       ReadColor(child, c);
-      environment.SetColor(c);
+      qaray::scene.environment.SetColor(c);
       PRINTF("Environment %f %f %f\n", c.r, c.g, c.b);
-      environment.SetTexture(ReadTexture(child));
+      qaray::scene.environment.SetTexture(ReadTexture(child));
     } else if (COMPARE(child->Value(), "object")) {
-      LoadNode(&rootNode, child);
+      LoadNode(&qaray::scene.rootNode, child);
     } else if (COMPARE(child->Value(), "material")) {
       LoadMaterial(child);
     } else if (COMPARE(child->Value(), "light")) {
@@ -218,18 +219,18 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
       PRINTF(" - Plane");
     } else if (COMPARE(type, "obj")) {
       PRINTF(" - OBJ");
-      Object *obj = objList.Find(name);
+      Object *obj = qaray::scene.objList.Find(name);
       if (obj == NULL) {// object is not on the list, so we should load it now
         TriObj *tobj = new TriObj;
         if (!tobj->Load(name, mtlName == NULL)) {
           PRINTF(" -- ERROR: Cannot load file \"%s.\"", name);
           delete tobj;
         } else {
-          objList.Append(tobj, name);// add to the list
+          qaray::scene.objList.Append(tobj, name);// add to the list
           obj = tobj;
           // generate multi-material
           if (tobj->NM() > 0) {
-            if (materials.Find(name) == NULL) {
+            if (qaray::scene.materials.Find(name) == NULL) {
               PRINTF("\n - OBJ Multi-Material\n");
               MultiMtl *mm = new MultiMtl;
               for (unsigned int i = 0; i < tobj->NM(); i++) {
@@ -259,7 +260,7 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
                 mm->AppendMaterial(m);
               }
               mm->SetName(name);
-              materials.push_back(mm);
+              qaray::scene.materials.push_back(mm);
               NodeMtl nm;
               nm.node = node;
               nm.mtlName = name;
@@ -389,7 +390,7 @@ void LoadMaterial(TiXmlElement *element)
 
   if (mtl) {
     mtl->SetName(name);
-    materials.push_back(mtl);
+    qaray::scene.materials.push_back(mtl);
   }
 }
 
@@ -469,7 +470,7 @@ void LoadLight(TiXmlElement *element)
 
   if (light) {
     light->SetName(name);
-    lights.push_back(light);
+    qaray::scene.lights.push_back(light);
   }
 
 }
@@ -548,7 +549,7 @@ TextureMap *ReadTexture(TiXmlElement *element)
         PRINTF("         color2 %f %f %f\n", c.r, c.g, c.b);
       }
     }
-    textureList.Append(tex, texName);
+    qaray::scene.textureList.Append(tex, texName);
   } else {
     tex = ReadTexture(texName);
   }
@@ -563,7 +564,7 @@ TextureMap *ReadTexture(TiXmlElement *element)
 Texture *ReadTexture(const char *texName)
 {
   PRINTF("      Texture: File \"%s\"", texName);
-  Texture *tex = textureList.Find(texName);
+  Texture *tex = qaray::scene.textureList.Find(texName);
   if (tex == NULL) {
     TextureFile *ftex = new TextureFile;
     tex = ftex;
@@ -573,7 +574,7 @@ Texture *ReadTexture(const char *texName)
       delete tex;
       tex = NULL;
     } else {
-      textureList.Append(tex, texName);
+      qaray::scene.textureList.Append(tex, texName);
     }
   }
   PRINTF("\n");

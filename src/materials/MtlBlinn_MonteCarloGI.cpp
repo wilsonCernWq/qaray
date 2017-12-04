@@ -132,14 +132,14 @@ const
     DiffHitInfo tHit;
     tHit.c.z = BIGFLOAT;
     tRay.Normalize();
-    if (TraceNodeNormal(rootNode, tRay, tHit)) {
+    if (scene.TraceNodeNormal(scene.rootNode, tRay, tHit)) {
       const auto K = tK * (tHit.c.hasFrontHit ?
                            Color3f(1.f) :
                            Attenuation(absorption, tHit.c.z));
       const auto *tMtl = tHit.c.node->GetMaterial();
       color += K * tMtl->Shade(tRay, tHit, lights, bounceCount - 1);
     } else {
-      color += tK * environment.SampleEnvironment(tRay.c.dir);
+      color += tK * scene.environment.SampleEnvironment(tRay.c.dir);
     }
   }
 
@@ -152,14 +152,14 @@ const
     DiffHitInfo rHit;
     rRay.Normalize();
     rHit.c.z = BIGFLOAT;
-    if (TraceNodeNormal(rootNode, rRay, rHit)) {
+    if (scene.TraceNodeNormal(scene.rootNode, rRay, rHit)) {
       const auto K = rK * (rHit.c.hasFrontHit ?
                            Color3f(1.f) :
                            Attenuation(absorption, rHit.c.z));
       const auto *rMtl = rHit.c.node->GetMaterial();
       color += K * rMtl->Shade(rRay, rHit, lights, bounceCount - 1);
     } else {
-      color += rK * environment.SampleEnvironment(rRay.c.dir);
+      color += rK * scene.environment.SampleEnvironment(rRay.c.dir);
     }
   }
 
@@ -186,8 +186,8 @@ const
         auto Intensity = light->Illuminate(p, N) * normCoeDI;
         auto L = glm::normalize(-light->Direction(p));
         auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, glm::dot(N, L));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
+        auto cosNL = MAX(0.f, dot(N, L));
+        auto cosNH = MAX(0.f, dot(N, H));
         directShadecolor +=
             (sampleDiffuse * cosNL + sampleSpecular * POW(cosNH, glossiness)) *
                 Intensity;
@@ -245,16 +245,16 @@ const
         hitMC.c.z = BIGFLOAT;
         rayMC.Normalize();
         Color3f Intensity;
-        if (TraceNodeNormal(rootNode, rayMC, hitMC)) {
+        if (scene.TraceNodeNormal(scene.rootNode, rayMC, hitMC)) {
           Intensity =
               hitMC.c.node->GetMaterial()
                   ->Shade(rayMC, hitMC, lights, bounceCount - 1);
         } else {
-          Intensity = environment.SampleEnvironment(rayMC.c.dir);
+          Intensity = scene.environment.SampleEnvironment(rayMC.c.dir);
         }
         auto H = glm::normalize(V + dirMC);
-        auto cosNL = MAX(0.f, glm::dot(N, dirMC));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
+        auto cosNL = MAX(0.f, dot(N, dirMC));
+        auto cosNH = MAX(0.f, dot(N, H));
         indirectShadecolor += Intensity *
             (cosNL * sampleSpecular * POW(cosNH, glossiness) + sampleDiffuse);
       }
