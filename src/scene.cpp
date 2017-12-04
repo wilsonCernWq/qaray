@@ -12,7 +12,6 @@
 #include "scene.h"
 #include <random>
 #include <thread>
-#include "samplers/Sampler_Marsaglia.h"
 //------------------------------------------------------------------------------
 
 //TBBHalton TBBHaltonRNG(HaltonRandom(0));
@@ -78,106 +77,10 @@
 
 //------------------------------------------------------------------------------
 
-#ifdef USE_TBB
-TBBSampler rng(new Sampler_Marsaglia);
-#else
-SamplerWrapper rng(new Sampler_Marsaglia);
-#endif
+ThreadSampler *rng = new ThreadSampler(Sampler_Marsaglia());
 
 //------------------------------------------------------------------------------
 
-Point3 GetCirclePoint(float R)
-{
-  Point3 p;
-  float r1, r2, r3;
-  rng.local()->Get3f(r1, r2, r3);
-  do {
-    p.x = (2.f * r1 - 1.f) * R;
-    p.y = (2.f * r2 - 1.f) * R;
-    p.z = (2.f * r3 - 1.f) * R;
-  } while (length(p) > R);
-  return p;
-}
-
-Point3 UniformSampleHemiSphere(const float r1, const float r2)
-{
-  // Generate random direction on unit hemisphere proportional to solid angle
-  // PDF = 1 / 2PI 
-  const float cosTheta = r1;
-  const float sinTheta = SQRT(1 - r1 * r1);
-  const float phi = 2 * PI * r2;
-  const float x = sinTheta * COS(phi);
-  const float y = sinTheta * SIN(phi);
-  return Point3(x, y, cosTheta);
-}
-
-Point3 CosWeightedSampleHemiSphere(const float r1, const float r2)
-{
-  // Generate random direction on unit hemisphere proportional to cosine-weighted solid angle
-  // PDF = cos(Theta) / PI
-  const float cosTheta = SQRT(r1);
-  const float sinTheta = SQRT(1 - r1);
-  const float phi = 2 * PI * r2;
-  const float x = sinTheta * COS(phi);
-  const float y = sinTheta * SIN(phi);
-  return Point3(x, y, cosTheta);
-}
-
-float CosLobeWeightedFn(const int n)
-{
-  if (n == 0) { return PI; }
-  if (n == 1) { return 2; }
-  return static_cast<float>(n - 1) * CosLobeWeightedFn(n - 2) / n;
-}
-
-float CosLobeWeightedNormalization(const int n,
-                                   const Point3 axis,
-                                   const Point3 norm)
-{
-  const float cosTheta = glm::dot(axis, norm);
-  const float sinTheta = SQRT(1.f - cosTheta * cosTheta);
-  const float Theta = std::acos(cosTheta);
-  float sum = 0.f;
-  for (int i = 0; i < n - 1; i += 2) {
-    sum += CosLobeWeightedFn(i) * POW(sinTheta, i);
-  }
-  sum *= cosTheta;
-  if ((n % 2) == 0) // even
-  {
-    sum += 2.f * ((float) M_PI - Theta);
-  } else // odd
-  {
-    sum += (float) M_PI;
-  }
-  sum /= (float) (n + 1);
-  return sum;
-}
-
-Point3 CosLobeWeightedSampleHemiSphere(const float r1, const float r2,
-                                       const int N, const int theta_max)
-{
-  // Generate random direction on unit hemisphere proportional to cosine lobe around normal
-  if (theta_max == 90) {
-    // PDF = (N+1) * (cos(theta) ^ N) / 2PI
-    const float cosTheta = POW(r1, 1.f / (N + 1));
-    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
-    const float phi = 2 * PI * r2;
-    const float x = sinTheta * COS(phi);
-    const float y = sinTheta * SIN(phi);
-    return Point3(x, y, cosTheta);
-  } else {
-    // PDF = (N+1) * (cos(theta) ^ N) / 2PI * (theta_max / 90)
-    const float cosTheta =
-        POW(1.f - r1 * (1.f - POW(COS(theta_max), N + 1)), 1.f / (N + 1));
-    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
-    const float phi = 2 * M_PI * r2;
-    const float x = sinTheta * COS(phi);
-    const float y = sinTheta * SIN(phi);
-    return Point3(x, y, cosTheta);
-  }
-}
-
-//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
@@ -249,10 +152,10 @@ Point3 SuperSamplerHalton::NewPixelSample()
 Point3 SuperSamplerHalton::NewDofSample(const float R)
 {
   float r1, r2;
-  rng.local()->Get2f(r1, r2);
+  rng->local().Get2f(r1, r2);
   const float r = R * SQRT(r1);
-  const float t = r2 * 2.f * M_PI;
-  return Point3(r * cos(t), r * sin(t), 0.f);
+  const float t = r2 * 2.f * PI;
+  return Point3(r * COS(t), r * SIN(t), 0.f);
 }
 
 void SuperSamplerHalton::Accumulate(const Color3f &localColor)

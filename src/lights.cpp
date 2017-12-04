@@ -48,10 +48,10 @@ Color3f PointLight::Illuminate(const Point3 &p, const Point3 &N) const
     int spp = GenLight::shadow_spp_min, s = 0;
     float inshadow = 0.0f;
     while (s < spp) {
-      const Point3 dir = position + rng.local()->UniformBall(size) - p;
+      const Point3 dir = position + rng->local().UniformBall(size) - p;
       Ray ray(p, dir);
       ray.Normalize();
-      inshadow += (Shadow(ray, glm::length(dir)) - inshadow) *
+      inshadow += (Shadow(ray, length(dir)) - inshadow) *
           InverseSquareFalloff(dir) /
           (float) (s + 1);
       s++;
@@ -62,7 +62,7 @@ Color3f PointLight::Illuminate(const Point3 &p, const Point3 &N) const
     const Point3 dir = position - p;
     Ray ray(p, dir);
     ray.Normalize();
-    return Shadow(ray, glm::length(dir)) *
+    return Shadow(ray, length(dir)) *
         intensity *
         InverseSquareFalloff(dir);
   }

@@ -3,13 +3,22 @@
 set(PID qaray)
 #
 # include sources
-file(GLOB_RECURSE MATH_SRC "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
-file(GLOB_RECURSE CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/core/*")
-file(GLOB_RECURSE FB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/fb/*")
-file(GLOB_RECURSE SAMPLERS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/samplers/*")
-file(GLOB_RECURSE MATERIALS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/materials/*")
-file(GLOB GLOB_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*")
-file(GLOB MAIN "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+file(GLOB_RECURSE MATH_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/math/*")
+file(GLOB_RECURSE TASKING_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/tasking/*")
+file(GLOB_RECURSE CORE_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/core/*")
+file(GLOB_RECURSE FB_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/fb/*")
+file(GLOB_RECURSE SAMPLERS_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/samplers/*")
+file(GLOB_RECURSE MATERIALS_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/materials/*")
+file(GLOB GLOB_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/*")
+file(GLOB MAIN
+    "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 foreach (f ${MAIN})
   list(REMOVE_ITEM GLOB_SRC ${f})
 endforeach ()
@@ -43,12 +52,13 @@ macro(qw_add_library name)
 endmacro()
 #
 # add library
+qw_add_library(tasking)
 qw_add_library(math)
 qw_add_library(core math)
 qw_add_library(fb core math)
 qw_add_library(samplers core math)
 qw_add_library(materials core math)
-qw_add_library(glob materials samplers fb core math)
+qw_add_library(glob materials samplers fb core math tasking)
 #
 # add executable
 add_executable(${PID} ${MAIN})

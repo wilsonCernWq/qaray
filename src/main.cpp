@@ -1,3 +1,4 @@
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -5,16 +6,7 @@
 #include <atomic>      /* C11 */
 #include <algorithm>
 
-#ifdef USE_TBB
-# include <tbb/task_arena.h>
-# include <tbb/task_scheduler_init.h>
-# include <tbb/parallel_for.h>
-# include <tbb/enumerable_thread_specific.h>
-#endif
-
-#ifdef USE_OMP
-# include <omp.h>
-#endif
+#include "tasking/parallel_for.h"
 
 #ifdef USE_MPI
 # include <mpi.h>
@@ -28,7 +20,7 @@
 //#undef USE_OMP
 //#undef USE_MPI
 #pragma warning(disable: 588)
-#define MULTITHREAD 1
+
 //-------------------------------------------------------------------------
 // Parameters
 static float gammaCorrection = 1.0f;
@@ -153,22 +145,15 @@ void ThreadRender()
 #endif
   // Rendering
   if (mpiRank == 0) {
-    printf("\nRunning with %d threads on rank %d\n", threadSize, mpiRank);
+    printf("\nRunning with %d threads on rank %d\n",
+           (int) tasking::get_num_of_threads(), mpiRank);
   }
   const auto tileSta(static_cast<size_t>(mpiRank));
   const auto tileNum(static_cast<size_t>(tileDimX * tileDimY));
   const auto tileStp(static_cast<size_t>(mpiSize));
-#if defined(USE_TBB) && MULTITHREAD
-  tbb::task_scheduler_init init(threadSize); // Explicit number of threads
-  tbb::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
-#else
-# if MULTITHREAD
-#  ifdef USE_OMP
-  omp_set_num_threads(threadSize);
-#endif
-# endif
-  for (size_t k = tileSta; k < tileNum; k += tileStp) {
-#endif
+
+  tasking::init();
+  tasking::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
     const int tileX = static_cast<int>(k % tileDimX);
     const int tileY = static_cast<int>(k / tileDimX);
     const int iStart =
@@ -180,29 +165,15 @@ void ThreadRender()
     const size_t jEnd =
         MIN(pixelRegion[3], (tileY + 1) * tileSize + pixelRegion[1]);
     const size_t numPixels = (iEnd - iStart) * (jEnd - jStart);
-#if defined(USE_TBB) && MULTITHREAD
-    tbb::parallel_for(size_t(0), numPixels, [=](size_t idx) {
-#else
-# if MULTITHREAD
-#   pragma omp parallel for 
-# endif
-      for (size_t idx(0); idx < numPixels; ++idx)
-      {
-#endif
+
+    tasking::parallel_for(size_t(0), numPixels, size_t(1), [=](size_t idx) {
       const size_t j = jStart + idx / (iEnd - iStart);
       const size_t i = iStart + idx % (iEnd - iStart);
       if (!threadStop) { PixelRender(i, j, k); }
-#if defined(USE_TBB) && MULTITHREAD
     });
-#else
-    }
-#endif
+
     renderImage.IncrementNumRenderPixel(numPixels); // thread safe
-#if defined(USE_TBB) && MULTITHREAD
   });
-#else
-  }
-#endif
 //  debug(TBBHaltonRNG.size());
 //  for (TBBHalton::const_iterator i = TBBHaltonRNG.begin();
 //       i != TBBHaltonRNG.end(); ++i) {
@@ -471,18 +442,6 @@ int main(int argc, char **argv)
   mpiPrefix = std::string("rank_") + std::to_string(mpiRank) + "_";
 #endif
 
-#if defined(USE_TBB)
-# if TBB_INTERFACE_VERSION >= 9100
-  threadSize = tbb::this_task_arena::max_concurrency();
-# else
-  threadSize = tbb::task_scheduler_init::default_num_threads();
-# endif
-#elif defined(USE_OMP)
-# pragma omp parallel
-  {
-    threadSize = omp_get_num_threads();
-  }
-#endif
   // Parse CMD arguments
   bool batchmode = false;
   const char *xmlfile = nullptr;
@@ -511,8 +470,7 @@ int main(int argc, char **argv)
     } else if (str == "-srgb") {
       sRGBCorrection = true;
     } else if (str == "-threads") {
-      int tmp = std::atoi(argv[++i]);
-      if (0 < tmp && tmp < threadSize) { threadSize = tmp; }
+      tasking::set_num_of_threads(static_cast<size_t>(std::atoi(argv[++i])));
     } else {
       xmlfile = argv[i];
     }

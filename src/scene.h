@@ -22,17 +22,6 @@
 #include "core/core.h"
 #include "math/math.h"
 
-#ifdef USE_TBB
-# include <tbb/task_arena.h>
-# include <tbb/task_scheduler_init.h>
-# include <tbb/parallel_for.h>
-# include <tbb/enumerable_thread_specific.h>
-#endif
-
-#ifdef USE_OMP
-# include <omp.h>
-#endif
-
 //-----------------------------------------------------------------------------
 
 
@@ -65,17 +54,12 @@
 //  virtual float Get() = 0;
 //};
 
-#ifdef USE_TBB
-typedef tbb::enumerable_thread_specific<Sampler*> TBBSampler;
-extern TBBSampler rng;
-#else
-struct SamplerWrapper {
-  Sampler* engine = nullptr;
-  SamplerWrapper(Sampler* t) : engine(t) {}
-  Sampler* local() { return engine; }
-};
-extern SamplerWrapper rng;
-#endif
+#include "tasking/parallel_for.h"
+#include "samplers/Sampler_Marsaglia.h"
+#include "samplers/Sampler_Halton.h"
+
+typedef tasking::ThreadLocalStorage<Sampler_Marsaglia> ThreadSampler;
+extern ThreadSampler *rng;
 
 //-----------------------------------------------------------------------------
 
