@@ -62,6 +62,9 @@ float LinearToSRGB(const float c)
 }
 
 //-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Render each individual pixel
+//------------------------------------------------------------------------------
 void PixelRender(const int i, const int j, const int tile_idx)
 {
   // initializations

@@ -26,18 +26,16 @@
 ///--------------------------------------------------------------------------//
 
 #include "scene.h"
-#include <random>
 #include <thread>
 
 namespace qaray {
-
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children
 //------------------------------------------------------------------------------
 bool Scene::TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo)
 {
   Ray nodeRay = node.ToNodeCoords(ray);
-  if (node.GetNodeObj() != NULL) {
+  if (node.GetNodeObj() != nullptr) {
     if (node.GetNodeObj()
         ->IntersectRay(nodeRay, hInfo, HIT_FRONT_AND_BACK)) { return true; }
   }
@@ -46,7 +44,6 @@ bool Scene::TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo)
   }
   return false;
 }
-
 //------------------------------------------------------------------------------
 // Trace the ray within this node and all its children
 //------------------------------------------------------------------------------
@@ -57,7 +54,7 @@ bool Scene::TraceNodeNormal(Node &node, DiffRay &ray,
   // We first check if this ray will intersect with the object held by
   // this node
   DiffRay nodeRay = node.ToNodeCoords(ray);
-  if (node.GetNodeObj() != NULL) {
+  if (node.GetNodeObj() != nullptr) {
     if (node.GetNodeObj()->IntersectRay(nodeRay.c, hInfo.c,
                                         HIT_FRONT_AND_BACK,
                                         &nodeRay, &hInfo)) {

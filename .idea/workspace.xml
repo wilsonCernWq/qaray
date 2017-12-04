@@ -2,43 +2,40 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
-      <config projectName="QARAY" targetName="samplers_qaray" />
       <config projectName="QARAY" targetName="lodepng_util" />
+      <config projectName="QARAY" targetName="core_qaray" />
+      <config projectName="QARAY" targetName="textures_qaray" />
+      <config projectName="QARAY" targetName="lodepng" />
+      <config projectName="QARAY" targetName="objects_qaray" />
+      <config projectName="QARAY" targetName="TinyXML" />
+      <config projectName="QARAY" targetName="samplers_qaray" />
       <config projectName="QARAY" targetName="math_qaray" />
       <config projectName="QARAY" targetName="fb_qaray" />
-      <config projectName="QARAY" targetName="core_qaray" />
-      <config projectName="QARAY" targetName="lodepng" />
       <config projectName="QARAY" targetName="qaray" />
       <config projectName="QARAY" targetName="tasking_qaray" />
-      <config projectName="QARAY" targetName="TinyXML" />
-      <config projectName="QARAY" targetName="glob_qaray" />
+      <config projectName="QARAY" targetName="lights_qaray" />
       <config projectName="QARAY" targetName="materials_qaray" />
     </generated>
   </component>
-  <component name="CMakeSettings" AUTO_RELOAD="true">
+  <component name="CMakeSettings">
     <configurations>
       <configuration CONFIG_NAME="Debug" GENERATION_DIR="build" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/core/renderer.cpp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/core/renderer.h" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/fileTemplates/includes/C File Header.h" afterPath="$PROJECT_DIR$/.idea/fileTemplates/includes/C File Header.h" />
+    <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="Create Scene class to contain everything scene related.">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/lights.cpp" afterPath="$PROJECT_DIR$/src/lights/lights.cpp" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/lights.h" afterPath="$PROJECT_DIR$/src/lights/lights.h" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/materials.h" afterPath="$PROJECT_DIR$/src/materials/materials.h" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/objects.cpp" afterPath="$PROJECT_DIR$/src/objects/objects.cpp" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/objects.h" afterPath="$PROJECT_DIR$/src/objects/objects.h" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/texture.cpp" afterPath="$PROJECT_DIR$/src/textures/texture.cpp" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/texture.h" afterPath="$PROJECT_DIR$/src/textures/texture.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/globalvar.cpp" afterPath="$PROJECT_DIR$/src/globalvar.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CMakeLists.txt" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/globalvar.h" afterPath="$PROJECT_DIR$/src/globalvar.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/lights.cpp" afterPath="$PROJECT_DIR$/src/lights.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/objects.cpp" afterPath="$PROJECT_DIR$/src/objects.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/samplers/Sampler_Halton.cpp" afterPath="$PROJECT_DIR$/src/samplers/Sampler_Halton.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/samplers/Sampler_Halton.h" afterPath="$PROJECT_DIR$/src/samplers/Sampler_Halton.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scene.cpp" afterPath="$PROJECT_DIR$/src/scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scene.h" afterPath="$PROJECT_DIR$/src/scene.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/viewport.cpp" afterPath="$PROJECT_DIR$/src/viewport.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/xmlload.cpp" afterPath="$PROJECT_DIR$/src/xmlload.cpp" />
     </list>
@@ -53,109 +50,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main.cpp">
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-283">
-              <caret line="229" column="18" lean-forward="false" selection-start-line="229" selection-start-column="18" selection-end-line="229" selection-end-column="18" />
+            <state relative-caret-position="173">
+              <caret line="51" column="23" lean-forward="false" selection-start-line="51" selection-start-column="23" selection-end-line="51" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-31">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="parallel_for.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
               <folding>
-                <element signature="e#216#238#0" expanded="true" />
+                <element signature="e#2249#2280#0" expanded="true" />
+                <element signature="e#2397#2415#0" expanded="true" />
+                <marker date="1512349095553" expanded="false" signature="3281:3301" ph="&lt;T&gt;" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lights.cpp" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/lights.cpp">
+      <file leaf-file-name="parallel_for.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-255">
-              <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scene.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/scene.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-133">
-              <caret line="86" column="1" lean-forward="false" selection-start-line="86" selection-start-column="1" selection-end-line="86" selection-end-column="1" />
+            <state relative-caret-position="153">
+              <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="28" />
               <folding>
-                <element signature="e#2081#2099#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MtlBlinn_Basic.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="138">
-              <caret line="175" column="30" lean-forward="false" selection-start-line="175" selection-start-column="30" selection-end-line="175" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MtlBlinn_MonteCarloGI.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="172">
-              <caret line="256" column="30" lean-forward="false" selection-start-line="256" selection-start-column="30" selection-end-line="256" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MtlBlinn_PathTracing.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="142">
-              <caret line="288" column="19" lean-forward="false" selection-start-line="288" selection-start-column="19" selection-end-line="288" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MtlPhong_Basic.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="142">
-              <caret line="154" column="26" lean-forward="false" selection-start-line="154" selection-start-column="26" selection-end-line="154" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="viewport.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/viewport.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-7772">
-              <caret line="356" column="38" lean-forward="false" selection-start-line="356" selection-start-column="38" selection-end-line="356" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="xmlload.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/xmlload.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="575" column="19" lean-forward="false" selection-start-line="575" selection-start-column="19" selection-end-line="575" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scene.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/scene.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="97" column="12" lean-forward="true" selection-start-line="97" selection-start-column="12" selection-end-line="97" selection-end-column="12" />
-              <folding>
-                <element signature="e#2139#2158#0" expanded="true" />
-                <element signature="e#2294#2316#0" expanded="true" />
-                <element signature="e#2528#2561#0" expanded="true" />
+                <element signature="e#2122#2150#0" expanded="true" />
+                <element signature="e#2552#2617#0" expanded="true" />
+                <element signature="e#2649#2743#0" expanded="true" />
+                <element signature="e#3310#3342#0" expanded="true" />
+                <element signature="e#3554#3695#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -220,7 +159,6 @@
         <option value="$PROJECT_DIR$/projects/raypacket/core/setup.h" />
         <option value="$PROJECT_DIR$/projects/raypacket/macro.h" />
         <option value="$PROJECT_DIR$/projects/raypacket/math/scalar.h" />
-        <option value="$PROJECT_DIR$/src/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.cpp" />
         <option value="$PROJECT_DIR$/src/core/sampler.h" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.h" />
@@ -233,16 +171,17 @@
         <option value="$PROJECT_DIR$/src/renderer.cpp" />
         <option value="$PROJECT_DIR$/src/samplers/Sampler_Halton.cpp" />
         <option value="$PROJECT_DIR$/src/samplers/Sampler_Halton.h" />
-        <option value="$PROJECT_DIR$/src/scene.cpp" />
-        <option value="$PROJECT_DIR$/src/scene.h" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_MonteCarloGI.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PathTracing.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp" />
         <option value="$PROJECT_DIR$/src/xmlload.cpp" />
         <option value="$PROJECT_DIR$/src/viewport.cpp" />
-        <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/src/lights.cpp" />
+        <option value="$PROJECT_DIR$/src/scene.cpp" />
+        <option value="$PROJECT_DIR$/src/scene.h" />
+        <option value="$PROJECT_DIR$/src/main.cpp" />
+        <option value="$PROJECT_DIR$/src/CMakeLists.txt" />
       </list>
     </option>
   </component>
@@ -303,24 +242,13 @@
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
-              <item name="external" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="qaray" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="qaray" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="samplers" type="462c0819:PsiDirectoryNode" />
+              <item name="fb" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
@@ -336,12 +264,16 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="fileTemplates" />
+    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="SearchEverywhereHistoryKey" value="replace&#9;ACTION&#9;Replace&#10;cmake&#9;ACTION&#9;CMake.ToolsMenu" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/objects" />
+      <recent name="$PROJECT_DIR$/src/lights" />
+      <recent name="$PROJECT_DIR$/src/textures" />
+      <recent name="$PROJECT_DIR$/src/materials" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
@@ -376,7 +308,7 @@
     <configuration name="fb_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="fb_qaray" CONFIG_NAME="Debug">
       <envs />
     </configuration>
-    <configuration name="glob_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="glob_qaray" CONFIG_NAME="Debug">
+    <configuration name="lights_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lights_qaray" CONFIG_NAME="Debug">
       <envs />
     </configuration>
     <configuration name="lodepng" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lodepng" CONFIG_NAME="Debug">
@@ -397,7 +329,7 @@
     <configuration name="math_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="math_qaray" CONFIG_NAME="Debug">
       <envs />
     </configuration>
-    <configuration name="qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="qaray" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="qaray">
+    <configuration name="objects_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="objects_qaray" CONFIG_NAME="Debug">
       <envs />
     </configuration>
     <configuration name="raytracer_prj7" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="$PROJECT_DIR$/inputs/example_project7_object.xml" WORKING_DIR="file://$PROJECT_DIR$/cmake-build-debug" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="raytracer_prj7" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="raytracer_prj7">
@@ -415,21 +347,25 @@
     <configuration name="tasking_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="tasking_qaray" CONFIG_NAME="Debug">
       <envs />
     </configuration>
-    <list size="14">
+    <configuration name="textures_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="textures_qaray" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <list size="15">
       <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
       <item index="1" class="java.lang.String" itemvalue="Application.lodepng" />
       <item index="2" class="java.lang.String" itemvalue="Application.lodepng_util" />
       <item index="3" class="java.lang.String" itemvalue="Application.TinyXML" />
       <item index="4" class="java.lang.String" itemvalue="Application.core_qaray" />
       <item index="5" class="java.lang.String" itemvalue="Application.fb_qaray" />
-      <item index="6" class="java.lang.String" itemvalue="Application.glob_qaray" />
+      <item index="6" class="java.lang.String" itemvalue="Application.lights_qaray" />
       <item index="7" class="java.lang.String" itemvalue="Application.materials_qaray" />
       <item index="8" class="java.lang.String" itemvalue="Application.math_qaray" />
-      <item index="9" class="java.lang.String" itemvalue="Application.qaray" />
+      <item index="9" class="java.lang.String" itemvalue="Application.objects_qaray" />
       <item index="10" class="java.lang.String" itemvalue="Application.samplers_qaray" />
       <item index="11" class="java.lang.String" itemvalue="Application.tasking_qaray" />
-      <item index="12" class="java.lang.String" itemvalue="Application.raytracer_prj7" />
-      <item index="13" class="java.lang.String" itemvalue="Application.raytracer_raypacket" />
+      <item index="12" class="java.lang.String" itemvalue="Application.textures_qaray" />
+      <item index="13" class="java.lang.String" itemvalue="Application.raytracer_prj7" />
+      <item index="14" class="java.lang.String" itemvalue="Application.raytracer_raypacket" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
@@ -473,7 +409,7 @@
       <workItem from="1511654035309" duration="93000" />
       <workItem from="1512262433518" duration="2880000" />
       <workItem from="1512285470024" duration="438000" />
-      <workItem from="1512335386540" duration="12113000" />
+      <workItem from="1512335386540" duration="13945000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -510,11 +446,18 @@
       <option name="project" value="LOCAL" />
       <updated>1512349095915</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Create Scene class to contain everything scene related.">
+      <created>1512351579274</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1512351579274</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="85432000" />
+    <option name="totallyTimeSpent" value="87264000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -530,9 +473,9 @@
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.41591784" sideWeight="0.49236894" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32862645" sideWeight="0.49502322" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3915276" sideWeight="0.49502322" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32862645" sideWeight="0.50497675" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19768934" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5365854" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32862645" sideWeight="0.48971465" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16721964" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -583,7 +526,8 @@
     <MESSAGE value="rename the original core.h to setup.h" />
     <MESSAGE value="Include CLion's configuration files" />
     <MESSAGE value="Split multi-threading into tasking/parallel_for.h" />
-    <option name="LAST_COMMIT_MESSAGE" value="Split multi-threading into tasking/parallel_for.h" />
+    <MESSAGE value="Create Scene class to contain everything scene related." />
+    <option name="LAST_COMMIT_MESSAGE" value="Create Scene class to contain everything scene related." />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -600,8 +544,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/projects/raypacket/math/math.h" />
-    <entry file="file://$PROJECT_DIR$/projects/raypacket/core/box.h" />
     <entry file="file:///usr/include/x86_64-linux-gnu/bits/mathcalls.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="250">
@@ -620,10 +562,11 @@
     <entry file="file://$PROJECT_DIR$/projects/raypacket/scene.h" />
     <entry file="file://$PROJECT_DIR$/projects/raypacket/xmlload.h" />
     <entry file="file://$PROJECT_DIR$/projects/raypacket/xmlload.cpp" />
-    <entry file="file://$PROJECT_DIR$/src/texture.cpp">
+    <entry file="file://$PROJECT_DIR$/src/textures/texture.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -643,41 +586,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-49">
-          <caret line="47" column="37" lean-forward="true" selection-start-line="47" selection-start-column="37" selection-end-line="47" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/software/tbb2017_20170604oss/include/tbb/enumerable_thread_specific.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-4578">
           <caret line="765" column="10" lean-forward="false" selection-start-line="765" selection-start-column="10" selection-end-line="765" selection-end-column="10" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="28" />
-          <folding>
-            <marker date="1512349095521" expanded="true" signature="2132:2219" ph="..." />
-            <marker date="1512349095521" expanded="true" signature="2552:2617" ph="..." />
-            <marker date="1512349095521" expanded="true" signature="2649:2743" ph="..." />
-            <marker date="1512349095521" expanded="true" signature="3310:3342" ph="..." />
-            <marker date="1512349095521" expanded="true" signature="3554:3695" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -707,20 +620,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-17">
-          <caret line="35" column="23" lean-forward="false" selection-start-line="35" selection-start-column="23" selection-end-line="35" selection-end-column="23" />
-          <folding>
-            <element signature="e#2249#2280#0" expanded="false" />
-            <element signature="e#2747#2759#0" expanded="false" />
-            <element signature="e#2950#3427#0" expanded="false" />
-            <marker date="1512349095553" expanded="false" signature="3281:3301" ph="&lt;T&gt;" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/objects.cpp">
+    <entry file="file://$PROJECT_DIR$/src/objects/objects.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1600">
           <caret line="122" column="70" lean-forward="false" selection-start-line="122" selection-start-column="70" selection-end-line="122" selection-end-column="70" />
@@ -744,7 +644,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lights.h">
+    <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-255">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -852,28 +752,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/scene.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="97" column="12" lean-forward="true" selection-start-line="97" selection-start-column="12" selection-end-line="97" selection-end-column="12" />
-          <folding>
-            <element signature="e#2139#2158#0" expanded="true" />
-            <element signature="e#2294#2316#0" expanded="true" />
-            <element signature="e#2528#2561#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/scene.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-133">
-          <caret line="86" column="1" lean-forward="false" selection-start-line="86" selection-start-column="1" selection-end-line="86" selection-end-column="1" />
-          <folding>
-            <element signature="e#2081#2099#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_Basic.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="138">
@@ -909,7 +787,7 @@
     <entry file="file://$PROJECT_DIR$/src/xmlload.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
-          <caret line="575" column="19" lean-forward="false" selection-start-line="575" selection-start-column="19" selection-end-line="575" selection-end-column="19" />
+          <caret line="576" column="19" lean-forward="false" selection-start-line="576" selection-start-column="19" selection-end-line="576" selection-end-column="19" />
           <folding />
         </state>
       </provider>
@@ -917,25 +795,107 @@
     <entry file="file://$PROJECT_DIR$/src/viewport.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-7772">
-          <caret line="356" column="38" lean-forward="false" selection-start-line="356" selection-start-column="38" selection-end-line="356" selection-end-column="38" />
+          <caret line="359" column="38" lean-forward="false" selection-start-line="359" selection-start-column="38" selection-end-line="359" selection-end-column="38" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="52" column="57" lean-forward="true" selection-start-line="52" selection-start-column="57" selection-end-line="52" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cmake/common.cmake">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-765">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/fb/framebuffer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="28" column="9" lean-forward="true" selection-start-line="28" selection-start-column="9" selection-end-line="28" selection-end-column="9" />
+          <folding>
+            <element signature="e#2094#2111#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="28" />
+          <folding>
+            <element signature="e#2122#2150#0" expanded="true" />
+            <element signature="e#2552#2617#0" expanded="true" />
+            <element signature="e#2649#2743#0" expanded="true" />
+            <element signature="e#3310#3342#0" expanded="true" />
+            <element signature="e#3554#3695#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/scene.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="63" column="2" lean-forward="false" selection-start-line="63" selection-start-column="2" selection-end-line="63" selection-end-column="2" />
+          <folding>
+            <element signature="e#2139#2158#0" expanded="true" />
+            <element signature="e#2294#2316#0" expanded="true" />
+            <element signature="e#2528#2561#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/scene.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="343">
+          <caret line="109" column="31" lean-forward="false" selection-start-line="109" selection-start-column="31" selection-end-line="109" selection-end-column="31" />
+          <folding>
+            <element signature="e#2081#2099#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-283">
-          <caret line="229" column="18" lean-forward="false" selection-start-line="229" selection-start-column="18" selection-end-line="229" selection-end-column="18" />
+        <state relative-caret-position="142">
+          <caret line="67" column="5" lean-forward="false" selection-start-line="67" selection-start-column="5" selection-end-line="67" selection-end-column="5" />
           <folding>
             <element signature="e#216#238#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lights.cpp">
+    <entry file="file://$PROJECT_DIR$/src/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-255">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+        <state relative-caret-position="173">
+          <caret line="51" column="23" lean-forward="false" selection-start-line="51" selection-start-column="23" selection-end-line="51" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding>
+            <element signature="e#2249#2280#0" expanded="true" />
+            <element signature="e#2397#2415#0" expanded="true" />
+            <marker date="1512349095553" expanded="false" signature="3281:3301" ph="&lt;T&gt;" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-31">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
