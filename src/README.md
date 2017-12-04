@@ -17,17 +17,24 @@
 
 # How to compile the code
 
-If you want to use TBB's dynamic task scheduling system for multithreading, but don't have TBB installed, you need to download TBB from https://github.com/01org/tbb/releases. After extracting the library into a folder, you should pass the directory to CMake using `TBB_ROOT` variable.
+If you want to use TBB's dynamic task scheduling system for
+multi-threading, but don't have TBB installed, you need to download
+TBB from [here](https://github.com/01org/tbb/releases).
+After extracting the library into a folder, you should pass the
+directory to CMake using `TBB_ROOT` variable.
 
-If you are building the program for local usage with OpenGL, you will want to enable the `ENABLE_GUI` flag for CMake. Otherwise you should disable it.
+If you are building the program for local usage with OpenGL, you
+will want to enable the `ENABLE_GUI` flag for CMake. Otherwise
+you should disable it.
 
-If you are building the program for cluster, you can enable the `ENABLE_MPI` flag for CMake
+If you are building the program for cluster, you can enable the
+`ENABLE_MPI` flag for CMake
 
 ```
 mkdir build
 cd build
 ccmake .. \
-       -DCMAKE_BUILD_TYPE=Release -DENABLE_PACKET_PROJECT=ON \
+       -DCMAKE_BUILD_TYPE=Release \
        -DTBB_ROOT=</path/to/your/tbb/folder> 
 make -j8
 ```
@@ -36,5 +43,5 @@ make -j8
 
 ```
 cd build
-./projects/raypacket/raytracer_raypacket ../projects/raypacket/inputs/example_Blinn.xml
+./qaray </path/to/the/input>
 ```

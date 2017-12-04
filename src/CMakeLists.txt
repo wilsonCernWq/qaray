@@ -57,10 +57,10 @@ qw_add_library(lights scene core math)
 qw_add_library(materials scene core math)
 qw_add_library(objects scene core math)
 qw_add_library(textures scene core math)
-qw_add_library(gui
-    lights materials objects textures scene samplers core math)
 qw_add_library(parser
     lights materials objects textures scene samplers core math)
+qw_add_library(renderers
+    lights materials objects textures scene samplers core fb math)
 #
 # search for executable source files
 #

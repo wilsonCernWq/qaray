@@ -19,8 +19,6 @@
 #include "objects/objects.h"
 #include "materials/materials.h"
 #include "textures/texture.h"
-#include <cstdlib>
-#include <chrono>
 
 #ifdef USE_GUI
 # ifdef USE_GLUT
@@ -30,11 +28,28 @@
 #   include <GL/glut.h>
 #  endif
 # else
-
 #  include <GL/freeglut.h>
-
 # endif
 #endif
+
+//------------------------------------------------------------------------------
+
+Renderer_GUI* renderer;
+
+//! Register Renderer
+void RegisterRenderer(Renderer_GUI& r) { renderer = &r; };
+
+// Called to start rendering (renderer must run in a separate thread)
+void BeginRender() { renderer->BeginRender(); }
+
+// Called to end rendering (if it is not already finished)
+void StopRender() { renderer->StopRender(); };
+
+// Called when the rendering is end successfully
+void CleanRender() { renderer->CleanRender(); }
+
+// Called when the program is stopped
+void KillRender() { renderer->KillRender(); }
 
 //------------------------------------------------------------------------------
 
@@ -59,11 +74,13 @@ enum MouseMode {
 };
 
 #ifdef USE_GUI
-static Mode mode = MODE_READY;    // Rendering mode
-static ViewMode viewMode = VIEWMODE_OPENGL;  // Display mode
+static Mode mode = MODE_READY; // Rendering mode
+static ViewMode  viewMode = VIEWMODE_OPENGL;  // Display mode
 static MouseMode mouseMode = MOUSEMODE_NONE;  // Mouse mode
-static int mouseX = 0, mouseY = 0;
-static float viewAngle1 = 0, viewAngle2 = 0;
+static int mouseX = 0;
+static int mouseY = 0;
+static float  viewAngle1 = 0;
+static float  viewAngle2 = 0;
 static GLuint viewTexture;
 static int dofDrawCount = 0;
 static Color3f *dofImage = NULL;
@@ -116,7 +133,6 @@ void ShowViewport()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
   glEnable(GL_NORMALIZE);
   glLineWidth(2);
-
   if (scene.camera.depthOfField > 0) {
     dofBuffer = new Color3c[scene.camera.imgWidth * scene.camera.imgHeight];
     dofImage = new Color3f[scene.camera.imgWidth * scene.camera.imgHeight];
@@ -124,7 +140,6 @@ void ShowViewport()
            0,
            scene.camera.imgWidth * scene.camera.imgHeight * sizeof(Color3f));
   }
-
   glGenTextures(1, &viewTexture);
   glBindTexture(GL_TEXTURE_2D, viewTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

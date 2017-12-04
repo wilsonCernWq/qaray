@@ -9,23 +9,16 @@
 ///
 //------------------------------------------------------------------------------
 
+#ifndef QARAY_VIEWPORT_H
+#define QARAY_VIEWPORT_H
 #pragma once
-#ifndef _VIEWPORT_H_
-#define _VIEWPORT_H_
 
-// Called to start rendering (renderer must run in a separate thread)
-void BeginRender();
+#include "renderers/Renderer_GUI.h"
 
-// Called to end rendering (if it is not already finished)
-void StopRender();
-
-// Called when the rendering is end successfully
-void CleanRender();
-
-// Called when the program is stopped
-void KillRender();
+//! Register Renderer
+void RegisterRenderer(Renderer_GUI& r);
 
 // Show OpenGL PreView Window
 void ShowViewport();
 
-#endif//_VIEWPORT_H_
+#endif//QARAY_VIEWPORT_H

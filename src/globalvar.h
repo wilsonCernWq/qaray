@@ -13,12 +13,7 @@
 #ifndef _GLOBALVAR_H_
 #define _GLOBALVAR_H_
 
-enum TimeState {
-  START_FRAME, STOP_FRAME, KILL_FRAME
-};
 
-//------------------------------------------------------------------------------
-void TimeFrame(TimeState state);
 
 //------------------------------------------------------------------------------
 // unique
