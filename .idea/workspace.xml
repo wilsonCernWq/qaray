@@ -28,7 +28,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="new input">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/inputs/example_project13_example.xml" afterPath="$PROJECT_DIR$/inputs/example_project13_example.xml" />
+      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.h" afterPath="$PROJECT_DIR$/src/renderers/renderer.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -55,11 +56,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="false">
+      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-286">
-              <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
+            <state relative-caret-position="54">
+              <caret line="54" column="38" lean-forward="false" selection-start-line="54" selection-start-column="38" selection-end-line="54" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -68,7 +69,7 @@
       <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
+            <state relative-caret-position="-692">
               <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
               <folding>
                 <element signature="e#2080#2111#0" expanded="true" />
@@ -90,7 +91,7 @@
       <file leaf-file-name="lights.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
+            <state relative-caret-position="651">
               <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
               <folding />
             </state>
@@ -109,10 +110,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="parallel_for.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="parallel_for.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
+            <state relative-caret-position="-556">
               <caret line="32" column="30" lean-forward="false" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
               <folding>
                 <element signature="e#2249#2280#0" expanded="true" />
@@ -162,7 +163,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/samplers/sampler_selection.h" />
         <option value="$PROJECT_DIR$/src/scene.cpp" />
         <option value="$PROJECT_DIR$/src/samplers/sampler_selection.cpp" />
         <option value="$PROJECT_DIR$/src/objects/objects.h" />
@@ -208,11 +208,12 @@
         <option value="$PROJECT_DIR$/src/core/material.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.h" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_glossy.xml" />
-        <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.h" />
+        <option value="$PROJECT_DIR$/inputs/example_project13_example.xml" />
+        <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
       </list>
     </option>
   </component>
@@ -470,7 +471,7 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="21501000" />
+      <workItem from="1512441381857" duration="21592000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -553,7 +554,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="132549000" />
+    <option name="totallyTimeSpent" value="132640000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -633,13 +634,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/objects/objects.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlPhong_Basic.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -1013,26 +1007,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-286">
-          <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-46">
           <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1055,19 +1033,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
-          <folding>
-            <element signature="e#2080#2111#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
+        <state relative-caret-position="-556">
           <caret line="32" column="30" lean-forward="false" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
           <folding>
             <element signature="e#2249#2280#0" expanded="true" />
@@ -1075,6 +1043,40 @@
             <element signature="e#2747#2759#0" expanded="true" />
             <element signature="e#2950#3427#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/inputs/example_project13_example.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="30" column="44" lean-forward="false" selection-start-line="30" selection-start-column="44" selection-end-line="30" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="651">
+          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-692">
+          <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
+          <folding>
+            <element signature="e#2080#2111#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="54" column="38" lean-forward="false" selection-start-line="54" selection-start-column="38" selection-end-line="54" selection-end-column="38" />
+          <folding />
         </state>
       </provider>
     </entry>
