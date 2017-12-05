@@ -198,20 +198,19 @@ const
     Point3 sampleDir(0.f);
     bool doShade = false;
     //
-    // Select a BxDF
+    // Select a BxDF & PDF
     //
     float PDF = 1.f;
     Color3f BxDF(0.f);
     /* Refraction */
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
-
       if (refractionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
         const Point3
             sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
-        PDF = coefRefraction * RCP_PI;
+        PDF = coefRefraction;
         /* BSDF */
         const Point3 L = normalize(sampleDir);
         const Point3 H = tDir;
@@ -261,7 +260,7 @@ const
               sample = normalize(rng->local().CosWeightedHemisphere());
           sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
           /* PDF */
-          PDF = coefSpecular * RCP_PI;
+          PDF = coefSpecular;
           /* BRDF */
           const Point3 L = normalize(sampleDir);
           const Point3 H = normalize(V + L);
@@ -279,7 +278,7 @@ const
             sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefDiffuse * RCP_PI;
+        PDF = coefDiffuse;
         /* BRDF */
         BxDF = sampleDiffuse;
         doShade = true;
@@ -318,47 +317,26 @@ bool MtlBlinn_PhotonMap::RandomPhotonBounce(DiffRay &ray, Color3f &c,
                                             const DiffHitInfo &hInfo)
 const
 {
-  Color3f color = hInfo.c.hasTexture ?
-                  emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
-                  emission.GetColor();
   // Surface Normal In World Coordinate
   // Ray Incoming Direction
-  // X Differential Ray Incoming Direction
-  // Y Differential Ray Incoming Direction
   // Surface Position in World Coordinate
-  const auto N = normalize(hInfo.c.N);
-  const auto V = normalize(-ray.c.dir);
-  const auto Vx = normalize(-ray.x.dir);
-  const auto Vy = normalize(-ray.y.dir);
+  const auto N = hInfo.c.N;
+  const auto V = -ray.c.dir;
   const auto p = hInfo.c.p;
-  const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
-  const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
   // Local Coordinate Frame
   //
-  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Y = dot(N, V) > 0.f ? N : -N; // Vy
   const auto Z = cross(V, Y);
-  const auto X = normalize(cross(Y, Z)); // Vx
+  const auto X = normalize(cross(Y, Z));   // Vx
   //
-  // Index of Refraction
   //
-  const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
-  const float cosI = dot(N, V);
-  const float sinI = SQRT(1 - cosI * cosI);
-  const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
-  const float cosO = SQRT(1.f - sinO * sinO);
-  const Point3 tDir = -X * sinO - Y * cosO;           // Transmission
-  const Point3 rDir = 2.f * N * (dot(N, V)) - V; // Reflection
   //
-  // Reflection and Transmission coefficients
-  //
-  const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
-  const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
-  const float tC = 1.f - rC;
+  Point3 tDir, rDir; float tC, rC;
+  const bool totReflection = ComputeFresnel(ray, hInfo, tDir, rDir, tC, rC);
   //
   // Reflection and Transmission Colors
   //
-  const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
   const Color3f tK =
       hInfo.c.hasTexture ?
       refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
@@ -375,6 +353,8 @@ const
       hInfo.c.hasTexture ?
       specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
       specular.GetColor();
+  //
+  //
   //
   float select;
   rng->local().Get1f(select);
@@ -394,15 +374,15 @@ const
   //
   //
   // Coordinate Frame for the Hemisphere
+  //
   const Point3 nZ = Y;
   const Point3 nY = (ABS(nZ.x) > ABS(nZ.y)) ?
                     normalize(Point3(nZ.z, 0, -nZ.x)) :
                     normalize(Point3(0, -nZ.z, nZ.y));
   const Point3 nX = normalize(cross(nY, nZ));
   Point3 sampleDir(0.f);
-  bool doShade = false;
   Color3f BxDF(0.f);
-
+  bool doShade = false;
   /* Refraction */
   if (select <= sumRefraction && coefRefraction > 1e-6f) {
     if (refractionGlossiness > glossiness_power_threshold) {
