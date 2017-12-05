@@ -169,6 +169,8 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
                    ++numPhotonsRec;
                  }
                  else { bounce = param.photonMapBounce; }
+                 ray.Normalize();
+                 hInfo.Init();
                } else { bounce = param.photonMapBounce; }
              }
            }

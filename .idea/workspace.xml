@@ -28,7 +28,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.h" afterPath="$PROJECT_DIR$/src/renderers/renderer.h" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
+      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.cpp" afterPath="$PROJECT_DIR$/src/renderers/renderer.cpp" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -43,11 +45,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="renderer.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="renderer.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-208">
-              <caret line="142" column="12" lean-forward="false" selection-start-line="142" selection-start-column="12" selection-end-line="142" selection-end-column="12" />
+            <state relative-caret-position="506">
+              <caret line="172" column="30" lean-forward="false" selection-start-line="172" selection-start-column="30" selection-end-line="172" selection-end-column="30" />
               <folding>
                 <element signature="e#2081#2102#0" expanded="true" />
               </folding>
@@ -58,8 +60,8 @@
       <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="481" column="25" lean-forward="false" selection-start-line="481" selection-start-column="25" selection-end-line="481" selection-end-column="25" />
+            <state relative-caret-position="138">
+              <caret line="195" column="42" lean-forward="false" selection-start-line="195" selection-start-column="42" selection-end-line="195" selection-end-column="42" />
               <folding>
                 <element signature="e#2080#2111#0" expanded="true" />
               </folding>
@@ -67,7 +69,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PhotonMapViz.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/exe/PhotonMapViz.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2652">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="291">
@@ -92,7 +104,7 @@
       <file leaf-file-name="parallel_for.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
+            <state relative-caret-position="-508">
               <caret line="31" column="27" lean-forward="false" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
               <folding>
                 <element signature="e#2249#2280#0" expanded="true" />
@@ -189,9 +201,9 @@
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_glossy.xml" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.h" />
-        <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
-        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
+        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
+        <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
       </list>
     </option>
   </component>
@@ -253,6 +265,12 @@
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="qaray" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="exe" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
@@ -432,7 +450,7 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="19462000" />
+      <workItem from="1512441381857" duration="19906000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -508,7 +526,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="130510000" />
+    <option name="totallyTimeSpent" value="130954000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -582,13 +600,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/samplers/sampler_selection.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="30" column="79" lean-forward="false" selection-start-line="30" selection-start-column="79" selection-end-line="30" selection-end-column="79" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/objects/objects.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -719,6 +730,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="697">
           <caret line="47" column="1" lean-forward="false" selection-start-line="47" selection-start-column="1" selection-end-line="47" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#17#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -783,6 +797,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="36" column="17" lean-forward="false" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -971,25 +986,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="31" column="27" lean-forward="false" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
-          <folding>
-            <element signature="e#2249#2280#0" expanded="true" />
-            <element signature="e#2747#2759#0" expanded="true" />
-            <element signature="e#2950#3427#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-208">
-          <caret line="142" column="12" lean-forward="false" selection-start-line="142" selection-start-column="12" selection-end-line="142" selection-end-column="12" />
-          <folding>
-            <element signature="e#2081#2102#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="291">
+          <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1003,21 +1004,43 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-508">
+          <caret line="31" column="27" lean-forward="false" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+          <folding>
+            <element signature="e#2249#2280#0" expanded="true" />
+            <element signature="e#2747#2759#0" expanded="true" />
+            <element signature="e#2950#3427#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/exe/PhotonMapViz.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2652">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="481" column="25" lean-forward="false" selection-start-line="481" selection-start-column="25" selection-end-line="481" selection-end-column="25" />
+        <state relative-caret-position="138">
+          <caret line="195" column="42" lean-forward="false" selection-start-line="195" selection-start-column="42" selection-end-line="195" selection-end-column="42" />
           <folding>
             <element signature="e#2080#2111#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
-          <folding />
+        <state relative-caret-position="506">
+          <caret line="172" column="30" lean-forward="false" selection-start-line="172" selection-start-column="30" selection-end-line="172" selection-end-column="30" />
+          <folding>
+            <element signature="e#2081#2102#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

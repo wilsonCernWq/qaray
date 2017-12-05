@@ -193,7 +193,7 @@ const
     cyPoint3f cypos(p.x, p.y, p.z);
     cyPoint3f cyNor(N.x, N.y, N.z);
     const float radius = 0.5f;
-    scene.photonmap.EstimateIrradiance<1000>
+    scene.photonmap.EstimateIrradiance<100>
         (irrad, direction, radius, cypos, &cyNor);
     // shade
     Color3f intensity(irrad.r, irrad.g, irrad.b);
