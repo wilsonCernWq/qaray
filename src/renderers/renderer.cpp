@@ -147,18 +147,15 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
                light = photonLights[0];
                id = 1;
              } else {
-               float r;
-               rng->local().Get1f(r);
-               auto it = std::upper_bound(photonValues.begin(),
-                                          photonValues.end(),
-                                          r);
+               float r; rng->local().Get1f(r);
+               auto it = std::upper_bound(photonValues.begin(), photonValues.end(), r);
                id = it - photonValues.begin();
                light = photonLights[id - 1];
              }
              //! generate one photons
              ++numPhotonsGen;
              DiffRay ray = light->RandomPhoton(); ray.Normalize();
-             DiffHitInfo hInfo;hInfo.c.z = BIGFLOAT;
+             DiffHitInfo hInfo; hInfo.c.z = BIGFLOAT;
              Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
              //! trace photon
              size_t bounce = 0;
@@ -188,10 +185,10 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
          });
     scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
     scene->photonmap.PrepareForIrradianceEstimation();
-    FILE *fp=fopen("photonmap.dat","wb");
-    fwrite(scene->photonmap.GetPhotons(),sizeof(cyPhotonMap::Photon),
-           scene->photonmap.NumPhotons(),fp);
-    fclose(fp);
+//    FILE *fp=fopen("photonmap.dat","wb");
+//    fwrite(scene->photonmap.GetPhotons(),sizeof(cyPhotonMap::Photon),
+//           scene->photonmap.NumPhotons(),fp);
+//    fclose(fp);
   }
 #endif
 };

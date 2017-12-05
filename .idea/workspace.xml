@@ -2,34 +2,37 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
+      <config projectName="QARAY" targetName="lodepng_util" />
       <config projectName="QARAY" targetName="scene_qaray" />
-      <config projectName="QARAY" targetName="lodepng" />
-      <config projectName="QARAY" targetName="renderers_qaray" />
       <config projectName="QARAY" targetName="textures_qaray" />
+      <config projectName="QARAY" targetName="core_qaray" />
+      <config projectName="QARAY" targetName="parser_qaray" />
+      <config projectName="QARAY" targetName="lodepng" />
+      <config projectName="QARAY" targetName="objects_qaray" />
+      <config projectName="QARAY" targetName="renderers_qaray" />
       <config projectName="QARAY" targetName="photon_vis_qaray" />
+      <config projectName="QARAY" targetName="TinyXML" />
+      <config projectName="QARAY" targetName="samplers_qaray" />
+      <config projectName="QARAY" targetName="math_qaray" />
+      <config projectName="QARAY" targetName="fb_qaray" />
+      <config projectName="QARAY" targetName="qaray" />
       <config projectName="QARAY" targetName="tasking_qaray" />
       <config projectName="QARAY" targetName="lights_qaray" />
       <config projectName="QARAY" targetName="materials_qaray" />
-      <config projectName="QARAY" targetName="objects_qaray" />
-      <config projectName="QARAY" targetName="core_qaray" />
-      <config projectName="QARAY" targetName="qaray" />
-      <config projectName="QARAY" targetName="fb_qaray" />
-      <config projectName="QARAY" targetName="math_qaray" />
-      <config projectName="QARAY" targetName="TinyXML" />
-      <config projectName="QARAY" targetName="lodepng_util" />
-      <config projectName="QARAY" targetName="samplers_qaray" />
-      <config projectName="QARAY" targetName="parser_qaray" />
     </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" GENERATION_DIR="build" />
+      <configuration PROFILE_NAME="RelWithDebInfo" CONFIG_NAME="RelWithDebInfo" GENERATION_DIR="build" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="new input">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/src/core/material.cpp" afterPath="$PROJECT_DIR$/src/core/material.cpp" />
       <change beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
+      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.cpp" afterPath="$PROJECT_DIR$/src/renderers/renderer.cpp" />
+      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.h" afterPath="$PROJECT_DIR$/src/renderers/renderer.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -41,14 +44,14 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:RelWithDebInfo" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="renderer.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="529">
-              <caret line="188" column="58" lean-forward="false" selection-start-line="188" selection-start-column="45" selection-end-line="188" selection-end-column="58" />
+            <state relative-caret-position="255">
+              <caret line="148" column="21" lean-forward="true" selection-start-line="148" selection-start-column="21" selection-end-line="148" selection-end-column="21" />
               <folding>
                 <element signature="e#2081#2102#0" expanded="true" />
               </folding>
@@ -59,8 +62,8 @@
       <file leaf-file-name="renderer.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-474">
-              <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
+            <state relative-caret-position="255">
+              <caret line="63" column="23" lean-forward="false" selection-start-line="63" selection-start-column="23" selection-end-line="63" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -69,8 +72,8 @@
       <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
-              <caret line="213" column="26" lean-forward="false" selection-start-line="213" selection-start-column="26" selection-end-line="213" selection-end-column="26" />
+            <state relative-caret-position="291">
+              <caret line="246" column="17" lean-forward="true" selection-start-line="246" selection-start-column="17" selection-end-line="246" selection-end-column="17" />
               <folding>
                 <element signature="e#2080#2111#0" expanded="true" />
               </folding>
@@ -78,20 +81,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="material.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="lights.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
+            <state relative-caret-position="821">
               <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
               <folding />
             </state>
@@ -101,7 +94,7 @@
       <file leaf-file-name="lights.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="447">
+            <state relative-caret-position="461">
               <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
               <folding />
             </state>
@@ -111,11 +104,12 @@
       <file leaf-file-name="cyPhotonMap.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/external/cyCodeBase/cyPhotonMap.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-341">
-              <caret line="328" column="23" lean-forward="false" selection-start-line="328" selection-start-column="13" selection-end-line="328" selection-end-column="23" />
+            <state relative-caret-position="391">
+              <caret line="41" column="25" lean-forward="false" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="25" />
               <folding>
                 <element signature="e#666#683#0" expanded="true" />
                 <element signature="e#3234#3250#0" expanded="true" />
+                <element signature="e#10198#10214#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -124,7 +118,7 @@
       <file leaf-file-name="parallel_for.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-556">
+            <state relative-caret-position="544">
               <caret line="32" column="30" lean-forward="false" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
               <folding>
                 <element signature="e#2249#2280#0" expanded="true" />
@@ -222,10 +216,10 @@
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.h" />
         <option value="$PROJECT_DIR$/inputs/example_project13_example.xml" />
+        <option value="$PROJECT_DIR$/src/core/material.cpp" />
+        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
-        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
-        <option value="$PROJECT_DIR$/src/core/material.cpp" />
       </list>
     </option>
   </component>
@@ -237,10 +231,10 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="51" />
-    <option name="y" value="-4" />
-    <option name="width" value="1549" />
-    <option name="height" value="904" />
+    <option name="x" value="50" />
+    <option name="y" value="-11" />
+    <option name="width" value="1551" />
+    <option name="height" value="912" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -358,70 +352,70 @@
     </option>
   </component>
   <component name="RunManager" selected="Application.Run ">
-    <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
+    <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="RelWithDebInfo" EXPLICIT_BUILD_TARGET_NAME="all">
       <envs />
       <method>
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration name="Run " type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="../inputs/example_project13_example.xml" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="qaray" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="qaray">
+    <configuration name="Run " type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="../inputs/example_project13_example.xml" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="qaray" CONFIG_NAME="RelWithDebInfo" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="qaray">
       <envs />
     </configuration>
-    <configuration name="TinyXML" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="TinyXML" CONFIG_NAME="Debug">
-      <envs />
-      <method>
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration name="core_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="core_qaray" CONFIG_NAME="Debug">
-      <envs />
-    </configuration>
-    <configuration name="fb_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="fb_qaray" CONFIG_NAME="Debug">
-      <envs />
-    </configuration>
-    <configuration name="lights_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lights_qaray" CONFIG_NAME="Debug">
-      <envs />
-    </configuration>
-    <configuration name="lodepng" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lodepng" CONFIG_NAME="Debug">
+    <configuration name="TinyXML" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="TinyXML" CONFIG_NAME="RelWithDebInfo">
       <envs />
       <method>
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration name="lodepng_util" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lodepng_util" CONFIG_NAME="Debug">
+    <configuration name="core_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="core_qaray" CONFIG_NAME="RelWithDebInfo">
+      <envs />
+    </configuration>
+    <configuration name="fb_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="fb_qaray" CONFIG_NAME="RelWithDebInfo">
+      <envs />
+    </configuration>
+    <configuration name="lights_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lights_qaray" CONFIG_NAME="RelWithDebInfo">
+      <envs />
+    </configuration>
+    <configuration name="lodepng" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lodepng" CONFIG_NAME="RelWithDebInfo">
       <envs />
       <method>
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration name="materials_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="materials_qaray" CONFIG_NAME="Debug">
+    <configuration name="lodepng_util" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="lodepng_util" CONFIG_NAME="RelWithDebInfo">
+      <envs />
+      <method>
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration name="materials_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="materials_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="math_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="math_qaray" CONFIG_NAME="Debug">
+    <configuration name="math_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="math_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="objects_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="objects_qaray" CONFIG_NAME="Debug">
+    <configuration name="objects_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="objects_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="parser_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="parser_qaray" CONFIG_NAME="Debug">
+    <configuration name="parser_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="parser_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="photon_vis_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="photon_vis_qaray" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="photon_vis_qaray">
+    <configuration name="photon_vis_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="photon_vis_qaray" CONFIG_NAME="RelWithDebInfo" RUN_TARGET_PROJECT_NAME="QARAY" RUN_TARGET_NAME="photon_vis_qaray">
       <envs />
     </configuration>
-    <configuration name="renderers_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="renderers_qaray" CONFIG_NAME="Debug">
+    <configuration name="renderers_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="renderers_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="samplers_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="samplers_qaray" CONFIG_NAME="Debug">
+    <configuration name="samplers_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="samplers_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="scene_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="scene_qaray" CONFIG_NAME="Debug">
+    <configuration name="scene_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="scene_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="tasking_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="tasking_qaray" CONFIG_NAME="Debug">
+    <configuration name="tasking_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="tasking_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
-    <configuration name="textures_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="textures_qaray" CONFIG_NAME="Debug">
+    <configuration name="textures_qaray" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QARAY" TARGET_NAME="textures_qaray" CONFIG_NAME="RelWithDebInfo">
       <envs />
     </configuration>
     <list size="18">
@@ -490,7 +484,8 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="23491000" />
+      <workItem from="1512441381857" duration="23747000" />
+      <workItem from="1512493147590" duration="3549000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -573,7 +568,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="134539000" />
+    <option name="totallyTimeSpent" value="138344000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -585,7 +580,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="51" y="-4" width="1549" height="904" extended-state="6" />
+    <frame x="50" y="-11" width="1551" height="912" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16557592" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -593,7 +588,6 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32220796" sideWeight="0.49236894" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18613607" sideWeight="0.49502322" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32862645" sideWeight="0.50497675" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25930682" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24133505" sideWeight="0.48971465" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -605,6 +599,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -643,7 +638,6 @@
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
-        <watch expression="" />
         <watch expression="c" />
       </configuration>
     </watches-manager>
@@ -653,11 +647,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="32" lean-forward="false" selection-start-line="1" selection-start-column="32" selection-end-line="1" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/README.md">
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="663">
@@ -667,12 +666,6 @@
           <second_editor>
             <js_state />
           </second_editor>
-        </state>
-      </provider>
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -690,7 +683,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="428">
           <caret line="28" column="0" lean-forward="true" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -757,7 +749,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="43" column="6" lean-forward="false" selection-start-line="43" selection-start-column="6" selection-end-line="43" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -772,9 +763,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="697">
           <caret line="47" column="1" lean-forward="false" selection-start-line="47" selection-start-column="1" selection-end-line="47" selection-end-column="1" />
-          <folding>
-            <element signature="e#0#17#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -808,7 +796,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="21">
           <caret line="58" column="16" lean-forward="false" selection-start-line="58" selection-start-column="16" selection-end-line="58" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -816,7 +803,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="242">
           <caret line="47" column="10" lean-forward="false" selection-start-line="47" selection-start-column="10" selection-end-line="47" selection-end-column="10" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -831,7 +817,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-626">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -876,7 +861,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="630">
           <caret line="53" column="1" lean-forward="false" selection-start-line="53" selection-start-column="1" selection-end-line="53" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -892,7 +876,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -900,7 +883,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1581">
           <caret line="65" column="0" lean-forward="false" selection-start-line="65" selection-start-column="0" selection-end-line="75" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -916,7 +898,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="139">
           <caret line="20" column="16" lean-forward="true" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -924,7 +905,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="122">
           <caret line="89" column="7" lean-forward="false" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -940,9 +920,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
           <caret line="53" column="0" lean-forward="false" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding>
-            <element signature="e#2754#2795#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -950,7 +927,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1041">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -966,7 +942,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
           <caret line="81" column="26" lean-forward="false" selection-start-line="81" selection-start-column="26" selection-end-line="81" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -974,7 +949,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="85" column="23" lean-forward="false" selection-start-line="85" selection-start-column="23" selection-end-line="85" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1000,7 +974,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3177">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1008,13 +981,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
           <caret line="81" column="25" lean-forward="false" selection-start-line="81" selection-start-column="25" selection-end-line="81" selection-end-column="25" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/tasking/parallel_for.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-556">
+        <state relative-caret-position="544">
           <caret line="32" column="30" lean-forward="false" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
           <folding>
             <element signature="e#2249#2280#0" expanded="true" />
@@ -1029,13 +1001,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
           <caret line="30" column="44" lean-forward="false" selection-start-line="30" selection-start-column="44" selection-end-line="30" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
+        <state relative-caret-position="461">
           <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
           <folding />
         </state>
@@ -1043,7 +1014,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
+        <state relative-caret-position="821">
           <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
           <folding />
         </state>
@@ -1051,45 +1022,46 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/external/cyCodeBase/cyPhotonMap.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-341">
-          <caret line="328" column="23" lean-forward="false" selection-start-line="328" selection-start-column="13" selection-end-line="328" selection-end-column="23" />
+        <state relative-caret-position="391">
+          <caret line="41" column="25" lean-forward="false" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="25" />
           <folding>
             <element signature="e#666#683#0" expanded="true" />
             <element signature="e#3234#3250#0" expanded="true" />
+            <element signature="e#10198#10214#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="18" column="79" lean-forward="false" selection-start-line="18" selection-start-column="79" selection-end-line="18" selection-end-column="79" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="63" column="23" lean-forward="false" selection-start-line="63" selection-start-column="23" selection-end-line="63" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
-          <caret line="188" column="58" lean-forward="false" selection-start-line="188" selection-start-column="45" selection-end-line="188" selection-end-column="58" />
+        <state relative-caret-position="255">
+          <caret line="148" column="21" lean-forward="true" selection-start-line="148" selection-start-column="21" selection-end-line="148" selection-end-column="21" />
           <folding>
             <element signature="e#2081#2102#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-474">
-          <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="213" column="26" lean-forward="false" selection-start-line="213" selection-start-column="26" selection-end-line="213" selection-end-column="26" />
+        <state relative-caret-position="291">
+          <caret line="246" column="17" lean-forward="true" selection-start-line="246" selection-start-column="17" selection-end-line="246" selection-end-column="17" />
           <folding>
             <element signature="e#2080#2111#0" expanded="true" />
           </folding>
