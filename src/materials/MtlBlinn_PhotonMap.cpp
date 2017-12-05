@@ -26,7 +26,6 @@
 ///--------------------------------------------------------------------------//
 
 #include "MtlBlinn_PhotonMap.h"
-#include "lights/lights.h"
 #include "materials/materials.h"
 
 //------------------------------------------------------------------------------
@@ -39,20 +38,12 @@ MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     refraction(0, 0, 0),
     absorption(0, 0, 0),
     ior(1),
-    specularGlossiness(20.0f),
-    reflectionGlossiness(0),
+    reflectionGlossiness(20.f),
     refractionGlossiness(0) {}
 
 //------------------------------------------------------------------------------
 
 float ColorMax(const Color3f &c) { return MAX(c.x, MAX(c.y, c.z)); }
-
-void GetRandomSamples(const DiffHitInfo &hInfo, float &r1, float &r2)
-{
-//  r1 = rng->Get();
-//  r2 = rng->Get();
-  //TBBHaltonRNG.local().Get(r1, r2);
-}
 
 //------------------------------------------------------------------------------
 
@@ -62,10 +53,19 @@ const float glossiness_power_threshold = 0.f;
 
 //------------------------------------------------------------------------------
 
+void MtlBlinn_PhotonMap::SetGlossiness(float gloss)
+{
+  // Here we merge specularGlossiness and reflectionGlossiness together
+  // And we always select the larger one as our glossiness
+  reflectionGlossiness = MIN(reflectionGlossiness, gloss);
+}
+
 void MtlBlinn_PhotonMap::SetReflectionGlossiness(float gloss)
 {
-  reflectionGlossiness = gloss > glossiness_value_threshold ?
-                         1.f / gloss : -1.f;
+  // Here we merge specularGlossiness and reflectionGlossiness together
+  // And we always select the larger one as our glossiness
+  gloss = gloss > glossiness_value_threshold ? 1.f / gloss : 0;
+  reflectionGlossiness = gloss;
 }
 
 void MtlBlinn_PhotonMap::SetRefractionGlossiness(float gloss)
@@ -90,30 +90,30 @@ const
   // Ray Incoming Direction
   // X Differential Ray Incoming Direction
   // Y Differential Ray Incoming Direction
-  // Durface Position in World Coordinate
-  const auto N = glm::normalize(hInfo.c.N);
-  const auto V = glm::normalize(-ray.c.dir);
-  const auto Vx = glm::normalize(-ray.x.dir);
-  const auto Vy = glm::normalize(-ray.y.dir);
+  // Surface Position in World Coordinate
+  const auto N = normalize(hInfo.c.N);
+  const auto V = normalize(-ray.c.dir);
+  const auto Vx = normalize(-ray.x.dir);
+  const auto Vy = normalize(-ray.y.dir);
   const auto p = hInfo.c.p;
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
   // Local Coordinate Frame
   //
-  const auto Y = glm::dot(N, V) > 0.f ? N : -N;    // Vy
-  const auto Z = glm::cross(V, Y);
-  const auto X = glm::normalize(glm::cross(Y, Z)); // Vx
+  const auto Y = dot(N, V) > 0.f ? N : -N; // Vy
+  const auto Z = cross(V, Y);
+  const auto X = normalize(cross(Y, Z));   // Vx
   //
   // Index of Refraction
   //
   const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
-  const float cosI = glm::dot(N, V);
+  const float cosI = dot(N, V);
   const float sinI = SQRT(1 - cosI * cosI);
   const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
   const float cosO = SQRT(1.f - sinO * sinO);
   const Point3 tDir = -X * sinO - Y * cosO;           // Transmission
-  const Point3 rDir = 2.f * N * (glm::dot(N, V)) - V; // Reflection
+  const Point3 rDir = 2.f * N * (dot(N, V)) - V; // Reflection
   //
   // Reflection and Transmission coefficients
   //
@@ -150,55 +150,52 @@ const
   float coefReflection = ColorMax(sampleReflection);
   float coefSpecular = ColorMax(sampleSpecular);
   float coefDiffuse = ColorMax(sampleDiffuse);
-  const float coefSum =
-      coefDirectLight + coefRefraction + coefReflection + coefSpecular
-          + coefDiffuse;
-  coefDirectLight /= coefSum;
-  coefRefraction /= coefSum;
-  coefReflection /= coefSum;
-  coefSpecular /= coefSum;
-  coefDiffuse /= coefSum;
+  float normalizeSum1 = coefDirectLight + coefRefraction + coefReflection;
+  normalizeSum1 = normalizeSum1 > 0.01f ? 1.f / normalizeSum1 : 0.f;
+  float normalizeSum2 = coefSpecular + coefDiffuse;
+  coefDirectLight *= normalizeSum1;
+  coefRefraction  *= normalizeSum1;
+  coefReflection  *= normalizeSum1;
+  coefSpecular *= normalizeSum1 > 0.01f ?
+                  coefReflection * normalizeSum2 :
+                  normalizeSum2;
+  coefDiffuse  *= normalizeSum1 > 0.01f ?
+                  coefReflection * normalizeSum2 :
+                  normalizeSum2;
   const float sumDirectLight = coefDirectLight;
-  const float sumRefraction = coefRefraction + coefDirectLight;
-  const float sumReflection = coefReflection + coefRefraction + coefDirectLight;
-  const float sumSpecular =
-      coefSpecular + coefReflection + coefRefraction + coefDirectLight;
-  const float
-      sumDiffuse = 1.00001f; /* make sure everything is inside the range */
+  const float sumRefraction  = sumDirectLight + coefRefraction;
+  const float sumSpecular    = sumRefraction  + coefSpecular;
+  const float sumDiffuse     = 1.00001f;
+  //* make sure everything is inside the range *//
   //
   // Shading Directional Lights
   //
-  //if (bounceCount == 0 || select <= sumDirectLight)
-  {
-    // const float normCoefDI = 
-    //   (bounceCount == 0 ? 1.f : sumDirectLight) / 
-    //   (lights.size() == 0 ? 1.f : lights.size()) * (float)M_PI;
-    const float normCoefDI =
-        (lights.size() == 0 ? 1.f : 1.f / lights.size()) / (float) M_PI;
-    for (auto &light : lights) {
-      if (light->IsAmbient()) {}
-      else {
-        auto intensity = light->Illuminate(p, N) * normCoefDI;
-        auto L = glm::normalize(-light->Direction(p));
-        auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, glm::dot(N, L));
-        auto cosNH = MAX(0.f, glm::dot(N, H));
-        color += normCoefDI * intensity * cosNL *
-            (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-      }
+  const float noemalizeDI =
+      (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
+  for (auto &light : lights) {
+    if (light->IsAmbient()) {}
+    else {
+      auto intensity = light->Illuminate(p, N) * noemalizeDI;
+      auto L = normalize(-light->Direction(p));
+      auto H = normalize(V + L);
+      auto cosNL = MAX(0.f, dot(N, L));
+      auto cosNH = MAX(0.f, dot(N, H));
+      color += noemalizeDI * intensity * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, reflectionGlossiness));
     }
   }
+
   //
   // Shading Indirectional Lights
   //
-  /*else*/ if (bounceCount > 0) {
+  if (bounceCount > 0) {
     //
     // Coordinate Frame for the Hemisphere
     const Point3 nZ = Y;
     const Point3 nY = (ABS(nZ.x) > ABS(nZ.y)) ?
-                      glm::normalize(Point3(nZ.z, 0, -nZ.x)) :
-                      glm::normalize(Point3(0, -nZ.z, nZ.y));
-    const Point3 nX = glm::normalize(glm::cross(nY, nZ));
+                      normalize(Point3(nZ.z, 0, -nZ.x)) :
+                      normalize(Point3(0, -nZ.z, nZ.y));
+    const Point3 nX = normalize(cross(nY, nZ));
     Point3 sampleDir(0.f);
     bool doShade = false;
     //
@@ -209,90 +206,62 @@ const
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
       if (refractionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
-        const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
-        PDF = coefRefraction / (float) M_PI;
+        PDF = coefRefraction * RCP_PI;
         /* BSDF */
-        const Point3 L = glm::normalize(sampleDir);
+        const Point3 L = normalize(sampleDir);
         const Point3 H = tDir;
-        const float cosVH = MAX(0.f, glm::dot(V, H));
-        const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-        BxDF = sampleRefraction * glossiness / (float) M_PI;
+        const float cosVH = MAX(0.f, dot(V, H));
+        const float glossiness = POW(cosVH, refractionGlossiness);
+        BxDF = sampleRefraction * glossiness * RCP_PI;
       } else {
         /* Ray Direction */
         sampleDir = tDir;
         /* PDF */
         PDF = coefRefraction;
         /* BSDF */
-        BxDF = sampleRefraction / (float) M_PI;
+        BxDF = sampleRefraction * RCP_PI;
       }
       doShade = true;
     }
-      /* Reflection */
-    else if (select < sumReflection && coefReflection > 1e-6f) {
+    /* Specular & Reflection */
+    else if (select < sumSpecular && coefReflection > 1e-6f) {
       if (reflectionGlossiness > glossiness_power_threshold) {
+        //! Glossy Reflection
         /* Random Sampling for Glossy Surface */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
-        const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefReflection / (float) M_PI;
+        PDF = coefReflection * RCP_PI;
         /* BRDF */
-        const Point3 L = glm::normalize(sampleDir);
+        const Point3 L = normalize(sampleDir);
         const Point3 H = rDir;
-        const float cosVH = MAX(0.f, glm::dot(V, H));
+        const float cosVH = MAX(0.f, dot(V, H));
         BxDF =
-            sampleReflection * POW(cosVH, reflectionGlossiness) / (float) M_PI;
+            sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
       } else {
+        //! Perfect Reflection
         /* Ray Direction */
         sampleDir = rDir;
         /* PDF */
         PDF = coefReflection;
         /* BRDF */
-        BxDF = sampleReflection / (float) M_PI;
+        BxDF = sampleReflection * RCP_PI;
       }
       doShade = true;
     }
-      /* Specular */
-    else if (select < sumSpecular && coefSpecular > 1e-6f) {
-      if (specularGlossiness > glossiness_power_threshold) {
-        if (hInfo.c.hasFrontHit) {
-          /* Random Sampling for Glossy Surface */
-          float r1, r2;
-          GetRandomSamples(hInfo, r1, r2);
-          const Point3
-              sample = glm::normalize(rng->local().CosWeightedHemisphere());
-          sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
-          /* PDF */
-          PDF = coefSpecular / (float) M_PI;
-          /* BRDF */
-          const Point3 L = glm::normalize(sampleDir);
-          const Point3 H = glm::normalize(V + L);
-          const float cosNH = MAX(0.f, glm::dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
-          doShade = true;
-        }
-      }
-    }
-      /* Diffuse */
+    /* Diffuse */
     else if (coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
-        const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefDiffuse / (float) M_PI;
+        PDF = coefDiffuse * RCP_PI;
         /* BRDF */
-        BxDF = sampleDiffuse / (float) M_PI;
+        BxDF = sampleDiffuse * RCP_PI;
         doShade = true;
       }
     }
@@ -326,6 +295,14 @@ const
     }
   }
   return color;
+}
+// If this method returns true, a new photon with the given direction and
+// color will be traced
+bool MtlBlinn_PhotonMap::RandomPhotonBounce(DiffRay &r, Color3f &c,
+                                            const HitInfo &hInfo)
+const
+{
+  return false;
 }
 };
 //------------------------------------------------------------------------------

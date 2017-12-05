@@ -40,7 +40,7 @@ class MtlBlinn_PhotonMap : public Material {
 
   void SetSpecular(Color3f spec) { specular.SetColor(spec); }
 
-  void SetGlossiness(float gloss) { specularGlossiness = gloss; }
+  void SetGlossiness(float gloss);
 
   void SetEmission(Color3f e) { emission.SetColor(e); }
 
@@ -48,7 +48,7 @@ class MtlBlinn_PhotonMap : public Material {
 
   void SetRefraction(Color3f refract) { refraction.SetColor(refract); }
 
-  void SetAbsorption(Color3f absorp) { absorption = absorp; }
+  void SetAbsorption(Color3f absorb) { absorption = absorb; }
 
   void SetRefractionIndex(float _ior) { ior = _ior; }
 
@@ -69,13 +69,27 @@ class MtlBlinn_PhotonMap : public Material {
   Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
                 const LightList &lights, int bounceCount) const override;
 
+  // Photon Extensions
+  // If this method returns true, the photon will be stored
+  bool IsPhotonSurface(int subMtlID) const override
+  {
+    return true;
+  }
+
+  // If this method returns true, a new photon with the given direction and
+  // color will be traced
+  bool RandomPhotonBounce(DiffRay &r, Color3f &c,
+                          const HitInfo &hInfo) const override;
+
   // OpenGL Extensions
   void SetViewportMaterial(int subMtlID) const override;
  private:
-  TexturedColor diffuse, specular, reflection, refraction, emission;
+  TexturedColor diffuse, specular;
+  TexturedColor reflection, refraction;
+  TexturedColor emission;
   Color3f absorption;
   float ior; // index of refraction
-  float specularGlossiness, reflectionGlossiness, refractionGlossiness;
+  float reflectionGlossiness, refractionGlossiness;
 };
 }
 

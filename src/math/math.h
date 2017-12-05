@@ -54,7 +54,9 @@ typedef double        qaDOUBLE;
 //-----------------------------------------------------------------------------
 namespace qaray
 {
-const float PI = static_cast<float>(M_PI);
+extern const float PI;
+extern const float RCP_PI;
+extern const float RCP_2PI;
 }
 //-----------------------------------------------------------------------------
 #define DEFINE_TYPE(TYPE, N, T)                         \

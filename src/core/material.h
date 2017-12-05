@@ -52,7 +52,10 @@ class Material : public ItemBase {
   virtual void SetViewportMaterial(int subMtlID) const {}
   // Photon Extensions
   // if this method returns true, the photon will be stored
-  virtual bool IsPhotonSurface(int subMtlID) const { return true; }
+  virtual bool IsPhotonSurface(int subMtlID) const
+  {
+    return true;
+  }
   // if this method returns true, a new photon with the given direction and
   // color will be traced
   virtual bool RandomPhotonBounce(DiffRay &r, Color3f &c,

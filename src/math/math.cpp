@@ -7,7 +7,13 @@
 ///
 //------------------------------------------------------------------------------
 
-#include "math.h"
+#include "math/math.h"
+
+namespace qaray {
+const float PI = static_cast<float>(M_PI);
+const float RCP_PI = 1.f / PI;
+const float RCP_2PI = 1.f / (2.f * PI);
+};
 
 //! Explicit instantiation
 #define DEFINE_TYPE_DEF(TYPE, N, T)    \
