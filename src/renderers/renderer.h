@@ -50,6 +50,12 @@ struct RendererParam {
   bool useSRGB = true;
   size_t sppMax = 16;
   size_t sppMin = 4;
+  size_t photonMapSize = 1000;
+  size_t photonMapBounce = 10;
+  void SetPhotonMapSize(int size)
+  {
+    photonMapSize = static_cast<size_t>(size);
+  }
   void SetSPPMax(int spp){ sppMax = static_cast<size_t>(spp); }
   void SetSPPMin(int spp){ sppMin = static_cast<size_t>(spp); }
   void SetSRGB(bool flag) { useSRGB = flag; }

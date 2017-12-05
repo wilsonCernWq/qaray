@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 #include <atomic>
-
+#include <cyPhotonMap.h>
 ///--------------------------------------------------------------------------//
 #include "math/math.h"
 #include "core/core.h"
@@ -55,6 +55,7 @@ class Scene {
   TexturedColor background;
   TexturedColor environment;
   TextureList textureList;
+  cyPhotonMap photonmap;
  public:
   bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
   bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);

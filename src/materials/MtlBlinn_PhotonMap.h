@@ -1,6 +1,6 @@
 ///--------------------------------------------------------------------------//
 ///                                                                          //
-/// Created by Qi WU on 12/3/17.                                             //
+/// Created by Qi WU on 12/4/17.                                             //
 /// Copyright (c) 2017 University of Utah. All rights reserved.              //
 ///                                                                          //
 /// Redistribution and use in source and binary forms, with or without       //
@@ -24,68 +24,59 @@
 /// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     //
 ///                                                                          //
 ///--------------------------------------------------------------------------//
-//-----------------------------------------------------------------------------
-///
-/// \file       materials.h
-/// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    11.0
-/// \date       November 11, 2015
-///
-/// \brief Example source for CS 6620 - University of Utah.
-///
-//-----------------------------------------------------------------------------
-#ifndef QARAY_MATERIALS_H
-#define QARAY_MATERIALS_H
+
+#ifndef QARAY_MTLBLINN_PHOTON_MAP_H
+#define QARAY_MTLBLINN_PHOTON_MAP_H
 #pragma once
 
 #include "scene/scene.h"
 
-//-----------------------------------------------------------------------------
-
-Color3f Attenuation(const Color3f &absorption, float l);
-
-//-----------------------------------------------------------------------------
-
-#include "materials/MtlBlinn_PhotonMap.h"
-#include "materials/MtlBlinn_PathTracing.h"
-#include "materials/MtlBlinn_MonteCarloGI.h"
-#include "materials/MtlBlinn_Basic.h"
-#include "materials/MtlPhong_Basic.h"
-
-//-----------------------------------------------------------------------------
-
-using MtlBlinn = MtlBlinn_PhotonMap;
-//using MtlBlinn = MtlBlinn_PathTracing;
-//using MtlBlinn = MtlBlinn_MonteCarloGI;
-//using MtlBlinn = MtlBlinn_Basic;
-//using MtlBlinn = MtlPhong_Basic;
-
-//-----------------------------------------------------------------------------
-
-class MultiMtl : public Material {
+namespace qaray {
+class MtlBlinn_PhotonMap : public Material {
  public:
+  MtlBlinn_PhotonMap();
 
-  ~MultiMtl() override { for (auto &m : mtls) delete m; }
+  void SetDiffuse(Color3f dif) { diffuse.SetColor(dif); }
+
+  void SetSpecular(Color3f spec) { specular.SetColor(spec); }
+
+  void SetGlossiness(float gloss) { specularGlossiness = gloss; }
+
+  void SetEmission(Color3f e) { emission.SetColor(e); }
+
+  void SetReflection(Color3f reflect) { reflection.SetColor(reflect); }
+
+  void SetRefraction(Color3f refract) { refraction.SetColor(refract); }
+
+  void SetAbsorption(Color3f absorp) { absorption = absorp; }
+
+  void SetRefractionIndex(float _ior) { ior = _ior; }
+
+  void SetDiffuseTexture(TextureMap *map) { diffuse.SetTexture(map); }
+
+  void SetSpecularTexture(TextureMap *map) { specular.SetTexture(map); }
+
+  void SetEmissionTexture(TextureMap *map) { emission.SetTexture(map); }
+
+  void SetReflectionTexture(TextureMap *map) { reflection.SetTexture(map); }
+
+  void SetRefractionTexture(TextureMap *map) { refraction.SetTexture(map); }
+
+  void SetReflectionGlossiness(float gloss);
+
+  void SetRefractionGlossiness(float gloss);
 
   Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
-                const LightList &lights, int bounceCount) const override
-  {
-    return hInfo.c.mtlID < (int) mtls.size() ?
-           mtls[hInfo.c.mtlID]->Shade(ray, hInfo, lights, bounceCount) :
-           Color3f(1, 1, 1);
-  }
+                const LightList &lights, int bounceCount) const override;
 
-  void SetViewportMaterial(int subMtlID) const override
-  {
-    if (subMtlID < (int) mtls.size()) mtls[subMtlID]->SetViewportMaterial(0);
-  }
-
-  void AppendMaterial(Material *m) { mtls.push_back(m); }
-
+  // OpenGL Extensions
+  void SetViewportMaterial(int subMtlID) const override;
  private:
-  std::vector<Material *> mtls;
+  TexturedColor diffuse, specular, reflection, refraction, emission;
+  Color3f absorption;
+  float ior; // index of refraction
+  float specularGlossiness, reflectionGlossiness, refractionGlossiness;
 };
+}
 
-//-----------------------------------------------------------------------------
-
-#endif//QARAY_MATERIALS_H
+#endif //QARAY_MTLBLINN_PHOTON_MAP_H

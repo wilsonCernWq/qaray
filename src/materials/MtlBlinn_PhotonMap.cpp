@@ -25,14 +25,13 @@
 ///                                                                          //
 ///--------------------------------------------------------------------------//
 
-#include "MtlBlinn_PathTracing.h"
+#include "MtlBlinn_PhotonMap.h"
 #include "lights/lights.h"
 #include "materials/materials.h"
 
 //------------------------------------------------------------------------------
 namespace qaray {
-
-MtlBlinn_PathTracing::MtlBlinn_PathTracing() :
+MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     diffuse(0.5f, 0.5f, 0.5f),
     specular(0.7f, 0.7f, 0.7f),
     emission(0, 0, 0),
@@ -63,22 +62,22 @@ const float glossiness_power_threshold = 0.f;
 
 //------------------------------------------------------------------------------
 
-void MtlBlinn_PathTracing::SetReflectionGlossiness(float gloss)
+void MtlBlinn_PhotonMap::SetReflectionGlossiness(float gloss)
 {
   reflectionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
 }
 
-void MtlBlinn_PathTracing::SetRefractionGlossiness(float gloss)
+void MtlBlinn_PhotonMap::SetRefractionGlossiness(float gloss)
 {
   refractionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
 }
 
-Color3f MtlBlinn_PathTracing::Shade(const DiffRay &ray,
-                                    const DiffHitInfo &hInfo,
-                                    const LightList &lights,
-                                    int bounceCount)
+Color3f MtlBlinn_PhotonMap::Shade(const DiffRay &ray,
+                                  const DiffHitInfo &hInfo,
+                                  const LightList &lights,
+                                  int bounceCount)
 const
 {
   //
@@ -91,30 +90,30 @@ const
   // Ray Incoming Direction
   // X Differential Ray Incoming Direction
   // Y Differential Ray Incoming Direction
-  // Surface Position in World Coordinate
-  const auto N = normalize(hInfo.c.N);
-  const auto V = normalize(-ray.c.dir);
-  const auto Vx = normalize(-ray.x.dir);
-  const auto Vy = normalize(-ray.y.dir);
+  // Durface Position in World Coordinate
+  const auto N = glm::normalize(hInfo.c.N);
+  const auto V = glm::normalize(-ray.c.dir);
+  const auto Vx = glm::normalize(-ray.x.dir);
+  const auto Vy = glm::normalize(-ray.y.dir);
   const auto p = hInfo.c.p;
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
   // Local Coordinate Frame
   //
-  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
-  const auto Z = cross(V, Y);
-  const auto X = normalize(cross(Y, Z)); // Vx
+  const auto Y = glm::dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Z = glm::cross(V, Y);
+  const auto X = glm::normalize(glm::cross(Y, Z)); // Vx
   //
   // Index of Refraction
   //
   const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
-  const float cosI = dot(N, V);
+  const float cosI = glm::dot(N, V);
   const float sinI = SQRT(1 - cosI * cosI);
   const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
   const float cosO = SQRT(1.f - sinO * sinO);
   const Point3 tDir = -X * sinO - Y * cosO;           // Transmission
-  const Point3 rDir = 2.f * N * (dot(N, V)) - V; // Reflection
+  const Point3 rDir = 2.f * N * (glm::dot(N, V)) - V; // Reflection
   //
   // Reflection and Transmission coefficients
   //
@@ -182,8 +181,8 @@ const
         auto intensity = light->Illuminate(p, N) * normCoefDI;
         auto L = glm::normalize(-light->Direction(p));
         auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, dot(N, L));
-        auto cosNH = MAX(0.f, dot(N, H));
+        auto cosNL = MAX(0.f, glm::dot(N, L));
+        auto cosNH = MAX(0.f, glm::dot(N, H));
         color += normCoefDI * intensity * cosNL *
             (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
       }
@@ -220,7 +219,7 @@ const
         /* BSDF */
         const Point3 L = glm::normalize(sampleDir);
         const Point3 H = tDir;
-        const float cosVH = MAX(0.f, dot(V, H));
+        const float cosVH = MAX(0.f, glm::dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
         BxDF = sampleRefraction * glossiness / (float) M_PI;
       } else {
@@ -247,7 +246,7 @@ const
         /* BRDF */
         const Point3 L = glm::normalize(sampleDir);
         const Point3 H = rDir;
-        const float cosVH = MAX(0.f, dot(V, H));
+        const float cosVH = MAX(0.f, glm::dot(V, H));
         BxDF =
             sampleReflection * POW(cosVH, reflectionGlossiness) / (float) M_PI;
       } else {
@@ -275,7 +274,7 @@ const
           /* BRDF */
           const Point3 L = glm::normalize(sampleDir);
           const Point3 H = glm::normalize(V + L);
-          const float cosNH = MAX(0.f, dot(N, H));
+          const float cosNH = MAX(0.f, glm::dot(N, H));
           BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
           doShade = true;
         }
@@ -328,5 +327,5 @@ const
   }
   return color;
 }
-}
+};
 //------------------------------------------------------------------------------

@@ -46,8 +46,9 @@ bool LoadPPM(FILE *fp, int &width, int &height, std::vector<Color3c> &data)
 
   // last read line should be "255\n"
 
-  data.resize(width * height);
-  fread(data.data(), sizeof(Color3c), width * height, fp);
+  data.resize(static_cast<unsigned int>(width * height));
+  size_t error = fread(data.data(), sizeof(Color3c),
+                       static_cast<unsigned int>(width * height), fp);
 
   return true;
 }

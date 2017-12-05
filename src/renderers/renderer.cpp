@@ -110,6 +110,16 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   tileDimY = static_cast<size_t>(CEIL(static_cast<float>(pixelSize[1]) /
       static_cast<float>(tileSize)));
   tileCount = tileDimX * tileDimY;
+  //-------------------------------------------------------------------------//
+  // Initialize Photon Map
+  //-------------------------------------------------------------------------//
+  // TODO: Photon Map for MPI Mode
+#ifdef USE_GUI
+  if (param.photonMapSize > 0) {
+    scene->photonmap.AllocatePhotons(static_cast<qaUINT>(param.photonMapSize));
+
+  }
+#endif
 };
 ///--------------------------------------------------------------------------//
 /// Render each individual pixel
