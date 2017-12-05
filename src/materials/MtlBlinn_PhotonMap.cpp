@@ -479,7 +479,7 @@ const
   if (doShade)
   {
     ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
-    c = c * BxDF * 2.f * PI;
+    c = c * BxDF;// * 2.f * PI;
     return true;
   }
   else {

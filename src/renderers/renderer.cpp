@@ -156,10 +156,7 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
              {
                if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
                  const Material *mtl = hInfo.c.node->GetMaterial();
-                 if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
-                 {
-                   ++bounce;
-                 }
+                 bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
                  if (mtl->IsPhotonSurface(0))
                  {
                    scene->photonmap
@@ -168,10 +165,14 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
                                   cyColor(intensity.x, intensity.y, intensity.z));
                    ++numPhotonsRec;
                  }
+                 if (flag) {
+                   ++bounce;
+                   ray.Normalize();
+                   hInfo.Init();
+                 }
                  else { bounce = param.photonMapBounce; }
-                 ray.Normalize();
-                 hInfo.Init();
-               } else { bounce = param.photonMapBounce; }
+               }
+               else { bounce = param.photonMapBounce; }
              }
            }
          });
