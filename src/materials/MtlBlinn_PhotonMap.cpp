@@ -24,46 +24,78 @@
 /// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     //
 ///                                                                          //
 ///--------------------------------------------------------------------------//
-
 #include "MtlBlinn_PhotonMap.h"
 #include "materials/materials.h"
-
-//------------------------------------------------------------------------------
+///--------------------------------------------------------------------------//
+const float total_reflection_threshold = 1.001f;
+const float glossiness_value_threshold = 0.001f;
+const float glossiness_power_threshold = 0.f;
+///--------------------------------------------------------------------------//
 namespace qaray {
+///--------------------------------------------------------------------------//
 MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     diffuse(0.5f, 0.5f, 0.5f),
     specular(0.7f, 0.7f, 0.7f),
     emission(0, 0, 0),
-    reflection(1, 1, 1),
+    reflection(0, 0, 0),
     refraction(0, 0, 0),
     absorption(0, 0, 0),
     ior(1),
     specularGlossiness(20.f),
     reflectionGlossiness(20.f),
-    refractionGlossiness(0) {}
-
-//------------------------------------------------------------------------------
-
-float ColorMax(const Color3f &c) { return MAX(c.x, MAX(c.y, c.z)); }
-
-//------------------------------------------------------------------------------
-
-const float total_reflection_threshold = 1.001f;
-const float glossiness_value_threshold = 0.001f;
-const float glossiness_power_threshold = 0.f;
-
-//------------------------------------------------------------------------------
-
+    refractionGlossiness(0)
+{}
+///--------------------------------------------------------------------------//
 void MtlBlinn_PhotonMap::SetReflectionGlossiness(float gloss)
 {
   reflectionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
 }
-
 void MtlBlinn_PhotonMap::SetRefractionGlossiness(float gloss)
 {
   refractionGlossiness = gloss > glossiness_value_threshold ?
                          1.f / gloss : -1.f;
+}
+//------------------------------------------------------------------------------
+bool MtlBlinn_PhotonMap::ComputeFresnel(const DiffRay &ray,
+                                        const DiffHitInfo &hInfo,
+                                        Point3& transmitDir,
+                                        Point3& reflectDir,
+                                        float& transmitRatio,
+                                        float& reflectRatio)
+const
+{
+  // Surface Normal In World Coordinate
+  // Ray Incoming Direction
+  // X Differential Ray Incoming Direction
+  // Y Differential Ray Incoming Direction
+  // Surface Position in World Coordinate
+  const auto N = hInfo.c.N;
+  const auto V = -ray.c.dir;
+  const auto p = hInfo.c.p;
+  //
+  // Local Coordinate Frame
+  //
+  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Z = cross(V, Y);
+  const auto X = normalize(cross(Y, Z)); // Vx
+  //
+  // Index of Refraction
+  //
+  const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
+  const float cosI = dot(N, V);
+  const float sinI = SQRT(1 - cosI * cosI);
+  const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
+  const float cosO = SQRT(1.f - sinO * sinO);
+  transmitDir = -X * sinO - Y * cosO;      // Transmission
+  reflectDir  = 2.f * N * (dot(N, V)) - V; // Reflection
+  //
+  // Reflection and Transmission Coefficients
+  //
+  const float C = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
+  reflectRatio = C + (1.f - C) * POW(1.f - ABS(cosI), 5.f); // reflection
+  transmitRatio = 1.f - reflectRatio;
+  return (nIOR * sinI) > total_reflection_threshold;
 }
 
 Color3f MtlBlinn_PhotonMap::Shade(const DiffRay &ray,
@@ -80,42 +112,24 @@ const
                   emission.GetColor();
   // Surface Normal In World Coordinate
   // Ray Incoming Direction
-  // X Differential Ray Incoming Direction
-  // Y Differential Ray Incoming Direction
   // Surface Position in World Coordinate
-  const auto N = normalize(hInfo.c.N);
-  const auto V = normalize(-ray.c.dir);
-  const auto Vx = normalize(-ray.x.dir);
-  const auto Vy = normalize(-ray.y.dir);
+  const auto N = hInfo.c.N;
+  const auto V = -ray.c.dir;
   const auto p = hInfo.c.p;
-  const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
-  const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
   //
   // Local Coordinate Frame
   //
-  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Y = dot(N, V) > 0.f ? N : -N; // Vy
   const auto Z = cross(V, Y);
-  const auto X = normalize(cross(Y, Z)); // Vx
+  const auto X = normalize(cross(Y, Z));   // Vx
   //
-  // Index of Refraction
   //
-  const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
-  const float cosI = dot(N, V);
-  const float sinI = SQRT(1 - cosI * cosI);
-  const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
-  const float cosO = SQRT(1.f - sinO * sinO);
-  const Point3 tDir = -X * sinO - Y * cosO;           // Transmission
-  const Point3 rDir = 2.f * N * (dot(N, V)) - V; // Reflection
   //
-  // Reflection and Transmission coefficients
-  //
-  const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
-  const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
-  const float tC = 1.f - rC;
+  Point3 tDir, rDir; float tC, rC;
+  const bool totReflection = ComputeFresnel(ray, hInfo, tDir, rDir, tC, rC);
   //
   // Reflection and Transmission Colors
   //
-  const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
   const Color3f tK =
       hInfo.c.hasTexture ?
       refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
@@ -137,39 +151,28 @@ const
   //
   float select;
   rng->local().Get1f(select);
-
+  //
+  // Compute weights
+  //
   float coefRefraction = ColorLuma(sampleRefraction);
   float coefReflection = ColorLuma(sampleReflection);
-
   float coefSpecular = ColorLuma(sampleSpecular);
   float coefDiffuse  = ColorLuma(sampleDiffuse);
-
-//
-//  float sumRefraction;
-//  float sumReflection;
-
   const float coefSum1 = coefRefraction + coefReflection;
   const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
-
-  coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
-  coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : (coefSum1 > 0.f ? coefSum1 : 1.f);
+  coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : (coefSum1 > 0.f ? coefSum1 : 1.f);
   coefSpecular   /= coefSum2;
   coefDiffuse    /= coefSum2;
-
   const float sumRefraction = coefRefraction;
   const float sumReflection = coefReflection + coefRefraction;
   const float sumSpecular   = hInfo.c.hasFrontHit ? coefSpecular + sumReflection : -1.f;
   const float sumDiffuse    = hInfo.c.hasFrontHit ? 1.f : -1.f; /* make sure everything is inside the range */
-
-//  bool doRefraction = select < sumRefraction && coefRefraction > 1e-6f;
-//  bool doReflection = select < sumReflection && coefReflection > 1e-6f;
-//  bool doSpecular = select < sumSpecular && coefSpecular > 1e-6f;
-//  bool doDiffuse;
-
   //
   // Shading Directional Lights
   //
-  const float normCoefDI = (lights.size() == 0 ? 1.f : 1.f / lights.size()) * RCP_PI;
+  const float normCoefDI =
+      (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
   for (auto &light : lights) {
     if (light->IsAmbient()) {}
     else {
@@ -208,7 +211,7 @@ const
             sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
-        PDF = coefRefraction * RCP_PI;;
+        PDF = coefRefraction * RCP_PI;
         /* BSDF */
         const Point3 L = normalize(sampleDir);
         const Point3 H = tDir;
@@ -219,9 +222,9 @@ const
         /* Ray Direction */
         sampleDir = tDir;
         /* PDF */
-        PDF = coefRefraction * RCP_PI;
+        PDF = coefRefraction;
         /* BSDF */
-        BxDF = sampleRefraction * RCP_PI;
+        BxDF = sampleRefraction;
       }
       doShade = true;
     }
@@ -238,15 +241,14 @@ const
         const Point3 L = normalize(sampleDir);
         const Point3 H = rDir;
         const float cosVH = MAX(0.f, dot(V, H));
-        BxDF =
-            sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
+        BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
       } else {
         /* Ray Direction */
         sampleDir = rDir;
         /* PDF */
-        PDF = coefReflection * RCP_PI;
+        PDF = coefReflection;
         /* BRDF */
-        BxDF = sampleReflection * RCP_PI;
+        BxDF = sampleReflection;
       }
       doShade = true;
     }
@@ -264,7 +266,7 @@ const
           const Point3 L = normalize(sampleDir);
           const Point3 H = normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
-          BxDF = sampleReflection * sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
+          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
           doShade = true;
         }
       }
@@ -279,7 +281,7 @@ const
         /* PDF */
         PDF = coefDiffuse * RCP_PI;
         /* BRDF */
-        BxDF = sampleReflection * sampleDiffuse * RCP_PI;
+        BxDF = sampleDiffuse * RCP_PI;
         doShade = true;
       }
     }
@@ -380,10 +382,10 @@ const
   //
   float select;
   rng->local().Get1f(select);
-  float coefRefraction = ColorMax(sampleRefraction);
-  float coefReflection = ColorMax(sampleReflection);
-  float coefSpecular = ColorMax(sampleSpecular);
-  float coefDiffuse  = ColorMax(sampleDiffuse);
+  float coefRefraction = ColorLuma(sampleRefraction);
+  float coefReflection = ColorLuma(sampleReflection);
+  float coefSpecular = ColorLuma(sampleSpecular);
+  float coefDiffuse  = ColorLuma(sampleDiffuse);
   const float coefSum = coefRefraction + coefReflection + coefSpecular + coefDiffuse;
   coefRefraction /= coefSum;
   coefReflection /= coefSum;

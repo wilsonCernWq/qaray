@@ -78,11 +78,17 @@ class MtlBlinn_PhotonMap : public Material {
 
   // If this method returns true, a new photon with the given direction and
   // color will be traced
-  bool RandomPhotonBounce(DiffRay &r, Color3f &c,
-                          const DiffHitInfo &hInfo) const override;
+  bool RandomPhotonBounce(DiffRay &, Color3f &, const DiffHitInfo &) const override;
 
   // OpenGL Extensions
   void SetViewportMaterial(int subMtlID) const override;
+
+ private:
+  bool ComputeFresnel(const DiffRay &, const DiffHitInfo &,
+                      Point3& transmitDir, Point3& reflectDir,
+                      float& transmitRatio, float& reflectRatio)
+  const;
+
  private:
   TexturedColor diffuse, specular;
   TexturedColor reflection, refraction;
