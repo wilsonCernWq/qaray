@@ -136,26 +136,31 @@ const
   //
   float select;
   rng->local().Get1f(select);
-  float coefDirectLight = 0.f;
   float coefRefraction = ColorMax(sampleRefraction);
   float coefReflection = ColorMax(sampleReflection);
   float coefSpecular = ColorMax(sampleSpecular);
   float coefDiffuse = ColorMax(sampleDiffuse);
-  const float coefSum =
-      coefDirectLight + coefRefraction + coefReflection + coefSpecular
-          + coefDiffuse;
-  coefDirectLight /= coefSum;
-  coefRefraction /= coefSum;
-  coefReflection /= coefSum;
-  coefSpecular /= coefSum;
-  coefDiffuse /= coefSum;
-  const float sumDirectLight = coefDirectLight;
-  const float sumRefraction = coefRefraction + coefDirectLight;
-  const float sumReflection = coefReflection + coefRefraction + coefDirectLight;
-  const float sumSpecular =
-      coefSpecular + coefReflection + coefRefraction + coefDirectLight;
-  const float
-      sumDiffuse = 1.00001f; /* make sure everything is inside the range */
+
+  const float coefSum1 = coefRefraction + coefReflection;
+
+  const float coefSum2 =
+      coefRefraction + coefReflection + coefSpecular + coefDiffuse;
+
+  coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  coefSpecular   /= coefSum2;
+  coefDiffuse    /= coefSum2;
+
+  const float sumRefraction = coefRefraction;
+  const float sumReflection = coefReflection + coefRefraction;
+  const float sumSpecular   = hInfo.c.hasFrontHit ? coefSpecular + sumReflection : -1.f;
+  const float sumDiffuse    = hInfo.c.hasFrontHit ? 1.f : -1.f; /* make sure everything is inside the range */
+
+//  bool doRefraction = select < sumRefraction && coefRefraction > 1e-6f;
+//  bool doReflection = select < sumReflection && coefReflection > 1e-6f;
+//  bool doSpecular = select < sumSpecular && coefSpecular > 1e-6f;
+//  bool doDiffuse;
+
   //
   // Shading Directional Lights
   //
@@ -191,6 +196,7 @@ const
     Color3f BxDF(0.f);
     /* Refraction */
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
+
       if (refractionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
         const Point3
@@ -241,8 +247,8 @@ const
     }
       /* Specular */
     else if (select < sumSpecular && coefSpecular > 1e-6f) {
-      if (specularGlossiness > glossiness_power_threshold) {
-        if (hInfo.c.hasFrontHit) {
+      if (hInfo.c.hasFrontHit) {
+        if (specularGlossiness > glossiness_power_threshold) {
           /* Random Sampling for Glossy Surface */
           const Point3
               sample = normalize(rng->local().CosWeightedHemisphere());
@@ -285,7 +291,7 @@ const
       if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
         // Attenuation When the Ray Travels Inside the Material
         if (!sampleHInfo.c.hasFrontHit) {
-          incoming *= Attenuation(absorption, sampleHInfo.c.z);
+          //incoming *= Attenuation(absorption, sampleHInfo.c.z);
         }
         const auto *mtl = sampleHInfo.c.node->GetMaterial();
         incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
