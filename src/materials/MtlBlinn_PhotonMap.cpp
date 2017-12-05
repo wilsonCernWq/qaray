@@ -159,7 +159,7 @@ const
   const float sumRefraction = coefRefraction;
   const float sumReflection = coefReflection + coefRefraction;
   const float sumSpecular   = hInfo.c.hasFrontHit ? coefSpecular + sumReflection : -1.f;
-  const float sumDiffuse    = hInfo.c.hasFrontHit ? sumSpecular + sumDiffuse : -1.f; /* make sure everything is inside the range */
+  const float sumDiffuse    = hInfo.c.hasFrontHit ? 1.f : -1.f; /* make sure everything is inside the range */
 
 //  bool doRefraction = select < sumRefraction && coefRefraction > 1e-6f;
 //  bool doReflection = select < sumReflection && coefReflection > 1e-6f;
