@@ -138,21 +138,19 @@ const
   float select;
   rng->local().Get1f(select);
 
-  float coefRefraction = ColorMax(sampleRefraction);
-  float coefReflection = ColorMax(sampleReflection);
+  float coefRefraction = ColorLuma(sampleRefraction);
+  float coefReflection = ColorLuma(sampleReflection);
 
-  float coefSpecular = ColorMax(sampleSpecular);
-  float coefDiffuse  = ColorMax(sampleDiffuse);
+  float coefSpecular = ColorLuma(sampleSpecular);
+  float coefDiffuse  = ColorLuma(sampleDiffuse);
 
+  //const float coefSum1 = coefRefraction + coefReflection;
+  //const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
 
-  const float coefSum1 = coefRefraction + coefReflection;
-  const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
-
-
-  coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
-  coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
-  coefSpecular   /= coefSum2;
-  coefDiffuse    /= coefSum2;
+  //coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  //coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  //coefSpecular   /= coefSum2;
+  //coefDiffuse    /= coefSum2;
 
   const float sumRefraction = coefRefraction;
   const float sumReflection = coefReflection + coefRefraction;
