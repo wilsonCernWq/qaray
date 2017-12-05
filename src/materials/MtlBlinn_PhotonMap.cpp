@@ -259,7 +259,7 @@ const
           const Point3 L = normalize(sampleDir);
           const Point3 H = normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
+          BxDF = sampleReflection * sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
           doShade = true;
         }
       }
@@ -274,7 +274,7 @@ const
         /* PDF */
         PDF = coefDiffuse / (float) M_PI;
         /* BRDF */
-        BxDF = sampleDiffuse / (float) M_PI;
+        BxDF = sampleReflection * sampleDiffuse / (float) M_PI;
         doShade = true;
       }
     }

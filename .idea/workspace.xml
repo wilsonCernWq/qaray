@@ -28,7 +28,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/core/material.cpp" afterPath="$PROJECT_DIR$/src/core/material.cpp" />
       <change beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -56,11 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="material.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="material.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+            <state relative-caret-position="394">
+              <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -76,44 +75,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="renderer.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2252">
-              <caret line="119" column="51" lean-forward="false" selection-start-line="119" selection-start-column="51" selection-end-line="119" selection-end-column="51" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-490">
-              <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="293" column="12" lean-forward="false" selection-start-line="293" selection-start-column="12" selection-end-line="293" selection-end-column="12" />
+            <state relative-caret-position="374">
+              <caret line="261" column="23" lean-forward="false" selection-start-line="261" selection-start-column="23" selection-end-line="261" selection-end-column="23" />
               <folding>
                 <element signature="e#2081#2112#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="math.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/math/math.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="89" column="7" lean-forward="false" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -225,8 +194,8 @@
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.h" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
         <option value="$PROJECT_DIR$/src/math/math.h" />
-        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
         <option value="$PROJECT_DIR$/src/core/material.cpp" />
+        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
       </list>
     </option>
   </component>
@@ -238,10 +207,10 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="51" />
-    <option name="y" value="-4" />
-    <option name="width" value="1549" />
-    <option name="height" value="904" />
+    <option name="x" value="50" />
+    <option name="y" value="-11" />
+    <option name="width" value="1551" />
+    <option name="height" value="912" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -497,7 +466,7 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="5955000" />
+      <workItem from="1512441381857" duration="6205000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -573,7 +542,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="117003000" />
+    <option name="totallyTimeSpent" value="117253000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -585,7 +554,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="51" y="-4" width="1551" height="912" extended-state="6" />
+    <frame x="50" y="-11" width="1551" height="912" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16557592" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1000,14 +969,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/core/material.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="394">
@@ -1020,14 +981,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-629">
           <caret line="65" column="46" lean-forward="false" selection-start-line="65" selection-start-column="46" selection-end-line="65" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-490">
-          <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
           <folding />
         </state>
       </provider>
@@ -1048,16 +1001,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="293" column="12" lean-forward="false" selection-start-line="293" selection-start-column="12" selection-end-line="293" selection-end-column="12" />
-          <folding>
-            <element signature="e#2081#2112#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/materials.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -1070,9 +1013,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+        <state relative-caret-position="394">
+          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-490">
+          <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/core/material.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="479">
+          <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="261" column="23" lean-forward="false" selection-start-line="261" selection-start-column="23" selection-end-line="261" selection-end-column="23" />
+          <folding>
+            <element signature="e#2081#2112#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
