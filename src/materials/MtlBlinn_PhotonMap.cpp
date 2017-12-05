@@ -144,18 +144,22 @@ const
   float coefSpecular = ColorLuma(sampleSpecular);
   float coefDiffuse  = ColorLuma(sampleDiffuse);
 
-  //const float coefSum1 = coefRefraction + coefReflection;
-  //const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
+//
+//  float sumRefraction;
+//  float sumReflection;
 
-  //coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
-  //coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
-  //coefSpecular   /= coefSum2;
-  //coefDiffuse    /= coefSum2;
+  const float coefSum1 = coefRefraction + coefReflection;
+  const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
+
+  coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
+  coefSpecular   /= coefSum2;
+  coefDiffuse    /= coefSum2;
 
   const float sumRefraction = coefRefraction;
   const float sumReflection = coefReflection + coefRefraction;
   const float sumSpecular   = hInfo.c.hasFrontHit ? coefSpecular + sumReflection : -1.f;
-  const float sumDiffuse    = hInfo.c.hasFrontHit ? 1.f : -1.f; /* make sure everything is inside the range */
+  const float sumDiffuse    = hInfo.c.hasFrontHit ? sumSpecular + sumDiffuse : -1.f; /* make sure everything is inside the range */
 
 //  bool doRefraction = select < sumRefraction && coefRefraction > 1e-6f;
 //  bool doReflection = select < sumReflection && coefReflection > 1e-6f;
@@ -215,7 +219,7 @@ const
         /* Ray Direction */
         sampleDir = tDir;
         /* PDF */
-        PDF = coefRefraction;
+        PDF = coefRefraction * RCP_PI;
         /* BSDF */
         BxDF = sampleRefraction * RCP_PI;
       }
@@ -240,7 +244,7 @@ const
         /* Ray Direction */
         sampleDir = rDir;
         /* PDF */
-        PDF = coefReflection;
+        PDF = coefReflection * RCP_PI;
         /* BRDF */
         BxDF = sampleReflection * RCP_PI;
       }
@@ -255,27 +259,27 @@ const
               sample = normalize(rng->local().CosWeightedHemisphere());
           sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
           /* PDF */
-          PDF = coefSpecular / (float) M_PI;
+          PDF = coefSpecular * RCP_PI;
           /* BRDF */
           const Point3 L = normalize(sampleDir);
           const Point3 H = normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
-          BxDF = sampleReflection * sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
+          BxDF = sampleReflection * sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
           doShade = true;
         }
       }
     }
       /* Diffuse */
-    else if (coefDiffuse > 1e-6f) {
+    else if (select < sumDiffuse && coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
         const Point3
             sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefDiffuse / (float) M_PI;
+        PDF = coefDiffuse * RCP_PI;
         /* BRDF */
-        BxDF = sampleReflection * sampleDiffuse / (float) M_PI;
+        BxDF = sampleReflection * sampleDiffuse * RCP_PI;
         doShade = true;
       }
     }
@@ -300,11 +304,11 @@ const
         incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
       }
       Point3 outgoing = incoming * BxDF / PDF;
-      // Attenuate Outgoing Ray
-      if (hInfo.c.hasFrontHit) {
-        // TODO making volume effect here
-        //outgoing *= MIN(1.f, 1.f / (0.0025f * hInfo.c.z * hInfo.c.z));
-      }
+//      // Attenuate Outgoing Ray
+//      if (hInfo.c.hasFrontHit) {
+//        // TODO making volume effect here
+//        //outgoing *= MIN(1.f, 1.f / (0.0025f * hInfo.c.z * hInfo.c.z));
+//      }
       color += outgoing;
     }
   }
