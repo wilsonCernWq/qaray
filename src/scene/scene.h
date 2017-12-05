@@ -56,6 +56,7 @@ class Scene {
   TexturedColor environment;
   TextureList textureList;
   cyPhotonMap photonmap;
+  cyPhotonMap causticsmap;
  public:
   bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
   bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);

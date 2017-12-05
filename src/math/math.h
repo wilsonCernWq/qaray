@@ -87,6 +87,10 @@ typedef qaray::vec4f Point4;
 typedef qaray::mat3f Matrix3;
 typedef qaray::mat4f Matrix4;
 //-----------------------------------------------------------------------------
+inline float ColorLuma(const Color3f &c)
+{
+  return 0.2126f *c.x + 0.7152f * c.y + 0.0722f * c.z;
+}
 inline Color3f ToColor(const Color3c &c)
 {
   return Color3f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);

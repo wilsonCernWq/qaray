@@ -40,7 +40,7 @@ class MtlBlinn_PhotonMap : public Material {
 
   void SetSpecular(Color3f spec) { specular.SetColor(spec); }
 
-  void SetGlossiness(float gloss);
+  void SetGlossiness(float gloss) { specularGlossiness = gloss; }
 
   void SetEmission(Color3f e) { emission.SetColor(e); }
 
@@ -79,7 +79,7 @@ class MtlBlinn_PhotonMap : public Material {
   // If this method returns true, a new photon with the given direction and
   // color will be traced
   bool RandomPhotonBounce(DiffRay &r, Color3f &c,
-                          const HitInfo &hInfo) const override;
+                          const DiffHitInfo &hInfo) const override;
 
   // OpenGL Extensions
   void SetViewportMaterial(int subMtlID) const override;
@@ -89,7 +89,7 @@ class MtlBlinn_PhotonMap : public Material {
   TexturedColor emission;
   Color3f absorption;
   float ior; // index of refraction
-  float reflectionGlossiness, refractionGlossiness;
+  float specularGlossiness, reflectionGlossiness, refractionGlossiness;
 };
 }
 

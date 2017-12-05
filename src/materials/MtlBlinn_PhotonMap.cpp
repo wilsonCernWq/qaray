@@ -53,19 +53,10 @@ const float glossiness_power_threshold = 0.f;
 
 //------------------------------------------------------------------------------
 
-void MtlBlinn_PhotonMap::SetGlossiness(float gloss)
-{
-  // Here we merge specularGlossiness and reflectionGlossiness together
-  // And we always select the larger one as our glossiness
-  reflectionGlossiness = MIN(reflectionGlossiness, gloss);
-}
-
 void MtlBlinn_PhotonMap::SetReflectionGlossiness(float gloss)
 {
-  // Here we merge specularGlossiness and reflectionGlossiness together
-  // And we always select the larger one as our glossiness
-  gloss = gloss > glossiness_value_threshold ? 1.f / gloss : 0;
-  reflectionGlossiness = gloss;
+  reflectionGlossiness = gloss > glossiness_value_threshold ?
+                         1.f / gloss : -1.f;
 }
 
 void MtlBlinn_PhotonMap::SetRefractionGlossiness(float gloss)
@@ -101,9 +92,9 @@ const
   //
   // Local Coordinate Frame
   //
-  const auto Y = dot(N, V) > 0.f ? N : -N; // Vy
+  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
   const auto Z = cross(V, Y);
-  const auto X = normalize(cross(Y, Z));   // Vx
+  const auto X = normalize(cross(Y, Z)); // Vx
   //
   // Index of Refraction
   //
@@ -150,41 +141,37 @@ const
   float coefReflection = ColorMax(sampleReflection);
   float coefSpecular = ColorMax(sampleSpecular);
   float coefDiffuse = ColorMax(sampleDiffuse);
-  float normalizeSum1 = coefDirectLight + coefRefraction + coefReflection;
-  normalizeSum1 = normalizeSum1 > 0.01f ? 1.f / normalizeSum1 : 0.f;
-  float normalizeSum2 = coefSpecular + coefDiffuse;
-  coefDirectLight *= normalizeSum1;
-  coefRefraction  *= normalizeSum1;
-  coefReflection  *= normalizeSum1;
-  coefSpecular *= normalizeSum1 > 0.01f ?
-                  coefReflection * normalizeSum2 :
-                  normalizeSum2;
-  coefDiffuse  *= normalizeSum1 > 0.01f ?
-                  coefReflection * normalizeSum2 :
-                  normalizeSum2;
+  const float coefSum =
+      coefDirectLight + coefRefraction + coefReflection + coefSpecular
+          + coefDiffuse;
+  coefDirectLight /= coefSum;
+  coefRefraction /= coefSum;
+  coefReflection /= coefSum;
+  coefSpecular /= coefSum;
+  coefDiffuse /= coefSum;
   const float sumDirectLight = coefDirectLight;
-  const float sumRefraction  = sumDirectLight + coefRefraction;
-  const float sumSpecular    = sumRefraction  + coefSpecular;
-  const float sumDiffuse     = 1.00001f;
-  //* make sure everything is inside the range *//
+  const float sumRefraction = coefRefraction + coefDirectLight;
+  const float sumReflection = coefReflection + coefRefraction + coefDirectLight;
+  const float sumSpecular =
+      coefSpecular + coefReflection + coefRefraction + coefDirectLight;
+  const float
+      sumDiffuse = 1.00001f; /* make sure everything is inside the range */
   //
   // Shading Directional Lights
   //
-  const float noemalizeDI =
-      (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
+  const float normCoefDI = (lights.size() == 0 ? 1.f : 1.f / lights.size()) * RCP_PI;
   for (auto &light : lights) {
     if (light->IsAmbient()) {}
     else {
-      auto intensity = light->Illuminate(p, N) * noemalizeDI;
+      auto intensity = light->Illuminate(p, N) * normCoefDI;
       auto L = normalize(-light->Direction(p));
       auto H = normalize(V + L);
       auto cosNL = MAX(0.f, dot(N, L));
       auto cosNH = MAX(0.f, dot(N, H));
-      color += noemalizeDI * intensity * cosNL *
-          (sampleDiffuse + sampleSpecular * POW(cosNH, reflectionGlossiness));
+      color += normCoefDI * intensity * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
     }
   }
-
   //
   // Shading Indirectional Lights
   //
@@ -206,15 +193,16 @@ const
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
       if (refractionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
-        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
+        const Point3
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
-        PDF = coefRefraction * RCP_PI;
+        PDF = coefRefraction * RCP_PI;;
         /* BSDF */
         const Point3 L = normalize(sampleDir);
         const Point3 H = tDir;
         const float cosVH = MAX(0.f, dot(V, H));
-        const float glossiness = POW(cosVH, refractionGlossiness);
+        const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
         BxDF = sampleRefraction * glossiness * RCP_PI;
       } else {
         /* Ray Direction */
@@ -226,12 +214,12 @@ const
       }
       doShade = true;
     }
-    /* Specular & Reflection */
-    else if (select < sumSpecular && coefReflection > 1e-6f) {
+      /* Reflection */
+    else if (select < sumReflection && coefReflection > 1e-6f) {
       if (reflectionGlossiness > glossiness_power_threshold) {
-        //! Glossy Reflection
         /* Random Sampling for Glossy Surface */
-        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
+        const Point3
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
         PDF = coefReflection * RCP_PI;
@@ -242,7 +230,6 @@ const
         BxDF =
             sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
       } else {
-        //! Perfect Reflection
         /* Ray Direction */
         sampleDir = rDir;
         /* PDF */
@@ -252,16 +239,36 @@ const
       }
       doShade = true;
     }
-    /* Diffuse */
+      /* Specular */
+    else if (select < sumSpecular && coefSpecular > 1e-6f) {
+      if (specularGlossiness > glossiness_power_threshold) {
+        if (hInfo.c.hasFrontHit) {
+          /* Random Sampling for Glossy Surface */
+          const Point3
+              sample = normalize(rng->local().CosWeightedHemisphere());
+          sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
+          /* PDF */
+          PDF = coefSpecular / (float) M_PI;
+          /* BRDF */
+          const Point3 L = normalize(sampleDir);
+          const Point3 H = normalize(V + L);
+          const float cosNH = MAX(0.f, dot(N, H));
+          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
+          doShade = true;
+        }
+      }
+    }
+      /* Diffuse */
     else if (coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
-        const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
+        const Point3
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefDiffuse * RCP_PI;
+        PDF = coefDiffuse / (float) M_PI;
         /* BRDF */
-        BxDF = sampleDiffuse * RCP_PI;
+        BxDF = sampleDiffuse / (float) M_PI;
         doShade = true;
       }
     }
@@ -298,10 +305,167 @@ const
 }
 // If this method returns true, a new photon with the given direction and
 // color will be traced
-bool MtlBlinn_PhotonMap::RandomPhotonBounce(DiffRay &r, Color3f &c,
-                                            const HitInfo &hInfo)
+bool MtlBlinn_PhotonMap::RandomPhotonBounce(DiffRay &ray, Color3f &c,
+                                            const DiffHitInfo &hInfo)
 const
 {
+  Color3f color = hInfo.c.hasTexture ?
+                  emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+                  emission.GetColor();
+  // Surface Normal In World Coordinate
+  // Ray Incoming Direction
+  // X Differential Ray Incoming Direction
+  // Y Differential Ray Incoming Direction
+  // Surface Position in World Coordinate
+  const auto N = normalize(hInfo.c.N);
+  const auto V = normalize(-ray.c.dir);
+  const auto Vx = normalize(-ray.x.dir);
+  const auto Vy = normalize(-ray.y.dir);
+  const auto p = hInfo.c.p;
+  const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
+  const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
+  //
+  // Local Coordinate Frame
+  //
+  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Z = cross(V, Y);
+  const auto X = normalize(cross(Y, Z)); // Vx
+  //
+  // Index of Refraction
+  //
+  const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
+  const float cosI = dot(N, V);
+  const float sinI = SQRT(1 - cosI * cosI);
+  const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
+  const float cosO = SQRT(1.f - sinO * sinO);
+  const Point3 tDir = -X * sinO - Y * cosO;           // Transmission
+  const Point3 rDir = 2.f * N * (dot(N, V)) - V; // Reflection
+  //
+  // Reflection and Transmission coefficients
+  //
+  const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
+  const float rC = C0 + (1.f - C0) * POW(1.f - ABS(cosI), 5.f);
+  const float tC = 1.f - rC;
+  //
+  // Reflection and Transmission Colors
+  //
+  const bool totReflection = (nIOR * sinI) > total_reflection_threshold;
+  const Color3f tK =
+      hInfo.c.hasTexture ?
+      refraction.Sample(hInfo.c.uvw, hInfo.c.duvw) : refraction.GetColor();
+  const Color3f rK =
+      hInfo.c.hasTexture ?
+      reflection.Sample(hInfo.c.uvw, hInfo.c.duvw) : reflection.GetColor();
+  const Color3f sampleRefraction = totReflection ? Color3f(0.f) : tK * tC;
+  const Color3f sampleReflection = totReflection ? (rK + tK) : (rK + tK * rC);
+  const Color3f sampleDiffuse =
+      hInfo.c.hasTexture ?
+      diffuse.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+      diffuse.GetColor();
+  const Color3f sampleSpecular =
+      hInfo.c.hasTexture ?
+      specular.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+      specular.GetColor();
+  //
+  float select;
+  rng->local().Get1f(select);
+  float coefRefraction = ColorMax(sampleRefraction);
+  float coefReflection = ColorMax(sampleReflection);
+  float coefSpecular = ColorMax(sampleSpecular);
+  float coefDiffuse  = ColorMax(sampleDiffuse);
+  const float coefSum = coefRefraction + coefReflection + coefSpecular + coefDiffuse;
+  coefRefraction /= coefSum;
+  coefReflection /= coefSum;
+  coefSpecular /= coefSum;
+  coefDiffuse /= coefSum;
+  const float sumRefraction = coefRefraction;
+  const float sumReflection = sumRefraction + coefReflection;
+  const float sumSpecular = sumReflection + coefSpecular;
+  const float sumDiffuse = 1.00001f; /* make sure everything is inside the range */
+  //
+  //
+  // Coordinate Frame for the Hemisphere
+  const Point3 nZ = Y;
+  const Point3 nY = (ABS(nZ.x) > ABS(nZ.y)) ?
+                    normalize(Point3(nZ.z, 0, -nZ.x)) :
+                    normalize(Point3(0, -nZ.z, nZ.y));
+  const Point3 nX = normalize(cross(nY, nZ));
+  Point3 sampleDir(0.f);
+  bool doShade = false;
+  Color3f BxDF(0.f);
+
+  /* Refraction */
+  if (select <= sumRefraction && coefRefraction > 1e-6f) {
+    if (refractionGlossiness > glossiness_power_threshold) {
+      /* Random Sampling for Glossy Surface */
+      const Point3 sample = normalize(rng->local().UniformHemisphere());
+      sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
+      /* BSDF */
+      const Point3 L = normalize(sampleDir);
+      const Point3 H = tDir;
+      const float cosVH = MAX(0.f, dot(V, H));
+      const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
+      BxDF = sampleRefraction * glossiness * RCP_PI;
+    } else {
+      /* Ray Direction */
+      sampleDir = tDir;
+      /* BSDF */
+      BxDF = sampleRefraction * RCP_PI;
+    }
+    doShade = true;
+  }
+  /* Reflection */
+  else if (select < sumReflection && coefReflection > 1e-6f) {
+    if (reflectionGlossiness > glossiness_power_threshold) {
+      /* Random Sampling for Glossy Surface */
+      const Point3 sample = normalize(rng->local().UniformHemisphere());
+      sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
+      /* BRDF */
+      const Point3 L = normalize(sampleDir);
+      const Point3 H = rDir;
+      const float cosVH = MAX(0.f, dot(V, H));
+      BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
+    } else {
+      /* Ray Direction */
+      sampleDir = rDir;
+      /* BRDF */
+      BxDF = sampleReflection * RCP_PI;
+    }
+    doShade = true;
+  }
+  /* Specular */
+  else if (select < sumSpecular && coefSpecular > 1e-6f) {
+    if (specularGlossiness > glossiness_power_threshold) {
+      if (hInfo.c.hasFrontHit) {
+        /* Random Sampling for Glossy Surface */
+        const Point3
+            sample = normalize(rng->local().UniformHemisphere());
+        sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
+        /* BRDF */
+        const Point3 L = normalize(sampleDir);
+        const Point3 H = normalize(V + L);
+        const float cosNH = MAX(0.f, dot(N, H));
+        BxDF = sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
+        doShade = true;
+      }
+    }
+  }
+  /* Diffuse */
+  else if (coefDiffuse > 1e-6f) {
+    if (hInfo.c.hasFrontHit) {
+      /* Generate Random Sample */
+      const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
+      sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
+      /* BRDF */
+      BxDF = sampleDiffuse * RCP_PI;
+      doShade = true;
+    }
+  }
+  if (doShade)
+  {
+    ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
+
+  }
   return false;
 }
 };

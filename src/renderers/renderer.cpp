@@ -115,10 +115,62 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   //-------------------------------------------------------------------------//
   // TODO: Photon Map for MPI Mode
 #ifdef USE_GUI
-  if (param.photonMapSize > 0) {
-    scene->photonmap.AllocatePhotons(static_cast<qaUINT>(param.photonMapSize));
-
-  }
+//  if (param.photonMapSize > 0) {
+//    scene->photonmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.photonMapSize));
+//    scene->causticsmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.causticsMapSize));
+//    //! find out all point lights
+//    std::vector<Light*> photonLights;
+//    std::vector<Color3f> photonValues;
+//    float totalValue = 0.f;
+//    for (auto &light : scene->lights) {
+//      if (light->IsPhotonSource()) {
+//        photonLights.push_back(light);
+//        photonValues.push_back(light->GetPhotonIntensity());
+//        totalValue += ColorLuma(light->GetPhotonIntensity();
+//      }
+//    }
+//    for (auto& v : photonValues) { v /= totalValue; }
+//    //! trace photons
+//    std::atomic<int> numPhotonsRec(0);
+//    std::atomic<int> numPhotonsGen(0);
+//    while (numPhotonsRec < param.photonMapSize) {
+//      float r;
+//      rng->local().Get1f(r);
+//      auto it = std::upper_bound(photonValues.begin(), photonValues.end(), r);
+//      long id = it - photonValues.begin();
+//      auto &light = photonLights[id];
+//      //! generate one photons
+//      ++numPhotonsGen;
+//      DiffRay ray = light->RandomPhoton(); ray.Normalize();
+//      DiffHitInfo hInfo; hInfo.c.z = BIGFLOAT;
+//      Color3f intensity = light->GetPhotonIntensity() / photonValues[id + 1];
+//      //! trace photon
+//      size_t bounce = 0;
+//      while (bounce < param.photonMapBounce)
+//      {
+//        if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+//          const Material* mtl = hInfo.c.node->GetMaterial();
+//          if (mtl->IsPhotonSurface(0)) {
+//            scene->photonmap
+//                .AddPhoton(cyPoint3f(hInfo.c.p.x, hInfo.c.p.y, hInfo.c.p.z),
+//                           -cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z),
+//                           cyColor(intensity.x, intensity.y, intensity.z));
+//            ++numPhotonsRec;
+//          }
+//          if(mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
+//            ++bounce;
+//          } else { bounce = param.photonMapBounce; }
+//        } else { bounce = param.photonMapBounce; }
+//      }
+//      scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
+//      scene->photonmap.PrepareForIrradianceEstimation();
+//      FILE *fp=fopen("photonmap.dat","wb");
+//      fwrite(scene->photonmap.GetPhotons(),sizeof(cyPhotonMap::Photon),scene->photonmap.NumPhotons(),fp);
+//      fclose(fp);
+//    }
+//  }
 #endif
 };
 ///--------------------------------------------------------------------------//

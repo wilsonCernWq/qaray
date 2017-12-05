@@ -59,7 +59,8 @@ class Material : public ItemBase {
   // if this method returns true, a new photon with the given direction and
   // color will be traced
   virtual bool RandomPhotonBounce(DiffRay &r, Color3f &c,
-                                  const HitInfo &hInfo) const { return false; }
+                                  const DiffHitInfo &hInfo) const
+  { return false; }
 };
 class MaterialList : public ItemList<Material> {
  public:
