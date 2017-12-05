@@ -171,37 +171,40 @@ const
   //
   // Shading Directional Lights
   //
-  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
-  for (auto &light : lights) {
-    if (light->IsAmbient()) {}
-    else {
-      auto intensity = light->Illuminate(p, N) * normCoefDI;
-      auto L = normalize(-light->Direction(p));
-      auto H = normalize(V + L);
-      auto cosNL = MAX(0.f, dot(N, L));
-      auto cosNH = MAX(0.f, dot(N, H));
-      color += normCoefDI * intensity * cosNL *
-          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-    }
-  }
+//  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
+//  for (auto &light : lights) {
+//    if (light->IsAmbient()) {}
+//    else {
+//      auto intensity = light->Illuminate(p, N) * normCoefDI;
+//      auto L = normalize(-light->Direction(p));
+//      auto H = normalize(V + L);
+//      auto cosNL = MAX(0.f, dot(N, L));
+//      auto cosNH = MAX(0.f, dot(N, H));
+//      color += normCoefDI * intensity * cosNL *
+//          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+//    }
+//  }
   //
   // gather photons
   //
-  if (bounceCount <= (Material::maxBounce-1)) {
+  if (bounceCount <= Material::maxBounce) {
     cyColor irrad;
     cyPoint3f direction;
     cyPoint3f cypos(p.x, p.y, p.z);
     cyPoint3f cyNor(N.x, N.y, N.z);
+    const float radius = 0.5f;
     scene.photonmap.EstimateIrradiance<1000>
-        (irrad, direction, 100.f, cypos, &cyNor);
+        (irrad, direction, radius, cypos, &cyNor);
     // shade
     Color3f intensity(irrad.r, irrad.g, irrad.b);
-    Point3 L = normalize(-Point3(direction.x, direction.y, direction.z));
-    auto H = normalize(V + L);
-    auto cosNL = MAX(0.f, dot(N, L));
-    auto cosNH = MAX(0.f, dot(N, H));
-    color += normCoefDI * intensity * cosNL *
-        (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    intensity *= RCP_PI / length2(radius);
+//    Point3 L = normalize(-Point3(direction.x, direction.y, direction.z));
+//    auto H = normalize(V + L);
+//    auto cosNL = MAX(0.f, dot(N, L));
+//    auto cosNH = MAX(0.f, dot(N, H));
+//    color += normCoefDI * intensity * cosNL *
+//        (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    color += intensity;
   }
   //
   // Shading Indirectional Lights
@@ -417,7 +420,7 @@ const
       const Point3 H = normalize(V + L);
       const float cosNH = MAX(0.f, dot(N, H));
       const float glossiness = POW(cosNH, refractionGlossiness); // My Hack
-      BxDF = sampleRefraction * glossiness * RCP_PI;
+      BxDF = sampleRefraction * glossiness;
     } else {
       /* Ray Direction */
       sampleDir = tDir;
@@ -436,7 +439,7 @@ const
       const Point3 L = normalize(sampleDir);
       const Point3 H = normalize(V + L);
       const float cosNH = MAX(0.f, dot(N, H));
-      BxDF = sampleReflection * POW(cosNH, reflectionGlossiness) * RCP_PI;
+      BxDF = sampleReflection * POW(cosNH, reflectionGlossiness);
     } else {
       /* Ray Direction */
       sampleDir = rDir;
@@ -457,7 +460,7 @@ const
         const Point3 L = normalize(sampleDir);
         const Point3 H = normalize(V + L);
         const float cosNH = MAX(0.f, dot(N, H));
-        BxDF = sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
+        BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
         doShade = true;
       }
     }
@@ -466,17 +469,17 @@ const
   else if (useDiffuse) {
     if (hInfo.c.hasFrontHit) {
       /* Generate Random Sample */
-      const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
+      const Point3 sample = normalize(rng->local().UniformHemisphere());
       sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
       /* BRDF */
-      BxDF = sampleDiffuse * RCP_PI;
+      BxDF = sampleDiffuse;
       doShade = true;
     }
   }
   if (doShade)
   {
     ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
-    c = c * BxDF;
+    c = c * BxDF * 2.f * PI;
     return true;
   }
   else {

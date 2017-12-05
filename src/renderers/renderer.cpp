@@ -139,8 +139,8 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
         (size_t(0), tasking::get_num_of_threads(), size_t(1),
          [&] (size_t k)
          {
-           while (numPhotonsRec < param.photonMapSize) {
-
+           while (numPhotonsRec < param.photonMapSize)
+           {
              float r;rng->local().Get1f(r);
              auto it = std::upper_bound(photonValues.begin(), photonValues.end(), r);
              long id = it - photonValues.begin();
@@ -149,25 +149,24 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
              ++numPhotonsGen;
              DiffRay ray = light->RandomPhoton(); ray.Normalize();
              DiffHitInfo hInfo;hInfo.c.z = BIGFLOAT;
-             Color3f intensity =
-                 light->GetPhotonIntensity() / photonValues[id];
+             Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
              //! trace photon
              size_t bounce = 0;
              while (bounce < param.photonMapBounce)
              {
                if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
                  const Material *mtl = hInfo.c.node->GetMaterial();
-                 if (mtl->IsPhotonSurface(0) /*&& bounce != 0*/)
+                 if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
+                 {
+                   ++bounce;
+                 }
+                 if (mtl->IsPhotonSurface(0))
                  {
                    scene->photonmap
                        .AddPhoton(cyPoint3f(hInfo.c.p.x, hInfo.c.p.y, hInfo.c.p.z),
                                   -cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z),
                                   cyColor(intensity.x, intensity.y, intensity.z));
                    ++numPhotonsRec;
-                 }
-                 if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
-                 {
-                   ++bounce;
                  }
                  else { bounce = param.photonMapBounce; }
                } else { bounce = param.photonMapBounce; }
