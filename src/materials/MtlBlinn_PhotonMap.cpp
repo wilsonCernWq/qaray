@@ -34,10 +34,11 @@ MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     diffuse(0.5f, 0.5f, 0.5f),
     specular(0.7f, 0.7f, 0.7f),
     emission(0, 0, 0),
-    reflection(0, 0, 0),
+    reflection(1, 1, 1),
     refraction(0, 0, 0),
     absorption(0, 0, 0),
     ior(1),
+    specularGlossiness(20.f),
     reflectionGlossiness(20.f),
     refractionGlossiness(0) {}
 
@@ -136,15 +137,17 @@ const
   //
   float select;
   rng->local().Get1f(select);
+
   float coefRefraction = ColorMax(sampleRefraction);
   float coefReflection = ColorMax(sampleReflection);
+
   float coefSpecular = ColorMax(sampleSpecular);
-  float coefDiffuse = ColorMax(sampleDiffuse);
+  float coefDiffuse  = ColorMax(sampleDiffuse);
+
 
   const float coefSum1 = coefRefraction + coefReflection;
+  const float coefSum2 = coefDiffuse + coefSpecular + coefRefraction + coefReflection;
 
-  const float coefSum2 =
-      coefRefraction + coefReflection + coefSpecular + coefDiffuse;
 
   coefRefraction /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
   coefReflection /= hInfo.c.hasFrontHit ? coefSum2 : coefSum1;
