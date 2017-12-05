@@ -192,8 +192,8 @@ const
     cyPoint3f direction;
     cyPoint3f cypos(p.x, p.y, p.z);
     cyPoint3f cyNor(N.x, N.y, N.z);
-    const float radius = 0.5f;
-    scene.photonmap.EstimateIrradiance<100>
+    const float radius = 1.f;
+    scene.photonmap.EstimateIrradiance<200>
         (irrad, direction, radius, cypos, &cyNor);
     // shade
     Color3f intensity(irrad.r, irrad.g, irrad.b);
@@ -408,6 +408,7 @@ const
   const Point3 nX = normalize(cross(nY, nZ));
   Point3 sampleDir(0.f);
   Color3f BxDF(0.f);
+  float PDF = 1.f;
   bool doShade = false;
   /* Refraction */
   if (useRefraction) {
@@ -421,11 +422,13 @@ const
       const float cosNH = MAX(0.f, dot(N, H));
       const float glossiness = POW(cosNH, refractionGlossiness); // My Hack
       BxDF = sampleRefraction * glossiness;
+      PDF = coefRefraction;
     } else {
       /* Ray Direction */
       sampleDir = tDir;
       /* BSDF */
       BxDF = sampleRefraction;
+      PDF = coefRefraction;
     }
     doShade = true;
   }
@@ -440,11 +443,13 @@ const
       const Point3 H = normalize(V + L);
       const float cosNH = MAX(0.f, dot(N, H));
       BxDF = sampleReflection * POW(cosNH, reflectionGlossiness);
+      PDF = coefReflection;
     } else {
       /* Ray Direction */
       sampleDir = rDir;
       /* BRDF */
       BxDF = sampleReflection;
+      PDF = coefReflection;
     }
     doShade = true;
   }
@@ -461,6 +466,7 @@ const
         const Point3 H = normalize(V + L);
         const float cosNH = MAX(0.f, dot(N, H));
         BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
+        PDF = coefSpecular;
         doShade = true;
       }
     }
@@ -473,13 +479,14 @@ const
       sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
       /* BRDF */
       BxDF = sampleDiffuse;
+      PDF = coefDiffuse;
       doShade = true;
     }
   }
   if (doShade)
   {
     ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
-    c = c * BxDF;// * 2.f * PI;
+    c = c * 2.f * BxDF / PDF;
     return true;
   }
   else {

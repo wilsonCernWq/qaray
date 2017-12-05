@@ -141,10 +141,20 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
          {
            while (numPhotonsRec < param.photonMapSize)
            {
-             float r;rng->local().Get1f(r);
-             auto it = std::upper_bound(photonValues.begin(), photonValues.end(), r);
-             long id = it - photonValues.begin();
-             auto &light = photonLights[id-1];
+             Light* light;
+             long id;
+             if (photonLights.size() == 1) {
+               light = photonLights[0];
+               id = 1;
+             } else {
+               float r;
+               rng->local().Get1f(r);
+               auto it = std::upper_bound(photonValues.begin(),
+                                          photonValues.end(),
+                                          r);
+               id = it - photonValues.begin();
+               light = photonLights[id - 1];
+             }
              //! generate one photons
              ++numPhotonsGen;
              DiffRay ray = light->RandomPhoton(); ray.Normalize();

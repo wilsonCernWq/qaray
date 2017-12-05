@@ -28,7 +28,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="new input">
-      <change beforePath="$PROJECT_DIR$/inputs/example_project13_example.xml" afterPath="$PROJECT_DIR$/inputs/example_project13_example.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
+      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.cpp" afterPath="$PROJECT_DIR$/src/renderers/renderer.cpp" />
       <change beforePath="$PROJECT_DIR$/src/renderers/renderer.h" afterPath="$PROJECT_DIR$/src/renderers/renderer.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -47,8 +49,8 @@
       <file leaf-file-name="renderer.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="169" column="32" lean-forward="false" selection-start-line="169" selection-start-column="23" selection-end-line="169" selection-end-column="32" />
+            <state relative-caret-position="529">
+              <caret line="188" column="58" lean-forward="false" selection-start-line="188" selection-start-column="45" selection-end-line="188" selection-end-column="58" />
               <folding>
                 <element signature="e#2081#2102#0" expanded="true" />
               </folding>
@@ -56,21 +58,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="renderer.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
-              <caret line="54" column="38" lean-forward="false" selection-start-line="54" selection-start-column="38" selection-end-line="54" selection-end-column="38" />
+            <state relative-caret-position="-474">
+              <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-692">
-              <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
+            <state relative-caret-position="496">
+              <caret line="488" column="18" lean-forward="false" selection-start-line="488" selection-start-column="18" selection-end-line="488" selection-end-column="18" />
               <folding>
                 <element signature="e#2080#2111#0" expanded="true" />
               </folding>
@@ -81,7 +83,7 @@
       <file leaf-file-name="lights.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-46">
+            <state relative-caret-position="158">
               <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
               <folding />
             </state>
@@ -91,7 +93,7 @@
       <file leaf-file-name="lights.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="651">
+            <state relative-caret-position="447">
               <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
               <folding />
             </state>
@@ -101,10 +103,11 @@
       <file leaf-file-name="cyPhotonMap.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/external/cyCodeBase/cyPhotonMap.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1921">
-              <caret line="25" column="9" lean-forward="false" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
+            <state relative-caret-position="-341">
+              <caret line="328" column="23" lean-forward="false" selection-start-line="328" selection-start-column="13" selection-end-line="328" selection-end-column="23" />
               <folding>
                 <element signature="e#666#683#0" expanded="true" />
+                <element signature="e#3234#3250#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -144,6 +147,7 @@
       <find>glm</find>
       <find>PI</find>
       <find>glm::</find>
+      <find>maxPhotons</find>
     </findStrings>
     <replaceStrings>
       <replace>qaUCHAR</replace>
@@ -208,12 +212,12 @@
         <option value="$PROJECT_DIR$/src/core/material.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.h" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_glossy.xml" />
-        <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
-        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml" />
         <option value="$PROJECT_DIR$/src/tasking/parallel_for.h" />
         <option value="$PROJECT_DIR$/inputs/example_project13_example.xml" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
+        <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
+        <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
       </list>
     </option>
   </component>
@@ -471,7 +475,7 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="21592000" />
+      <workItem from="1512441381857" duration="22791000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -554,7 +558,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="132640000" />
+    <option name="totallyTimeSpent" value="133839000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -575,8 +579,8 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18613607" sideWeight="0.49502322" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32862645" sideWeight="0.50497675" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25930682" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24133505" sideWeight="0.48971465" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25930682" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24133505" sideWeight="0.48971465" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -625,11 +629,12 @@
           <option name="timeStamp" value="165" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="170" />
+      <option name="time" value="174" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
         <watch expression="" />
+        <watch expression="c" />
       </configuration>
     </watches-manager>
   </component>
@@ -997,34 +1002,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/external/cyCodeBase/cyPhotonMap.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1921">
-          <caret line="25" column="9" lean-forward="false" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
-          <folding>
-            <element signature="e#666#683#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-46">
-          <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="169" column="32" lean-forward="false" selection-start-line="169" selection-start-column="23" selection-end-line="169" selection-end-column="32" />
-          <folding>
-            <element signature="e#2081#2102#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
@@ -1056,27 +1033,56 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lights/lights.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="651">
+        <state relative-caret-position="447">
           <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
+    <entry file="file://$PROJECT_DIR$/src/lights/lights.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-692">
-          <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
+        <state relative-caret-position="158">
+          <caret line="50" column="57" lean-forward="false" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/external/cyCodeBase/cyPhotonMap.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-341">
+          <caret line="328" column="23" lean-forward="false" selection-start-line="328" selection-start-column="13" selection-end-line="328" selection-end-column="23" />
           <folding>
-            <element signature="e#2080#2111#0" expanded="true" />
+            <element signature="e#666#683#0" expanded="true" />
+            <element signature="e#3234#3250#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderers/renderer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="188" column="58" lean-forward="false" selection-start-line="188" selection-start-column="45" selection-end-line="188" selection-end-column="58" />
+          <folding>
+            <element signature="e#2081#2102#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderers/renderer.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="54" column="38" lean-forward="false" selection-start-line="54" selection-start-column="38" selection-end-line="54" selection-end-column="38" />
+        <state relative-caret-position="-474">
+          <caret line="52" column="40" lean-forward="false" selection-start-line="52" selection-start-column="40" selection-end-line="52" selection-end-column="40" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="496">
+          <caret line="488" column="18" lean-forward="false" selection-start-line="488" selection-start-column="18" selection-end-line="488" selection-end-column="18" />
+          <folding>
+            <element signature="e#2080#2111#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
