@@ -88,12 +88,7 @@ void Renderer_GUI::Render()
   //
   //-------------------------------------------------------------------------//
 #ifdef USE_GUI
-  if (mpiSize == 1) {
-    ShowViewport();
-  }
-  else {
-    std::cerr << "Warning: Trying to use GUI window in mpi mode" << std::endl;
-  }
+  ShowViewport();
 #else
   std::cerr << "Warning: GUI Mode is not enabled. "
                "Add '-DENABLE_GUI' to the cmake and recompile the program"
