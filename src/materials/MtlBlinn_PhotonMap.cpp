@@ -185,9 +185,28 @@ const
     }
   }
   //
+  // gather photons
+  //
+  if (bounceCount <= (Material::maxBounce-1)) {
+    cyColor irrad;
+    cyPoint3f direction;
+    cyPoint3f cypos(p.x, p.y, p.z);
+    cyPoint3f cyNor(N.x, N.y, N.z);
+    scene.photonmap.EstimateIrradiance<1000>
+        (irrad, direction, 100.f, cypos, &cyNor);
+    // shade
+    Color3f intensity(irrad.r, irrad.g, irrad.b);
+    Point3 L = normalize(-Point3(direction.x, direction.y, direction.z));
+    auto H = normalize(V + L);
+    auto cosNL = MAX(0.f, dot(N, L));
+    auto cosNH = MAX(0.f, dot(N, H));
+    color += normCoefDI * intensity * cosNL *
+        (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+  }
+  //
   // Shading Indirectional Lights
   //
-  if (bounceCount > 0) {
+  else if (bounceCount  == Material::maxBounce) {
     //
     // Coordinate Frame for the Hemisphere
     const Point3 nZ = Y;
@@ -227,7 +246,7 @@ const
       }
       doShade = true;
     }
-    /* Reflection */
+      /* Reflection */
     else if (select < sumReflection && coefReflection > 1e-6f) {
       if (reflectionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
@@ -251,7 +270,7 @@ const
       }
       doShade = true;
     }
-    /* Specular */
+      /* Specular */
     else if (select < sumSpecular && coefSpecular > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         if (specularGlossiness > glossiness_power_threshold) {
@@ -270,7 +289,7 @@ const
         }
       }
     }
-    /* Diffuse */
+      /* Diffuse */
     else if (select < sumDiffuse && coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
