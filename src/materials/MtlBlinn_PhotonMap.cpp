@@ -213,9 +213,9 @@ const
         PDF = coefRefraction;
         /* BSDF */
         const Point3 L = normalize(sampleDir);
-        const Point3 H = tDir;
-        const float cosVH = MAX(0.f, dot(V, H));
-        const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
+        const Point3 H = normalize(V + L);
+        const float cosNH = MAX(0.f, dot(N, H));
+        const float glossiness = POW(cosNH, refractionGlossiness); // My Hack
         BxDF = sampleRefraction * glossiness;
       } else {
         /* Ray Direction */
@@ -238,9 +238,9 @@ const
         PDF = coefReflection * RCP_PI;
         /* BRDF */
         const Point3 L = normalize(sampleDir);
-        const Point3 H = rDir;
-        const float cosVH = MAX(0.f, dot(V, H));
-        BxDF = sampleReflection * POW(cosVH, reflectionGlossiness);
+        const Point3 H = normalize(V + L);
+        const float cosNH = MAX(0.f, dot(N, H));
+        BxDF = sampleReflection * POW(cosNH, reflectionGlossiness);
       } else {
         /* Ray Direction */
         sampleDir = rDir;
@@ -371,6 +371,10 @@ const
   const float sumReflection = sumRefraction + coefReflection;
   const float sumSpecular = sumReflection + coefSpecular;
   const float sumDiffuse = 1.00001f; /* make sure everything is inside the range */
+  bool useRefraction = select < sumRefraction && coefRefraction > 1e-6f;
+  bool useReflection = select < sumReflection && coefReflection > 1e-6f;
+  bool useSpecular   = select < sumSpecular && coefSpecular > 1e-6f;
+  bool useDiffuse    = select < sumDiffuse && coefDiffuse > 1e-6f;
   //
   //
   // Coordinate Frame for the Hemisphere
@@ -384,46 +388,46 @@ const
   Color3f BxDF(0.f);
   bool doShade = false;
   /* Refraction */
-  if (select <= sumRefraction && coefRefraction > 1e-6f) {
+  if (useRefraction) {
     if (refractionGlossiness > glossiness_power_threshold) {
       /* Random Sampling for Glossy Surface */
       const Point3 sample = normalize(rng->local().UniformHemisphere());
       sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
       /* BSDF */
       const Point3 L = normalize(sampleDir);
-      const Point3 H = tDir;
-      const float cosVH = MAX(0.f, dot(V, H));
-      const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
+      const Point3 H = normalize(V + L);
+      const float cosNH = MAX(0.f, dot(N, H));
+      const float glossiness = POW(cosNH, refractionGlossiness); // My Hack
       BxDF = sampleRefraction * glossiness * RCP_PI;
     } else {
       /* Ray Direction */
       sampleDir = tDir;
       /* BSDF */
-      BxDF = sampleRefraction * RCP_PI;
+      BxDF = sampleRefraction;
     }
     doShade = true;
   }
   /* Reflection */
-  else if (select < sumReflection && coefReflection > 1e-6f) {
+  else if (useReflection) {
     if (reflectionGlossiness > glossiness_power_threshold) {
       /* Random Sampling for Glossy Surface */
       const Point3 sample = normalize(rng->local().UniformHemisphere());
       sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
       /* BRDF */
       const Point3 L = normalize(sampleDir);
-      const Point3 H = rDir;
-      const float cosVH = MAX(0.f, dot(V, H));
-      BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
+      const Point3 H = normalize(V + L);
+      const float cosNH = MAX(0.f, dot(N, H));
+      BxDF = sampleReflection * POW(cosNH, reflectionGlossiness) * RCP_PI;
     } else {
       /* Ray Direction */
       sampleDir = rDir;
       /* BRDF */
-      BxDF = sampleReflection * RCP_PI;
+      BxDF = sampleReflection;
     }
     doShade = true;
   }
   /* Specular */
-  else if (select < sumSpecular && coefSpecular > 1e-6f) {
+  else if (useSpecular) {
     if (specularGlossiness > glossiness_power_threshold) {
       if (hInfo.c.hasFrontHit) {
         /* Random Sampling for Glossy Surface */
@@ -440,7 +444,7 @@ const
     }
   }
   /* Diffuse */
-  else if (coefDiffuse > 1e-6f) {
+  else if (useDiffuse) {
     if (hInfo.c.hasFrontHit) {
       /* Generate Random Sample */
       const Point3 sample = normalize(rng->local().CosWeightedHemisphere());
@@ -453,9 +457,12 @@ const
   if (doShade)
   {
     ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
-
+    c = c * BxDF;
+    return true;
   }
-  return false;
+  else {
+    return false;
+  }
 }
 };
 //------------------------------------------------------------------------------

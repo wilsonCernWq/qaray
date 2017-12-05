@@ -2,6 +2,7 @@
   <dictionary name="qwu">
     <words>
       <w>blinn</w>
+      <w>brdf</w>
       <w>halton</w>
       <w>irradiance</w>
       <w>phong</w>
