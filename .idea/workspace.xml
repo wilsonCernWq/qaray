@@ -28,10 +28,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcceb30e-8f7f-449c-97af-1a6a27c576a1" name="Default" comment="new input">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/src/core/material.cpp" afterPath="$PROJECT_DIR$/src/core/material.cpp" />
       <change beforePath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" afterPath="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
-      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.cpp" afterPath="$PROJECT_DIR$/src/renderers/renderer.cpp" />
-      <change beforePath="$PROJECT_DIR$/src/renderers/renderer.h" afterPath="$PROJECT_DIR$/src/renderers/renderer.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -71,11 +69,21 @@
       <file leaf-file-name="MtlBlinn_PhotonMap.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="488" column="18" lean-forward="false" selection-start-line="488" selection-start-column="18" selection-end-line="488" selection-end-column="18" />
+            <state relative-caret-position="411">
+              <caret line="213" column="26" lean-forward="false" selection-start-line="213" selection-start-column="26" selection-end-line="213" selection-end-column="26" />
               <folding>
                 <element signature="e#2080#2111#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="material.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -209,7 +217,6 @@
         <option value="$PROJECT_DIR$/src/scene/scene.h" />
         <option value="$PROJECT_DIR$/src/core/material.h" />
         <option value="$PROJECT_DIR$/src/math/math.h" />
-        <option value="$PROJECT_DIR$/src/core/material.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.h" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_glossy.xml" />
         <option value="$PROJECT_DIR$/inputs/example_project12_caustics_perfect.xml" />
@@ -218,6 +225,7 @@
         <option value="$PROJECT_DIR$/src/renderers/renderer.h" />
         <option value="$PROJECT_DIR$/src/renderers/renderer.cpp" />
         <option value="$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp" />
+        <option value="$PROJECT_DIR$/src/core/material.cpp" />
       </list>
     </option>
   </component>
@@ -278,12 +286,13 @@
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
-              <item name="inputs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
@@ -296,6 +305,12 @@
               <item name="qaray" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="lights" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="qaray" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="materials" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="QARAY" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
@@ -475,7 +490,7 @@
       <workItem from="1512355427903" duration="80000" />
       <workItem from="1512355529084" duration="10131000" />
       <workItem from="1512423065361" duration="11757000" />
-      <workItem from="1512441381857" duration="22791000" />
+      <workItem from="1512441381857" duration="23491000" />
     </task>
     <task id="LOCAL-00001" summary="split Texture, TextureMap, texturedColor classes out of the scene.h">
       <created>1511590750146</created>
@@ -558,7 +573,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="133839000" />
+    <option name="totallyTimeSpent" value="134539000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -622,11 +637,6 @@
           <url>file://$PROJECT_DIR$/projects/Prj7/materials.cpp</url>
           <line>39</line>
           <option name="timeStamp" value="56" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp</url>
-          <line>211</line>
-          <option name="timeStamp" value="165" />
         </line-breakpoint>
       </breakpoints>
       <option name="time" value="174" />
@@ -926,14 +936,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/materials.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -1076,10 +1078,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/core/material.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="30" column="27" lean-forward="false" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/materials/MtlBlinn_PhotonMap.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="488" column="18" lean-forward="false" selection-start-line="488" selection-start-column="18" selection-end-line="488" selection-end-column="18" />
+        <state relative-caret-position="411">
+          <caret line="213" column="26" lean-forward="false" selection-start-line="213" selection-start-column="26" selection-end-line="213" selection-end-column="26" />
           <folding>
             <element signature="e#2080#2111#0" expanded="true" />
           </folding>

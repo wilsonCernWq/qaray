@@ -187,7 +187,7 @@ const
   //
   // gather photons
   //
-  if (bounceCount <= Material::maxBounce) {
+  if (bounceCount <= 0) {
     cyColor irrad;
     cyPoint3f direction;
     cyPoint3f cypos(p.x, p.y, p.z);
@@ -198,18 +198,20 @@ const
     // shade
     Color3f intensity(irrad.r, irrad.g, irrad.b);
     intensity *= RCP_PI / length2(radius);
-//    Point3 L = normalize(-Point3(direction.x, direction.y, direction.z));
-//    auto H = normalize(V + L);
-//    auto cosNL = MAX(0.f, dot(N, L));
-//    auto cosNH = MAX(0.f, dot(N, H));
-//    color += normCoefDI * intensity * cosNL *
-//        (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+
+    Point3 L = normalize(Point3(direction.x, direction.y, direction.z));
+    auto H = normalize(V + L);
+    auto cosNL = MAX(0.f, dot(N, L));
+    auto cosNH = MAX(0.f, dot(N, H));
+    color += intensity * cosNL *
+        (sampleDiffuse /*+ sampleSpecular * POW(cosNH, specularGlossiness)*/);
+
     color += intensity;
   }
   //
   // Shading Indirectional Lights
   //
-  else if (bounceCount  == Material::maxBounce) {
+  else if (bounceCount > 0) {
     //
     // Coordinate Frame for the Hemisphere
     const Point3 nZ = Y;

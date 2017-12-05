@@ -28,7 +28,7 @@
 #include "material.h"
 
 namespace qaray {
-int Material::maxBounce = 4;
+int Material::maxBounce = 1;
 Material* MaterialList::Find(const char *name)
 {
   size_t n = size();
