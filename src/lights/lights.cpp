@@ -38,9 +38,7 @@ float GenLight::Shadow(Ray ray, float t_max)
     return 1.0f;
   }
 }
-
 //------------------------------------------------------------------------------
-
 Color3f PointLight::Illuminate(const Point3 &p, const Point3 &N) const
 {
   if (size > 0.01f) {
@@ -66,5 +64,10 @@ Color3f PointLight::Illuminate(const Point3 &p, const Point3 &N) const
         InverseSquareFalloff(dir);
   }
 }
-
+//------------------------------------------------------------------------------
+DiffRay PointLight::RandomPhoton() const
+{
+  Point3 dir = rng->local().UniformSphere();
+  return DiffRay(position, dir);
+}
 //------------------------------------------------------------------------------

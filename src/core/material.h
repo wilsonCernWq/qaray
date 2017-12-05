@@ -48,7 +48,15 @@ class Material : public ItemBase {
   //              refraction.
   virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
                         const LightList &lights, int bounceCount) const = 0;
-  virtual void SetViewportMaterial(int subMtlID = 0) const {}  // used for OpenGL display
+  // OpenGL Extensions
+  virtual void SetViewportMaterial(int subMtlID) const {}
+  // Photon Extensions
+  // if this method returns true, the photon will be stored
+  virtual bool IsPhotonSurface(int subMtlID = 0) const { return true; }
+  // if this method returns true, a new photon with the given direction and
+  // color will be traced
+  virtual bool RandomPhotonBounce(DiffRay &r, Color3f &c,
+                                  const HitInfo &hInfo) const { return false; }
 };
 class MaterialList : public ItemList<Material> {
  public:

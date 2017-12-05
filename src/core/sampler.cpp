@@ -52,6 +52,23 @@ Point3 Sampler::UniformBall(qaFLOAT radius)
   return p;
 }
 
+Point3 Sampler::UniformSphere()
+{
+  //
+  // Generate random direction on unit hemisphere proportional to solid angle
+  // PDF = 1 / 4PI
+  //
+  float r1(0), r2(0);
+  Get2f(r1, r2);
+  r1 = r1 * 2.f - 1.f;
+  const qaFLOAT cosTheta = r1;
+  const qaFLOAT sinTheta = SQRT(1 - r1 * r1);
+  const qaFLOAT phi = 2 * PI * r2;
+  const qaFLOAT x = sinTheta * COS(phi);
+  const qaFLOAT y = sinTheta * SIN(phi);
+  return Point3(x, y, cosTheta);
+}
+
 Point3 Sampler::UniformHemisphere()
 {
   //
@@ -61,10 +78,10 @@ Point3 Sampler::UniformHemisphere()
   float r1(0), r2(0);
   Get2f(r1, r2);
   const qaFLOAT cosTheta = r1;
-  const qaFLOAT sinTheta = sqrt(1 - r1 * r1);
+  const qaFLOAT sinTheta = SQRT(1 - r1 * r1);
   const qaFLOAT phi = 2 * PI * r2;
-  const qaFLOAT x = sinTheta * cos(phi);
-  const qaFLOAT y = sinTheta * sin(phi);
+  const qaFLOAT x = sinTheta * COS(phi);
+  const qaFLOAT y = sinTheta * SIN(phi);
   return Point3(x, y, cosTheta);
 }
 
@@ -78,11 +95,11 @@ Point3 Sampler::CosWeightedHemisphere()
   //
   float r1(0), r2(0);
   Get2f(r1, r2);
-  const qaFLOAT cosTheta = sqrt(r1);
-  const qaFLOAT sinTheta = sqrt(1 - r1);
+  const qaFLOAT cosTheta = SQRT(r1);
+  const qaFLOAT sinTheta = SQRT(1 - r1);
   const qaFLOAT phi = 2 * PI * r2;
-  const qaFLOAT x = sinTheta * cos(phi);
-  const qaFLOAT y = sinTheta * sin(phi);
+  const qaFLOAT x = sinTheta * COS(phi);
+  const qaFLOAT y = sinTheta * SIN(phi);
   return Point3(x, y, cosTheta);
 }
 
@@ -97,12 +114,12 @@ qaFLOAT Sampler::CosLobeWeightedHemisphereNormalization(qaINT N,
                                                         const Point3 &axis,
                                                         const Point3 &normal)
 {
-  const float cosTheta = glm::dot(axis, normal);
-  const float sinTheta = sqrt(1.f - cosTheta * cosTheta);
+  const float cosTheta = dot(axis, normal);
+  const float sinTheta = SQRT(1.f - cosTheta * cosTheta);
   const float Theta = std::acos(cosTheta);
   float sum = 0.f;
   for (int i = 0; i < N - 1; i += 2) {
-    sum += CosLobeWeightedFn(i) * pow(sinTheta, static_cast<float>(i));
+    sum += CosLobeWeightedFn(i) * POW(sinTheta, static_cast<float>(i));
   }
   sum *= cosTheta;
   if ((N % 2) == 0) // even
@@ -128,22 +145,23 @@ Point3 Sampler::CosLobeWeightedHemisphere(qaINT N, qaINT theta_max)
     //
     // PDF = (N+1) * (cos(theta) ^ N) / 2PI
     //
-    const float cosTheta = pow(r1, 1.f / (N + 1));
-    const float sinTheta = sqrt(1 - cosTheta * cosTheta);
+    const float cosTheta = POW(r1, 1.f / (N + 1));
+    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
     const float phi = 2 * PI * r2;
-    const float x = sinTheta * cos(phi);
-    const float y = sinTheta * sin(phi);
+    const float x = sinTheta * COS(phi);
+    const float y = sinTheta * SIN(phi);
     return Point3(x, y, cosTheta);
   } else {
     //
     // PDF = (N+1) * (cos(theta) ^ N) / 2PI * (theta_max / 90)
     //
-    const float cosTheta =
-        pow(1.f - r1 * (1.f - pow(cos(theta_max), N + 1)), 1.f / (N + 1));
-    const float sinTheta = sqrt(1 - cosTheta * cosTheta);
+    const float cosTheta = POW(1.f - r1
+        * (1.f - POW(COS(static_cast<qaFLOAT>(theta_max)), N + 1.f)),
+                               1.f / (N + 1.f));
+    const float sinTheta = SQRT(1 - cosTheta * cosTheta);
     const float phi = 2 * PI * r2;
-    const float x = sinTheta * cos(phi);
-    const float y = sinTheta * sin(phi);
+    const float x = sinTheta * COS(phi);
+    const float y = sinTheta * SIN(phi);
     return Point3(x, y, cosTheta);
   }
 }

@@ -3,24 +3,24 @@
 #include "framebuffer.h"
 
 RenderImage::RenderImage() :
-    mask(NULL),
-    img(NULL),
-    zbuffer(NULL),
-    zbufferImg(NULL),
-    sampleCount(NULL),
-    sampleCountImg(NULL),
-    irradComp(NULL),
+    mask(nullptr),
+    img(nullptr),
+    zbuffer(nullptr),
+    zbufferImg(nullptr),
+    sampleCount(nullptr),
+    sampleCountImg(nullptr),
+    irradComp(nullptr),
     width(0),
     height(0),
     numRenderedPixels(0) {}
 
 RenderImage::~RenderImage()
 {
-  if (mask) delete[] mask;
-  if (img) delete[] img;
-  if (zbuffer) delete[] zbuffer;
-  if (zbufferImg) delete[] zbufferImg;
-  if (irradComp) delete[] irradComp;
+  delete[] mask;
+  delete[] img;
+  delete[] zbuffer;
+  delete[] zbufferImg;
+  delete[] irradComp;
 }
 
 void RenderImage::Init(int w, int h)
@@ -34,13 +34,13 @@ void RenderImage::Init(int w, int h)
   if (zbuffer) delete[] zbuffer;
   zbuffer = new float[width * height];
   if (zbufferImg) delete[] zbufferImg;
-  zbufferImg = NULL;
+  zbufferImg = nullptr;
   if (sampleCount) delete[] sampleCount;
   sampleCount = new qaUCHAR[width * height];
   if (sampleCountImg) delete[] sampleCountImg;
-  sampleCountImg = NULL;
+  sampleCountImg = nullptr;
   if (irradComp) delete[] irradComp;
-  irradComp = NULL;
+  irradComp = nullptr;
   ResetNumRenderedPixels();
 }
 
@@ -73,7 +73,7 @@ void RenderImage::ComputeZBufferImage()
     if (zbuffer[i] == BIGFLOAT) zbufferImg[i] = 0;
     else {
       float f = (zmax - zbuffer[i]) / (zmax - zmin);
-      int c = int(f * 255);
+      qaUCHAR c = qaUCHAR(f * 255);
       if (c < 0) c = 0;
       if (c > 255) c = 255;
       zbufferImg[i] = c;
@@ -95,7 +95,7 @@ int RenderImage::ComputeSampleCountImage()
     for (int i = 0; i < size; i++) sampleCountImg[i] = 0;
   } else {
     for (int i = 0; i < size; i++) {
-      int c = (255 * (sampleCount[i] - smin)) / (smax - smin);
+      qaUCHAR c = qaUCHAR((255 * (sampleCount[i] - smin)) / (smax - smin));
       if (c < 0) c = 0;
       if (c > 255) c = 255;
       sampleCountImg[i] = c;

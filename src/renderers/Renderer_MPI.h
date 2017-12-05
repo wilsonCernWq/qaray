@@ -41,7 +41,7 @@ class Renderer_MPI : public Renderer {
   double t1, t2;
   std::string mpiPrefix;
  public:
-  Renderer_MPI(RendererParam& param);
+  explicit Renderer_MPI(RendererParam &param);
   void Init() override;
   void Terminate() override;
   void StartTimer() override;

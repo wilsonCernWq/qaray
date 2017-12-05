@@ -37,7 +37,7 @@ class Renderer_GUI : public Renderer {
  private:
   std::thread *threadMain = nullptr;
  public:
-  Renderer_GUI(RendererParam& param);
+  explicit Renderer_GUI(RendererParam &param);
   //-------------------------------------------------------------------------//
   // Called to start rendering (renderer must run in a separate thread)
   //-------------------------------------------------------------------------//

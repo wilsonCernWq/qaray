@@ -31,6 +31,7 @@
 
 #include "core/setup.h"
 #include "core/items.h"
+#include "core/ray.h"
 #include "math/math.h"
 
 namespace qaray {
@@ -39,8 +40,15 @@ class Light : public ItemBase {
   virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const = 0;
   virtual Point3 Direction(const Point3 &p) const = 0;
   virtual bool IsAmbient() const { return false; }
-  // used for OpenGL display
+  // OpenGL Extensions
   virtual void SetViewportLight(int lightID) const {}
+  // Photon Extensions
+  virtual bool IsPhotonSource() const { return false; }
+  virtual Color3f GetPhotonIntensity() const { return Color3f(0, 0, 0); }
+  virtual DiffRay RandomPhoton() const
+  {
+    return DiffRay(Point3(0, 0, 0), Point3(0, 0, 1));
+  }
 };
 }
 

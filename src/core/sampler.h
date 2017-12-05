@@ -45,6 +45,7 @@ class Sampler {
                      qaFLOAT &,
                      qaFLOAT &) = 0;
   Point3 UniformBall(qaFLOAT radius);
+  Point3 UniformSphere();
   Point3 UniformHemisphere();
   Point3 CosWeightedHemisphere();
   Point3 CosLobeWeightedHemisphere(qaINT N, qaINT theta_max = 90);

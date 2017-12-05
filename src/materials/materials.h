@@ -62,22 +62,20 @@ using MtlBlinn = MtlBlinn_PathTracing;
 
 class MultiMtl : public Material {
  public:
-  virtual ~MultiMtl()
-  {
-    for (unsigned int i = 0; i < mtls.size(); i++) delete mtls[i];
-  }
 
-  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
-                      const LightList &lights, int bounceCount) const
+  ~MultiMtl() override { for (auto &m : mtls) delete m; }
+
+  Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+                const LightList &lights, int bounceCount) const override
   {
     return hInfo.c.mtlID < (int) mtls.size() ?
            mtls[hInfo.c.mtlID]->Shade(ray, hInfo, lights, bounceCount) :
            Color3f(1, 1, 1);
   }
 
-  virtual void SetViewportMaterial(int subMtlID = 0) const
+  void SetViewportMaterial(int subMtlID) const override
   {
-    if (subMtlID < (int) mtls.size()) mtls[subMtlID]->SetViewportMaterial();
+    if (subMtlID < (int) mtls.size()) mtls[subMtlID]->SetViewportMaterial(0);
   }
 
   void AppendMaterial(Material *m) { mtls.push_back(m); }

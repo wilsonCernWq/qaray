@@ -47,7 +47,7 @@ enum TimeState {START_FRAME, STOP_FRAME, KILL_FRAME};
 void TimeFrame(TimeState state);
 ///--------------------------------------------------------------------------//
 struct RendererParam {
-  bool useSRGB = false;
+  bool useSRGB = true;
   size_t sppMax = 16;
   size_t sppMin = 4;
   void SetSPPMax(int spp){ sppMax = static_cast<size_t>(spp); }
@@ -88,7 +88,7 @@ class Renderer {
   size_t mpiSize = 1;
   size_t mpiRank = 0;
  public:
-  Renderer(RendererParam& param);
+  explicit Renderer(RendererParam &param);
   void ComputeScene(RenderImage& renderImage, Scene& scene);
   void ThreadRender();
   void PixelRender(size_t i, size_t j, size_t tile_idx);

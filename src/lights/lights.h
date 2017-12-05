@@ -2,8 +2,8 @@
 ///
 /// \file       lights.h 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    10.0
-/// \date       October 30, 2017
+/// \version    13.0
+/// \date       November 20, 2017
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -25,10 +25,8 @@ class GenLight : public Light {
   static int shadow_spp_min;
   static int shadow_spp_max;
  protected:
-  void SetViewportParam(int lightID,
-                        Color4f ambient,
-                        Color4f intensity,
-                        Point4 pos) const;
+  void SetViewportParam(int lightID, Color4f ambient,
+                        Color4f intensity, Point4 pos) const;
   static float Shadow(Ray ray, float t_max = BIGFLOAT);
 };
 
@@ -38,14 +36,14 @@ class AmbientLight : public GenLight {
  public:
   AmbientLight() : intensity(0, 0, 0) {}
 
-  virtual Color3f Illuminate(const Point3 &p,
-                           const Point3 &N) const { return intensity; }
+  Color3f Illuminate(const Point3 &p,
+                     const Point3 &N) const override { return intensity; }
 
-  virtual Point3 Direction(const Point3 &p) const { return Point3(0, 0, 0); }
+  Point3 Direction(const Point3 &p) const override { return Point3(0, 0, 0); }
 
-  virtual bool IsAmbient() const { return true; }
+  bool IsAmbient() const override { return true; }
 
-  virtual void SetViewportLight(int lightID) const
+  void SetViewportLight(int lightID) const override
   {
     SetViewportParam(lightID,
                      Color4f(intensity, 1.f),
@@ -65,16 +63,16 @@ class DirectLight : public GenLight {
  public:
   DirectLight() : intensity(0, 0, 0), direction(0, 0, 1) {}
 
-  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const
+  Color3f Illuminate(const Point3 &p, const Point3 &N) const override
   {
     Ray ray(p, -direction);
     ray.Normalize();
     return Shadow(ray) * intensity;
   }
 
-  virtual Point3 Direction(const Point3 &p) const { return direction; }
+  Point3 Direction(const Point3 &p) const override { return direction; }
 
-  virtual void SetViewportLight(int lightID) const
+  void SetViewportLight(int lightID) const override
   {
     SetViewportParam(lightID,
                      Color4f(0.0f),
@@ -97,26 +95,25 @@ class PointLight : public GenLight {
  public:
   PointLight() : intensity(0, 0, 0), position(0, 0, 0), size(0) {}
 
-  virtual Color3f Illuminate(const Point3 &p, const Point3 &N) const;
+  Color3f Illuminate(const Point3 &p, const Point3 &N) const override;
 
-  virtual Point3 Direction(const Point3 &p) const
+  Point3 Direction(const Point3 &p) const override
   {
     return glm::normalize(p - position);
   }
 
-  virtual void SetViewportLight(int lightID) const
-  {
-    SetViewportParam(lightID,
-                     Color4f(0.0f),
-                     Color4f(intensity, 1.f),
-                     Point4(position, 1.f));
-  }
+  void SetViewportLight(int lightID) const override;
 
   void SetIntensity(Color3f intens) { intensity = intens; }
 
   void SetPosition(Point3 pos) { position = pos; }
 
   void SetSize(float s) { size = s; }
+
+  // Photon Extensions
+  bool IsPhotonSource() const override { return true; }
+  Color3f GetPhotonIntensity() const override { return intensity; }
+  DiffRay RandomPhoton() const override;
 
  private:
   Color3f intensity;

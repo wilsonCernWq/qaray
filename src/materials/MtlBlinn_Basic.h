@@ -38,10 +38,12 @@ class MtlBlinn_Basic : public Material {
 
   void SetRefractionGlossiness(float gloss) { refractionGlossiness = gloss; }
 
-  virtual Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
-                      const LightList &lights, int bounceCount) const;
+  Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
+                const LightList &lights, int bounceCount) const override;
 
-  virtual void SetViewportMaterial(int subMtlID = 0) const; // used for OpenGL display
+  // OpenGL Extensions
+  void SetViewportMaterial(int subMtlID = 0) const override;
+
  private:
   TexturedColor diffuse, specular, reflection, refraction, emission;
   float glossiness;
