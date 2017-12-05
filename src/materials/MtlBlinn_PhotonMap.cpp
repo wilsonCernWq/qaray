@@ -171,8 +171,7 @@ const
   //
   // Shading Directional Lights
   //
-  const float normCoefDI =
-      (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
+  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
   for (auto &light : lights) {
     if (light->IsAmbient()) {}
     else {
@@ -200,6 +199,7 @@ const
     bool doShade = false;
     //
     // Select a BxDF
+    //
     float PDF = 1.f;
     Color3f BxDF(0.f);
     /* Refraction */
@@ -217,7 +217,7 @@ const
         const Point3 H = tDir;
         const float cosVH = MAX(0.f, dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-        BxDF = sampleRefraction * glossiness * RCP_PI;
+        BxDF = sampleRefraction * glossiness;
       } else {
         /* Ray Direction */
         sampleDir = tDir;
@@ -228,7 +228,7 @@ const
       }
       doShade = true;
     }
-      /* Reflection */
+    /* Reflection */
     else if (select < sumReflection && coefReflection > 1e-6f) {
       if (reflectionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
@@ -241,7 +241,7 @@ const
         const Point3 L = normalize(sampleDir);
         const Point3 H = rDir;
         const float cosVH = MAX(0.f, dot(V, H));
-        BxDF = sampleReflection * POW(cosVH, reflectionGlossiness) * RCP_PI;
+        BxDF = sampleReflection * POW(cosVH, reflectionGlossiness);
       } else {
         /* Ray Direction */
         sampleDir = rDir;
@@ -252,7 +252,7 @@ const
       }
       doShade = true;
     }
-      /* Specular */
+    /* Specular */
     else if (select < sumSpecular && coefSpecular > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         if (specularGlossiness > glossiness_power_threshold) {
@@ -266,12 +266,12 @@ const
           const Point3 L = normalize(sampleDir);
           const Point3 H = normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) * RCP_PI;
+          BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
           doShade = true;
         }
       }
     }
-      /* Diffuse */
+    /* Diffuse */
     else if (select < sumDiffuse && coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
@@ -281,12 +281,13 @@ const
         /* PDF */
         PDF = coefDiffuse * RCP_PI;
         /* BRDF */
-        BxDF = sampleDiffuse * RCP_PI;
+        BxDF = sampleDiffuse;
         doShade = true;
       }
     }
     //
     // Shade
+    //
     if (doShade) {
       // Generate ray
       DiffRay sampleRay(p, sampleDir);
@@ -298,7 +299,7 @@ const
       if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
         // Attenuation When the Ray Travels Inside the Material
         if (!sampleHInfo.c.hasFrontHit) {
-          //incoming *= Attenuation(absorption, sampleHInfo.c.z);
+          incoming *= Attenuation(absorption, sampleHInfo.c.z);
         }
         const auto *mtl = sampleHInfo.c.node->GetMaterial();
         incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
@@ -306,11 +307,6 @@ const
         incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
       }
       Point3 outgoing = incoming * BxDF / PDF;
-//      // Attenuate Outgoing Ray
-//      if (hInfo.c.hasFrontHit) {
-//        // TODO making volume effect here
-//        //outgoing *= MIN(1.f, 1.f / (0.0025f * hInfo.c.z * hInfo.c.z));
-//      }
       color += outgoing;
     }
   }
