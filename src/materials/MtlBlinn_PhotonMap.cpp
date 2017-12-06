@@ -171,47 +171,23 @@ const
   //
   // Shading Directional Lights
   //
-//  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size()) * RCP_PI;
-//  for (auto &light : lights) {
-//    if (light->IsAmbient()) {}
-//    else {
-//      auto intensity = light->Illuminate(p, N) * normCoefDI;
-//      auto L = normalize(-light->Direction(p));
-//      auto H = normalize(V + L);
-//      auto cosNL = MAX(0.f, dot(N, L));
-//      auto cosNH = MAX(0.f, dot(N, H));
-//      color += normCoefDI * intensity * cosNL *
-//          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-//    }
-//  }
-  //
-  // gather photons
-  //
-  if (bounceCount <= 0) {
-    cyColor irrad;
-    cyPoint3f direction;
-    cyPoint3f cypos(p.x, p.y, p.z);
-    cyPoint3f cyNor(N.x, N.y, N.z);
-    const float radius = 1.f;
-    scene.photonmap.EstimateIrradiance<2000>
-        (irrad, direction, radius, cypos, &cyNor, 1.f, cyPhotonMap::FILTER_TYPE_QUADRATIC);
-    // shade
-    Color3f intensity(irrad.r, irrad.g, irrad.b);
-    intensity *= RCP_PI / length2(radius);
-
-    Point3 L = normalize(Point3(direction.x, direction.y, direction.z));
-    auto H = normalize(V + L);
-    auto cosNL = MAX(0.f, dot(N, L));
-    auto cosNH = MAX(0.f, dot(N, H));
-    color += intensity * cosNL *
-        (sampleDiffuse /*+ sampleSpecular * POW(cosNH, specularGlossiness)*/);
-
-    color += intensity;
+  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
+  for (auto &light : lights) {
+    if (light->IsAmbient()) {}
+    else {
+      auto intensity = light->Illuminate(p, N) * normCoefDI;
+      auto L = normalize(-light->Direction(p));
+      auto H = normalize(V + L);
+      auto cosNL = MAX(0.f, dot(N, L));
+      auto cosNH = MAX(0.f, dot(N, H));
+      color += normCoefDI * intensity * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    }
   }
   //
   // Shading Indirectional Lights
   //
-  else if (bounceCount > 0) {
+  if (bounceCount > 0) {
     //
     // Coordinate Frame for the Hemisphere
     const Point3 nZ = Y;
@@ -297,15 +273,38 @@ const
       /* Diffuse */
     else if (select < sumDiffuse && coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
-        /* Generate Random Sample */
-        const Point3
-            sample = normalize(rng->local().CosWeightedHemisphere());
-        sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
-        /* PDF */
-        PDF = coefDiffuse;
-        /* BRDF */
-        BxDF = sampleDiffuse;
-        doShade = true;
+        if (bounceCount == Material::maxBounce) {
+          /* Generate Random Sample */
+          const Point3
+              sample = normalize(rng->local().CosWeightedHemisphere());
+          sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
+          /* PDF */
+          PDF = coefDiffuse;
+          /* BRDF */
+          BxDF = sampleDiffuse;
+          doShade = true;
+        } else {
+          //
+          // gather photons
+          //
+          cyColor irrad;
+          cyPoint3f direction;
+          cyPoint3f cypos(p.x, p.y, p.z);
+          cyPoint3f cyNor(N.x, N.y, N.z);
+          const float radius = 1.f;
+          scene.photonmap.EstimateIrradiance<200>
+              (irrad, direction, radius, cypos, &cyNor, 1.f, cyPhotonMap::FILTER_TYPE_QUADRATIC);
+          // shade
+          Color3f intensity(irrad.r, irrad.g, irrad.b);
+          intensity *= RCP_PI / length2(radius);
+
+          Point3 L = normalize(Point3(direction.x, direction.y, direction.z));
+          auto H = normalize(V + L);
+          auto cosNL = MAX(0.f, dot(N, L));
+          color += intensity * cosNL * sampleDiffuse;
+
+          //color += intensity;
+        }
       }
     }
     //
@@ -488,7 +487,7 @@ const
   if (doShade)
   {
     ray = DiffRay(hInfo.c.p, sampleDir); ray.Normalize();
-    c = c * 2.f * BxDF / PDF;
+    c = c * BxDF;// / PDF;
     return true;
   }
   else {

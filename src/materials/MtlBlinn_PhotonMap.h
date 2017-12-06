@@ -73,7 +73,8 @@ class MtlBlinn_PhotonMap : public Material {
   // If this method returns true, the photon will be stored
   bool IsPhotonSurface(int subMtlID) const override
   {
-    return true;
+    return !((ColorLuma(reflection.GetColor()) > 0) ||
+             (ColorLuma(refraction.GetColor()) > 0));
   }
 
   // If this method returns true, a new photon with the given direction and

@@ -163,15 +163,14 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
              {
                if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
                  const Material *mtl = hInfo.c.node->GetMaterial();
-                 bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
-                 if (mtl->IsPhotonSurface(0))
+                 if (mtl->IsPhotonSurface(0) && bounce != 0)
                  {
-                   scene->photonmap
-                       .AddPhoton(cyPoint3f(hInfo.c.p.x, hInfo.c.p.y, hInfo.c.p.z),
-                                  -cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z),
-                                  cyColor(intensity.x, intensity.y, intensity.z));
+                   scene->photonmap.AddPhoton(cyPoint3f(hInfo.c.p.x, hInfo.c.p.y, hInfo.c.p.z),
+                                              cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z),
+                                              cyColor(intensity.x, intensity.y, intensity.z));
                    ++numPhotonsRec;
                  }
+                 bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
                  if (flag) {
                    ++bounce;
                    ray.Normalize();
@@ -185,11 +184,7 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
          });
     scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
     scene->photonmap.PrepareForIrradianceEstimation();
-//    FILE *fp=fopen("photonmap.dat","wb");
-//    fwrite(scene->photonmap.GetPhotons(),sizeof(cyPhotonMap::Photon),
-//           scene->photonmap.NumPhotons(),fp);
-//    fclose(fp);
-  }
+   }
 #endif
 };
 ///--------------------------------------------------------------------------//

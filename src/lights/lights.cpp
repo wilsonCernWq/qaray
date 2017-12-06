@@ -22,7 +22,7 @@ void DisableInverseSquareFalloff() { useInverseSquareFalloff = false; }
 float InverseSquareFalloff(const Point3 &v)
 {
   if (useInverseSquareFalloff) {
-    return MIN(100.f, 100.f / length2(v));
+    return MIN(1.f, 1.f / length2(v));
   } else {
     return 1.f;
   }
