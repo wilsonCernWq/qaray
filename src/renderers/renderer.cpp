@@ -128,20 +128,13 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         (static_cast<qaUINT>(param.causticsMapSize));
     //! find out all point lights
     std::vector<Light *> photonLights;
-    std::vector<qaFLOAT> photonValues(1, 0.f);
-    qaFLOAT totalValue = 0.f;
     for (auto &light : scene->lights) {
-      if (light->IsPhotonSource()) {
-        auto I = light->GetPhotonIntensity();
-        photonLights.push_back(light);
-        photonValues.push_back(ColorLuma(I));
-        totalValue += ColorLuma(I);
-      }
+      if (light->IsPhotonSource()) { photonLights.push_back(light); }
     }
-    for (auto &v : photonValues) { v /= totalValue; }
+    const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
     //! trace photons
-    std::atomic<int> numPhotonsRec(1);
-    std::atomic<int> numPhotonsGen(1);
+    std::atomic<qaINT> numPhotonsRec(1);
+    std::atomic<qaINT> numPhotonsGen(1);
     auto start = size_t(0);
     auto stop = tasking::get_num_of_threads();
     auto step = size_t(1);
@@ -149,41 +142,34 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     {
       while (numPhotonsRec < param.photonMapSize) {
         Light *light;
-        long id;
-        if (photonLights.size() == 1) {
-          light = photonLights[0];
-          id = 1;
-        } else {
-          float r;
-          rng->local().Get1f(r);
-          auto it =
-              std::upper_bound(photonValues.begin(), photonValues.end(), r);
-          id = it - photonValues.begin();
-          light = photonLights[id - 1];
+        if (photonLights.size() == 1) { light = photonLights[0]; }
+        else {
+          qaFLOAT r; rng->local().Get1f(r);
+          size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
+                          photonLights.size() - 1);
+          light = photonLights[id];
         }
         //! generate one photons
         ++numPhotonsGen;
-        DiffRay ray = light->RandomPhoton();
-        ray.Normalize();
-        DiffHitInfo hInfo;
-        hInfo.c.z = BIGFLOAT;
-        Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
+        DiffRay ray = light->RandomPhoton(); ray.Normalize();
+        DiffHitInfo hInfo; hInfo.Init();
+        Color3f intensity = light->GetPhotonIntensity() * lightScale;
         //! trace photon
         size_t bounce = 0;
         while (bounce < param.photonMapBounce) {
           if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
             const Material *mtl = hInfo.c.node->GetMaterial();
-            if (mtl->IsPhotonSurface(0) && bounce != 0) {
+            if (mtl->IsPhotonSurface(0)) {
               // cyPhotonMap::Photon photon;
               // photon.position.x = hInfo.c.p.x;
               // photon.position.y = hInfo.c.p.y;
               // photon.position.z = hInfo.c.p.z;
               // photon.SetDirection(cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z));
               // photon.SetPower(cyColor(intensity.x, intensity.y, intensity.z));
+              // scene->photonmap[numPhotonsRec] = photon;
               scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
                                          (cyPoint3f &) ray.c.dir,
                                          (cyColor &) intensity);
-              //scene->photonmap[numPhotonsRec] = photon;
               ++numPhotonsRec;
             }
             bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);

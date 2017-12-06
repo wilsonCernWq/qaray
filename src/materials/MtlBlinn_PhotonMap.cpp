@@ -169,7 +169,6 @@ bool MtlBlinn_PhotonMap::SampleTransmitBxDF(Point3 &sampleDir,
 const
 {
   if (refractionGlossiness > glossiness_power_threshold) {
-    PDF = 1.f;
     sampleDir = photonMap ?
                 -TransformToLocalFrame(Y, rng->local().UniformHemisphere()) :
                 -TransformToLocalFrame(Y, rng->local().CosWeightedHemisphere());
@@ -177,11 +176,14 @@ const
     const Point3 H = normalize(V + L);
     const float cosVH = MAX(0.f, dot(V, H));
     const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-    BxDF = color * glossiness;
+    BxDF = color * glossiness; // ==> rho / pi
+    PDF = photonMap ?
+          0.5f : // ==> 1 / (2*pi) uniform hemisphere sampling
+          1.f;  // ==> cosTheta / pi cos-weighted hemisphere sampling
   } else {
-    PDF = 1.f;
     sampleDir = tDir;
-    BxDF = color;
+    BxDF = color; // ==> reflect all light
+    PDF = 1.f;    // ==> PDF = 1
   }
   return true;
 }
@@ -197,7 +199,6 @@ bool MtlBlinn_PhotonMap::SampleReflectionBxDF(Point3 &sampleDir,
 const
 {
   if (reflectionGlossiness > glossiness_power_threshold) {
-    PDF = 1.f;
     sampleDir = photonMap ?
                 TransformToLocalFrame(Y, rng->local().UniformHemisphere()) :
                 TransformToLocalFrame(Y, rng->local().CosWeightedHemisphere());
@@ -205,10 +206,13 @@ const
     const Point3 H = normalize(V + L);
     const float cosNH = MAX(0.f, dot(N, H));
     BxDF = color * POW(cosNH, reflectionGlossiness);
+    PDF = photonMap ?
+          0.5f :
+          1.f;
   } else {
-    PDF = 1.f;
     sampleDir = rDir;
     BxDF = color;
+    PDF = 1.f;
   }
   return true;
 }
@@ -222,7 +226,6 @@ bool MtlBlinn_PhotonMap::SampleSpecularBxDF(Point3 &sampleDir,
 const
 {
   if (specularGlossiness > glossiness_power_threshold) {
-    PDF = 1.f;
     sampleDir = photonMap ?
                 TransformToLocalFrame(N, rng->local().UniformHemisphere()) :
                 TransformToLocalFrame(N, rng->local().CosWeightedHemisphere());
@@ -230,6 +233,9 @@ const
     const Point3 H = normalize(V + L);
     const float cosNH = MAX(0.f, dot(N, H));
     BxDF = color * POW(cosNH, specularGlossiness);
+    PDF = photonMap ?
+          0.5f :
+          1.f;
     return true;
   } else {
     return false;
@@ -243,11 +249,13 @@ bool MtlBlinn_PhotonMap::SampleDiffuseBxDF(Point3 &sampleDir,
                                            bool photonMap)
 const
 {
-  PDF = 1.f;
   sampleDir = photonMap ?
               TransformToLocalFrame(N, rng->local().UniformHemisphere()) :
               TransformToLocalFrame(N, rng->local().CosWeightedHemisphere());
   BxDF = color;
+  PDF = photonMap ?
+        0.5f :
+        1.f;
   return true;
 }
 ///--------------------------------------------------------------------------//
@@ -299,96 +307,88 @@ const
     }
   }
   //
+  // Russian Roulette
+  //
+  Point3 sampleDir;
+  Color3f BxDF;
+  qaFLOAT PDF = 1.f;
+  qaFLOAT scale = 1.f;
+  qaBOOL doShade = false;
+  auto select = RandomSelectMtl(scale, sampleTransmission, sampleReflection,
+                                sampleDiffuse, sampleSpecular);
+  // Generate Parameters
+  switch (select) {
+    case (TRANSMIT):
+      doShade = SampleTransmitBxDF(sampleDir, BxDF, PDF, N, Y, V, tDir,
+                                   sampleTransmission);
+      break;
+    case (REFLECT):
+      doShade = SampleReflectionBxDF(sampleDir, BxDF, PDF, N, Y, V, rDir,
+                                     sampleReflection);
+      break;
+    case (SPECULAR):
+      if (hInfo.c.hasFrontHit) {
+        doShade =
+            SampleSpecularBxDF(sampleDir, BxDF, PDF, N, V, sampleSpecular);
+      }
+      break;
+    case (DIFFUSE):
+      if (hInfo.c.hasFrontHit) {
+        doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
+      }
+      break;
+    case (ABSORB):doShade = false;
+      break;
+  }
+  //
+  // Gather Photon
+  //
+  bool doPhotonGather = select == DIFFUSE &&
+      (bounceCount != Material::maxBounce || Material::maxBounce == 0);
+  if (doPhotonGather) {
+    // gather photons
+    cyColor cyI;
+    cyPoint3f cyD;
+    cyPoint3f cyP(p.x, p.y, p.z);
+    cyPoint3f cyN(N.x, N.y, N.z);
+    const float radius = 1.f;
+    scene.photonmap.EstimateIrradiance<200>
+        (cyI, cyD, radius, cyP, &cyN, 1.f,
+         cyPhotonMap::FILTER_TYPE_QUADRATIC);
+    // shade
+    Color3f I(cyI.r, cyI.g, cyI.b);
+    I *= RCP_PI / length2(radius);
+    Point3 L = normalize(Point3(cyD.x, cyD.y, cyD.z));
+    auto H = normalize(V + L);
+    auto cosNL = MAX(0.f, dot(N, L));
+    color += I * cosNL * BxDF / PDF;
+  }
+  //
   // Shading Indirectional Lights
   //
-  if (bounceCount > 0) {
-    // Select BxDF
-    Point3 sampleDir;
-    Color3f BxDF;
-    float PDF = 1.f;
-    float scale = 1.f;
-    bool doShade = false;
-    auto select = RandomSelectMtl(scale,
-                                  sampleTransmission,
-                                  sampleReflection,
-                                  sampleDiffuse,
-                                  sampleSpecular);
-    switch (select) {
-      case (TRANSMIT):
-        doShade = SampleTransmitBxDF(sampleDir,
-                                     BxDF,
-                                     PDF,
-                                     N,
-                                     Y,
-                                     V,
-                                     tDir,
-                                     sampleTransmission);
-        break;
-      case (REFLECT):
-        doShade = SampleReflectionBxDF(sampleDir,
-                                       BxDF,
-                                       PDF,
-                                       N,
-                                       Y,
-                                       V,
-                                       rDir,
-                                       sampleReflection);
-        break;
-      case (SPECULAR):
-        if (hInfo.c.hasFrontHit) {
-          doShade =
-              SampleSpecularBxDF(sampleDir, BxDF, PDF, N, V, sampleSpecular);
-        }
-        break;
-      case (DIFFUSE):
-        if (hInfo.c.hasFrontHit) {
-          doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
-        }
-        break;
-      case (ABSORB):doShade = false;
-        break;
-    }
-    // Shade the surface
+  if (bounceCount > 0 && !doPhotonGather) // Select BxDF
+  {
     if (doShade) {
-      if (true/*bounceCount >= Material::maxBounce - 0*/) {
-        // Generate ray
-        DiffRay sampleRay(p, sampleDir);
-        sampleRay.Normalize();
-        DiffHitInfo sampleHInfo;
-        sampleHInfo.Init();
-        // Integrate Incoming Ray
-        Color3f incoming(0.f);
-        if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
-          // Attenuation When the Ray Travels Inside the Material
-          if (!sampleHInfo.c.hasFrontHit) {
-            incoming *= Attenuation(absorption, sampleHInfo.c.z);
-          }
-          const auto *mtl = sampleHInfo.c.node->GetMaterial();
-          incoming =
-              mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
-        } else {
-          incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
+      // Generate ray
+      DiffRay sampleRay(p, sampleDir);
+      sampleRay.Normalize();
+      DiffHitInfo sampleHInfo;
+      sampleHInfo.Init();
+      // Integrate Incoming Ray
+      Color3f incoming(0.f);
+      if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
+        // Attenuation When the Ray Travels Inside the Material
+        if (!sampleHInfo.c.hasFrontHit) {
+          incoming *= Attenuation(absorption, sampleHInfo.c.z);
         }
-        Point3 outgoing = incoming * BxDF / (PDF * scale);
-        color += outgoing;
+        const auto *mtl = sampleHInfo.c.node->GetMaterial();
+        incoming =
+            mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
       } else {
-//        // gather photons
-//        cyColor cyI;
-//        cyPoint3f cyD;
-//        cyPoint3f cyP(p.x, p.y, p.z);
-//        cyPoint3f cyN(N.x, N.y, N.z);
-//        const float radius = 1.f;
-//        scene.photonmap.EstimateIrradiance<200>
-//            (cyI, cyD, radius, cyP, &cyN, 1.f,
-//             cyPhotonMap::FILTER_TYPE_QUADRATIC);
-//        // shade
-//        Color3f I(cyI.r, cyI.g, cyI.b);
-//        I *= RCP_PI / length2(radius);
-//        Point3 L = normalize(Point3(cyD.x, cyD.y, cyD.z));
-//        auto H = normalize(V + L);
-//        auto cosNL = MAX(0.f, dot(N, L));
-//        color += I * cosNL * BxDF / PDF;
+        incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
       }
+      Point3 outgoing = incoming * BxDF / (PDF * scale);
+      color += outgoing;
     }
   }
   return color;

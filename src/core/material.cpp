@@ -28,12 +28,14 @@
 #include "material.h"
 
 namespace qaray {
-int Material::maxBounce = 5;
-Material* MaterialList::Find(const char *name)
+qaINT Material::maxBounce = 5;
+Material* MaterialList::Find(const qaCHAR *name)
 {
   size_t n = size();
   for (size_t i = 0; i < n; i++)
+  {
     if (at(i) && strcmp(name, at(i)->GetName()) == 0) { return at(i); }
+  }
   return nullptr;
 }
 }
