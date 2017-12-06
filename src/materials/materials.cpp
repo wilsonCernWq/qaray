@@ -31,9 +31,9 @@
 
 Color3f Attenuation(const Color3f &absorption, float l)
 {
-  const auto R = static_cast<float>(exp(-absorption.r * l));
-  const auto G = static_cast<float>(exp(-absorption.g * l));
-  const auto B = static_cast<float>(exp(-absorption.b * l));
+  const auto R = exp(-absorption.r * l);
+  const auto G = exp(-absorption.g * l);
+  const auto B = exp(-absorption.b * l);
   return Color3f(R, G, B); // attenuation
 }
 

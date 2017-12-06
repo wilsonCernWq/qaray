@@ -33,3 +33,15 @@ DEFINE_ALL_DEF(int, i);
 DEFINE_ALL_DEF(float, f);
 DEFINE_ALL_DEF(double, d);
 
+namespace qaray {
+Point3 TransformToLocalFrame(const Point3 &N, const Point3 &sample)
+{
+  const Point3 Z = N;
+  const Point3 Y = (ABS(Z.x) > ABS(Z.y)) ?
+                   normalize(Point3(Z.z, 0, -Z.x)) :
+                   normalize(Point3(0, -Z.z, Z.y));
+  const Point3 X = normalize(cross(Y, Z));
+  const Point3 unit = normalize(sample);
+  return unit.x * X + unit.y * Y + unit.z * Z;
+}
+}
