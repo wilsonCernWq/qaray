@@ -27,12 +27,6 @@
 
 #include "parallel_for.h"
 
-#ifdef USE_TBB
-# include <tbb/task_arena.h>
-# include <tbb/task_scheduler_init.h>
-# include <tbb/parallel_for.h>
-#endif
-
 namespace qaray {
 namespace tasking {
 //---------------------------------------------------------------------------//
@@ -74,7 +68,7 @@ void init()
 }
 
 void parallel_for(size_t start, size_t end, size_t step,
-                  const std::function<void(size_t)> &T)
+		  std::function<void(size_t)> T)
 {
 #if defined(USE_TBB)
   tbb::parallel_for(start, end, step, T);

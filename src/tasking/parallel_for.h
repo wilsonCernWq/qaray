@@ -29,6 +29,11 @@
 #define QARAY_PARALLEL_FOR_H
 #pragma once
 
+#include <cstddef>
+#include <vector>
+#include <functional>
+#include <atomic>
+
 #ifndef USE_MULTI_THREADING
 # define USE_MULTI_THREADING 1
 #endif
@@ -40,24 +45,21 @@
 #endif
 
 #ifdef USE_TBB
+# include <tbb/task_arena.h>
+# include <tbb/task_scheduler_init.h>
+# include <tbb/parallel_for.h>
 # include <tbb/enumerable_thread_specific.h>
 #endif
 #ifdef USE_OMP
 # include <omp.h>
 #endif
 
-#include <cstddef>
-#include <vector>
-#include <functional>
-#include <atomic>
-
 namespace qaray {
 namespace tasking {
 size_t get_num_of_threads();
 void set_num_of_threads(size_t num_of_threads);
 void init();
-void parallel_for(size_t start, size_t end, size_t step,
-                  const std::function<void(size_t)> &T);
+void parallel_for(size_t start, size_t end, size_t step, std::function<void(size_t)> T);
 
 #if defined(USE_TBB)
 template<typename T>
