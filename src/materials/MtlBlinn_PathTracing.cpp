@@ -216,20 +216,20 @@ const
             sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
-        PDF = coefRefraction / (float) M_PI;
+        PDF = coefRefraction;
         /* BSDF */
         const Point3 L = glm::normalize(sampleDir);
         const Point3 H = tDir;
         const float cosVH = MAX(0.f, dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-        BxDF = sampleRefraction * glossiness / (float) M_PI;
+        BxDF = sampleRefraction * glossiness;
       } else {
         /* Ray Direction */
         sampleDir = tDir;
         /* PDF */
         PDF = coefRefraction;
         /* BSDF */
-        BxDF = sampleRefraction / (float) M_PI;
+        BxDF = sampleRefraction;
       }
       doShade = true;
     }
@@ -243,20 +243,20 @@ const
             sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefReflection / (float) M_PI;
+        PDF = coefReflection;
         /* BRDF */
         const Point3 L = glm::normalize(sampleDir);
         const Point3 H = rDir;
         const float cosVH = MAX(0.f, dot(V, H));
         BxDF =
-            sampleReflection * POW(cosVH, reflectionGlossiness) / (float) M_PI;
+            sampleReflection * POW(cosVH, reflectionGlossiness);
       } else {
         /* Ray Direction */
         sampleDir = rDir;
         /* PDF */
         PDF = coefReflection;
         /* BRDF */
-        BxDF = sampleReflection / (float) M_PI;
+        BxDF = sampleReflection;
       }
       doShade = true;
     }
@@ -271,12 +271,12 @@ const
               sample = glm::normalize(rng->local().CosWeightedHemisphere());
           sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
           /* PDF */
-          PDF = coefSpecular / (float) M_PI;
+          PDF = coefSpecular;
           /* BRDF */
           const Point3 L = glm::normalize(sampleDir);
           const Point3 H = glm::normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
-          BxDF = sampleSpecular * POW(cosNH, specularGlossiness) / (float) M_PI;
+          BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
           doShade = true;
         }
       }
@@ -291,9 +291,9 @@ const
             sample = glm::normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
-        PDF = coefDiffuse / (float) M_PI;
+        PDF = coefDiffuse;
         /* BRDF */
-        BxDF = sampleDiffuse / (float) M_PI;
+        BxDF = sampleDiffuse;
         doShade = true;
       }
     }
