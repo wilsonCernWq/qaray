@@ -129,30 +129,25 @@ const
   //
   // Compute weights
   //
-  const float coefTransmit =
-      lumaTransmission > color_luma_threshold ? lumaTransmission : -1.f;
-  const float coefReflection =
-      lumaReflection > color_luma_threshold ? lumaReflection : -1.f;
-  const float coefSpecular =
-      lumaSpecular > color_luma_threshold ? lumaSpecular : -1.f;
-  const float coefDiffuse =
-      lumaDiffuse > color_luma_threshold ? lumaDiffuse : -1.f;
-  const float coefAbsorb = kill;
-  const float coefSum =
-      lumaTransmission + lumaReflection + lumaSpecular + lumaDiffuse + kill;
+  const float coefTransmit = lumaTransmission;
+  const float coefReflection = coefTransmit + lumaReflection;
+  const float coefSpecular = coefReflection + lumaSpecular;
+  const float coefDiffuse = coefSpecular + lumaDiffuse;
+  const float coefAbsorb = coefDiffuse + kill;
+  const float coefSum = coefAbsorb;
   const float rcpCoefSum = 1.f / coefSum;
   const float select = r * coefSum;
   MtlSelection selectedMtl;
-  if (select < coefTransmit) {
+  if (select < coefTransmit && lumaTransmission > color_luma_threshold) {
     selectedMtl = TRANSMIT;
     scale = lumaTransmission * rcpCoefSum;
-  } else if (select < coefReflection) {
+  } else if (select < coefReflection && lumaReflection > color_luma_threshold) {
     selectedMtl = REFLECT;
     scale = lumaReflection * rcpCoefSum;
-  } else if (select < coefSpecular) {
+  } else if (select < coefSpecular && lumaSpecular > color_luma_threshold) {
     selectedMtl = SPECULAR;
     scale = lumaSpecular * rcpCoefSum;
-  } else if (select < coefDiffuse) {
+  } else if (select < coefDiffuse && lumaDiffuse > color_luma_threshold) {
     selectedMtl = DIFFUSE;
     scale = lumaDiffuse * rcpCoefSum;
   } else {

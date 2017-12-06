@@ -199,10 +199,12 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
 ///--------------------------------------------------------------------------//
 void Renderer::PixelRender(size_t i, size_t j, size_t tile_idx)
 {
+  //i = 441;
+  //j = 470;
   // initializations
   SuperSamplerHalton sampler(Color3f(0.005f, 0.001f, 0.005f),
                              static_cast<int>(param.sppMin),
-                             static_cast<int>(param.sppMax));
+                              static_cast<int>(param.sppMax));
   float depth = 0.0f;
   // start looping
   while (sampler.Loop()) {

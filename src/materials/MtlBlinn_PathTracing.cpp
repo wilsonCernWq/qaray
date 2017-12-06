@@ -160,8 +160,7 @@ const
   //
   // Shading Directional Lights
   //
-  const float normCoefDI =
-      (lights.size() == 0 ? 1.f : 1.f / lights.size()) / (float) M_PI;
+  const float normCoefDI = (lights.size() == 0 ? 1.f : 1.f / lights.size());
   for (auto &light : lights) {
     if (light->IsAmbient()) {}
     else {
