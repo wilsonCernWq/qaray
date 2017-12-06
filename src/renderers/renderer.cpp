@@ -172,9 +172,9 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
             {
               //! fetch a photon index in a critical session
               qaINT idx = -1;
-              guard.lock();
+              //guard.lock();
               idx = numPhotonsRec++;
-              guard.unlock();
+              //guard.unlock();
               //! check if the map is filled
               if (idx < param.photonMapSize) {
                 scene->photonmap[idx].position = (cyPoint3f &) hInfo.c.p;
