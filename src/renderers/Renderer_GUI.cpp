@@ -38,9 +38,9 @@ void Renderer_GUI::BeginRender()
 {
   // Reset
   StopRender();
-  renderImage->ResetNumRenderedPixels();
+  image->ResetNumRenderedPixels();
   // Start threads
-  threadStop = false;
+  tasking::signal_start();
   threadMain = new std::thread([&]{
     this->ThreadRender();
   });
@@ -51,7 +51,7 @@ void Renderer_GUI::BeginRender()
 void Renderer_GUI::StopRender()
 {
   // Send stop signal
-  threadStop = true;
+  tasking::signal_stop();
   // Wait for threads to finish
   if (threadMain != nullptr) {
     threadMain->join();
@@ -65,11 +65,11 @@ void Renderer_GUI::StopRender()
 void Renderer_GUI::CleanRender()
 {
   // Save image
-  renderImage->ComputeZBufferImage();
-  renderImage->ComputeSampleCountImage();
-  renderImage->SaveImage("colorBuffer.png");
-  renderImage->SaveZImage("depthBuffer.png");
-  renderImage->SaveSampleCountImage("sampleBuffer.png");
+  image->ComputeZBufferImage();
+  image->ComputeSampleCountImage();
+  image->SaveImage("colorBuffer.png");
+  image->SaveZImage("depthBuffer.png");
+  image->SaveSampleCountImage("sampleBuffer.png");
 }
 //---------------------------------------------------------------------------//
 // Called when the program is stopped
@@ -77,7 +77,7 @@ void Renderer_GUI::CleanRender()
 void Renderer_GUI::KillRender()
 {
   StopRender();
-  TimeFrame(KILL_FRAME);
+  KillTimer();
 }
 //---------------------------------------------------------------------------//
 //

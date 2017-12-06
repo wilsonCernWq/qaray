@@ -20,7 +20,7 @@
 // unique
 //Node rootNode;
 //Camera camera;
-//RenderImage renderImage;
+//FrameBuffer renderImage;
 //MaterialList materials;
 //LightList lights;
 //ObjFileList objList;

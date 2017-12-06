@@ -59,6 +59,9 @@ namespace tasking {
 size_t get_num_of_threads();
 void set_num_of_threads(size_t num_of_threads);
 void init();
+void signal_start();
+void signal_stop();
+bool has_stop_signal();
 void parallel_for(size_t start,
                   size_t end,
                   size_t step,

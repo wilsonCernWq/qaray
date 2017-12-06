@@ -32,35 +32,35 @@
 
 //-----------------------------------------------------------------------------
 
-class RenderImage {
+class FrameBuffer {
  private:
-  qaUCHAR *mask;
   Color3c *img;
-  float *zbuffer;
+  qaFLOAT *zbuffer;
   qaUCHAR *zbufferImg;
   qaUCHAR *sampleCount;
   qaUCHAR *sampleCountImg;
   qaUCHAR *irradComp;
-  int width, height;
-  std::atomic<int> numRenderedPixels;
+  qaUCHAR *mask;
+  qaUINT width, height;
+  std::atomic<qaINT> numRenderedPixels;
  public:
-  RenderImage();
+  FrameBuffer();
 
-  ~RenderImage();
+  ~FrameBuffer();
 
-  void Init(int w, int h);
+  qaVOID Init(qaUINT w, qaUINT h);
 
-  void AllocateIrradianceComputationImage();
+  qaVOID AllocateIrradianceComputationImage();
 
-  int GetWidth() const { return width; }
+  qaINT GetWidth() const { return width; }
 
-  int GetHeight() const { return height; }
+  qaINT GetHeight() const { return height; }
 
   Color3c *GetPixels() { return img; }
 
   qaUCHAR *GetMasks() { return mask; }
 
-  float *GetZBuffer() { return zbuffer; }
+  qaFLOAT *GetZBuffer() { return zbuffer; }
 
   qaUCHAR *GetZBufferImage() { return zbufferImg; }
 
@@ -70,28 +70,28 @@ class RenderImage {
 
   qaUCHAR *GetIrradianceComputationImage() { return irradComp; }
 
-  void ResetNumRenderedPixels();
+  qaVOID ResetNumRenderedPixels();
 
-  int GetNumRenderedPixels() const { return numRenderedPixels; }
+  qaINT GetNumRenderedPixels() const { return numRenderedPixels; }
 
-  void IncrementNumRenderPixel(int n) { numRenderedPixels += n; }
+  qaVOID IncrementNumRenderPixel(qaINT n) { numRenderedPixels += n; }
 
-  bool IsRenderDone() const { return numRenderedPixels >= width * height; }
+  qaBOOL IsRenderDone() const { return numRenderedPixels >= width * height; }
 
-  void ComputeZBufferImage();
+  qaVOID ComputeZBufferImage();
 
-  int ComputeSampleCountImage();
+  qaINT ComputeSampleCountImage();
 
-  bool SaveImage(const char *filename) const;
+  qaBOOL SaveImage(const qaCHAR *filename) const;
 
-  bool SaveZImage(const char *filename) const;
+  qaBOOL SaveZImage(const qaCHAR *filename) const;
 
-  bool SaveSampleCountImage(const char *filename) const;
+  qaBOOL SaveSampleCountImage(const qaCHAR *filename) const;
 
-  bool SaveIrradianceComputationImage(const char *filename) const;
+  qaBOOL SaveIrradianceComputationImage(const qaCHAR *filename) const;
 
  private:
-  bool SavePNG(const char *filename, qaUCHAR *data, int compCount) const;
+  qaBOOL SavePNG(const qaCHAR *filename, qaUCHAR *data, qaINT compCount) const;
 };
 
 //-----------------------------------------------------------------------------

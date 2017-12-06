@@ -2,7 +2,7 @@
 #include <lodepng.h>
 #include "framebuffer.h"
 
-RenderImage::RenderImage() :
+FrameBuffer::FrameBuffer() :
     mask(nullptr),
     img(nullptr),
     zbuffer(nullptr),
@@ -14,7 +14,7 @@ RenderImage::RenderImage() :
     height(0),
     numRenderedPixels(0) {}
 
-RenderImage::~RenderImage()
+FrameBuffer::~FrameBuffer()
 {
   delete[] mask;
   delete[] img;
@@ -23,7 +23,7 @@ RenderImage::~RenderImage()
   delete[] irradComp;
 }
 
-void RenderImage::Init(int w, int h)
+qaVOID FrameBuffer::Init(qaUINT w, qaUINT h)
 {
   width = w;
   height = h;
@@ -44,32 +44,32 @@ void RenderImage::Init(int w, int h)
   ResetNumRenderedPixels();
 }
 
-void RenderImage::AllocateIrradianceComputationImage()
+qaVOID FrameBuffer::AllocateIrradianceComputationImage()
 {
   if (!irradComp) irradComp = new qaUCHAR[width * height];
-  for (int i = 0; i < width * height; i++) irradComp[i] = 0;
+  for (qaINT i = 0; i < width * height; i++) irradComp[i] = 0;
 }
 
-void RenderImage::ResetNumRenderedPixels()
+qaVOID FrameBuffer::ResetNumRenderedPixels()
 {
   if (mask) delete[] mask;
   mask = new qaUCHAR[width * height]();
   numRenderedPixels = 0;
 }
 
-void RenderImage::ComputeZBufferImage()
+qaVOID FrameBuffer::ComputeZBufferImage()
 {
-  int size = width * height;
+  qaINT size = width * height;
   if (zbufferImg) delete[] zbufferImg;
   zbufferImg = new qaUCHAR[size];
 
   float zmin = BIGFLOAT, zmax = 0;
-  for (int i = 0; i < size; i++) {
+  for (qaINT i = 0; i < size; i++) {
     if (zbuffer[i] == BIGFLOAT) continue;
     if (zmin > zbuffer[i]) zmin = zbuffer[i];
     if (zmax < zbuffer[i]) zmax = zbuffer[i];
   }
-  for (int i = 0; i < size; i++) {
+  for (qaINT i = 0; i < size; i++) {
     if (zbuffer[i] == BIGFLOAT) zbufferImg[i] = 0;
     else {
       float f = (zmax - zbuffer[i]) / (zmax - zmin);
@@ -81,20 +81,20 @@ void RenderImage::ComputeZBufferImage()
   }
 }
 
-int RenderImage::ComputeSampleCountImage()
+qaINT FrameBuffer::ComputeSampleCountImage()
 {
-  int size = width * height;
+  qaINT size = width * height;
   if (sampleCountImg) delete[] sampleCountImg;
   sampleCountImg = new qaUCHAR[size];
   qaUCHAR smin = 255, smax = 0;
-  for (int i = 0; i < size; i++) {
+  for (qaINT i = 0; i < size; i++) {
     if (smin > sampleCount[i]) smin = sampleCount[i];
     if (smax < sampleCount[i]) smax = sampleCount[i];
   }
   if (smax == smin) {
-    for (int i = 0; i < size; i++) sampleCountImg[i] = 0;
+    for (qaINT i = 0; i < size; i++) sampleCountImg[i] = 0;
   } else {
-    for (int i = 0; i < size; i++) {
+    for (qaINT i = 0; i < size; i++) {
       qaUCHAR c = qaUCHAR((255 * (sampleCount[i] - smin)) / (smax - smin));
       if (c < 0) c = 0;
       if (c > 255) c = 255;
@@ -104,9 +104,9 @@ int RenderImage::ComputeSampleCountImage()
   return smax;
 }
 
-bool RenderImage::SavePNG(const char *filename,
-                          qaUCHAR *data,
-                          int compCount) const
+qaBOOL FrameBuffer::SavePNG(const qaCHAR *filename,
+                            qaUCHAR *data,
+                            qaINT compCount) const
 {
   LodePNGColorType colortype;
   switch (compCount) {
@@ -116,31 +116,30 @@ bool RenderImage::SavePNG(const char *filename,
       break;
     default:return false;
   }
-  unsigned int
-      error = lodepng::encode(filename, data, width, height, colortype, 8);
+  qaUINT error = lodepng::encode(filename, data, width, height, colortype, 8);
   return error == 0;
 }
 
-bool RenderImage::SaveImage(const char *filename) const
+qaBOOL FrameBuffer::SaveImage(const qaCHAR *filename) const
 {
   return SavePNG(filename,
                  &img[0].r,
                  3);
 }
 
-bool RenderImage::SaveZImage(const char *filename) const
+qaBOOL FrameBuffer::SaveZImage(const qaCHAR *filename) const
 {
   return SavePNG(filename,
                  zbufferImg,
                  1);
 }
 
-bool RenderImage::SaveSampleCountImage(const char *filename) const
+qaBOOL FrameBuffer::SaveSampleCountImage(const qaCHAR *filename) const
 {
   return SavePNG(filename, sampleCountImg, 1);
 }
 
-bool RenderImage::SaveIrradianceComputationImage(const char *filename) const
+qaBOOL FrameBuffer::SaveIrradianceComputationImage(const qaCHAR *filename) const
 {
   return SavePNG(filename, irradComp, 1);
 } 

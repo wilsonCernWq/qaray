@@ -43,16 +43,14 @@
 
 namespace qaray {
 ///--------------------------------------------------------------------------//
-enum TimeState {START_FRAME, STOP_FRAME, KILL_FRAME};
-void TimeFrame(TimeState state);
 ///--------------------------------------------------------------------------//
 struct RendererParam {
   bool useSRGB = true;
   size_t sppMax = 16;
   size_t sppMin = 4;
-  size_t photonMapSize = size_t(10e6);
+  size_t photonMapSize   = size_t(10e4);
   size_t photonMapBounce = 5;
-  size_t causticsMapSize = size_t(10e6);;
+  size_t causticsMapSize   = size_t(10e4);;
   size_t causticsMapBounce = 5;
   void SetSPPMax(int spp){ sppMax = static_cast<size_t>(spp); }
   void SetSPPMin(int spp){ sppMin = static_cast<size_t>(spp); }
@@ -60,18 +58,18 @@ struct RendererParam {
 };
 class Renderer {
  protected:
-  //!
+  //! get all user defined parameters
   RendererParam& param;
-  //!
-  Scene* scene = nullptr;
-  RenderImage* renderImage = nullptr;
-  //! useful buffers
+  //! load scene
+  Scene*       scene = nullptr;
+  FrameBuffer* image = nullptr;
+  //! handy buffers
   Color3c *colorBuffer; // RGB qaUCHAR
   float   *depthBuffer;
   qaUCHAR *sampleCountBuffer;
   qaUCHAR *irradianceCountBuffer;
   qaUCHAR *maskBuffer;
-  //!
+  //! canvas
   size_t pixelW, pixelH;       // global size in pixel
   size_t pixelRegion[4] = {0}; // local image offset [x y]
   size_t pixelSize[2] = {0};   // local image size
@@ -80,24 +78,22 @@ class Renderer {
   float screenW, screenH, aspect;
   Point3 screenX, screenY, screenZ;
   Point3 screenU, screenV, screenA;
-  //! multi-threading parameters
+  //! multi-threading information
   const size_t tileSize = 32; // this value should be platform dependent
   size_t tileDimX = 0;
   size_t tileDimY = 0;
   size_t tileCount = 0;
-  //!
-  size_t threadSize = 1;
-  std::atomic<bool> threadStop;
-  //! parameters used for MPI
+  //! MPI information
   size_t mpiSize = 1;
   size_t mpiRank = 0;
  public:
   explicit Renderer(RendererParam &param);
-  void ComputeScene(RenderImage& renderImage, Scene& scene);
+  void ComputeScene(FrameBuffer& renderImage, Scene& scene);
   void ThreadRender();
   void PixelRender(size_t i, size_t j, size_t tile_idx);
-  virtual void StartTimer() { TimeFrame(START_FRAME); }
-  virtual void StopTimer() { TimeFrame(STOP_FRAME); }
+  virtual void StartTimer();
+  virtual void StopTimer();
+  virtual void KillTimer();
   virtual void Init() {}
   virtual void Terminate() {};
   virtual void Render() = 0;

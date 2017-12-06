@@ -66,7 +66,12 @@ void init()
   omp_set_num_threads(threadSize);
 #endif
 }
-
+//---------------------------------------------------------------------------//
+static std::atomic<bool> threadStop;
+void signal_start() { threadStop = false; };
+void signal_stop() { threadStop = true; };
+bool has_stop_signal() { return threadStop; };
+//---------------------------------------------------------------------------//
 void parallel_for(size_t start, size_t end, size_t step,
 		  std::function<void(size_t)> T)
 {

@@ -37,6 +37,7 @@ float LinearToSRGB(const float c)
   else { return (1.f + a) * POW(c, 1.f / 2.4f) - a; }
 }
 ///--------------------------------------------------------------------------//
+enum TimeState {START_FRAME, STOP_FRAME, KILL_FRAME};
 void TimeFrame(TimeState state)
 {
   static float avgRenderTime = 0.0f;
@@ -47,24 +48,29 @@ void TimeFrame(TimeState state)
   } else if (state == STOP_FRAME) {
     endTime = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = endTime - startTime;
-    printf("\nRender time is %f s\n", elapsed_seconds.count());
+    printf("\nElapsed Time is %f s\n", elapsed_seconds.count());
     if (++numFrames > 0) { // Update moving average
       avgRenderTime += (elapsed_seconds.count() - avgRenderTime) / numFrames;
     }
   } else {
-    printf("\nEnding the program, average frame time is %f s\n\n",
+    printf("\nProgram Ends, Average Frame Time %f s\n\n",
            avgRenderTime);
   }
 }
+void Renderer::StartTimer() { TimeFrame(START_FRAME); }
+void Renderer::StopTimer() { TimeFrame(STOP_FRAME); }
+void Renderer::KillTimer() { TimeFrame(KILL_FRAME); }
 ///--------------------------------------------------------------------------//
 /// Constructor
 ///--------------------------------------------------------------------------//
-Renderer::Renderer(RendererParam &param) :
-    param(param), threadStop(false) {}
-void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
+Renderer::Renderer(RendererParam &param) : param(param)
+{
+  tasking::signal_start();
+}
+void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
 {
   //!
-  renderImage = &fb;
+  image = &fb;
   scene = &sc;
   //!
   focal = scene->camera.focalDistance;
@@ -80,10 +86,8 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   Point3 Z = normalize(-scene->camera.dir);
   screenU = X * (screenW / scene->camera.imgWidth);
   screenV = -Y * (screenH / scene->camera.imgHeight);
-  screenA = scene->camera.pos
-      - Z * focal
-      + Y * screenH / 2.f
-      - X * screenW / 2.f;
+  screenA =
+      scene->camera.pos - Z * focal + Y * screenH / 2.f - X * screenW / 2.f;
   screenX = X;
   screenY = Y;
   screenZ = Z;
@@ -96,13 +100,13 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   pixelSize[0] = pixelRegion[2] - pixelRegion[0];
   pixelSize[1] = pixelRegion[3] - pixelRegion[1];
   //! frame-buffer
-  renderImage->Init(static_cast<int>(pixelSize[0]),
-                    static_cast<int>(pixelSize[1])); /* reinitialize local fb */
-  colorBuffer = renderImage->GetPixels();
-  depthBuffer = renderImage->GetZBuffer();
-  sampleCountBuffer = renderImage->GetSampleCount();
-  irradianceCountBuffer = renderImage->GetIrradianceComputationImage();
-  maskBuffer = renderImage->GetMasks();
+  image->Init(static_cast<int>(pixelSize[0]),
+              static_cast<int>(pixelSize[1])); /* reinitialize local fb */
+  colorBuffer = image->GetPixels();
+  depthBuffer = image->GetZBuffer();
+  sampleCountBuffer = image->GetSampleCount();
+  irradianceCountBuffer = image->GetIrradianceComputationImage();
+  maskBuffer = image->GetMasks();
   //! multi-threading
   tileDimX = static_cast<size_t>(CEIL(static_cast<float>(pixelSize[0]) /
       static_cast<float>(tileSize)));
@@ -114,84 +118,78 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   //-------------------------------------------------------------------------//
   // TODO: Photon Map for MPI Mode
 #ifdef USE_GUI
-//  if (param.photonMapSize > 0) {
-//    scene->photonmap.AllocatePhotons
-//        (static_cast<qaUINT>(param.photonMapSize));
-//    //! find out all point lights
-//    std::vector<Light *> photonLights;
-//    std::vector<float> photonValues(1, 0.f);
-//    float totalValue = 0.f;
-//    for (auto &light : scene->lights) {
-//      if (light->IsPhotonSource()) {
-//        photonLights.push_back(light);
-//        photonValues.push_back(ColorLuma(light->GetPhotonIntensity()));
-//        totalValue += ColorLuma(light->GetPhotonIntensity());
-//      }
-//    }
-//    for (auto &v : photonValues) { v /= totalValue; }
-//    //! trace photons
-//    std::atomic<int> numPhotonsRec(1);
-//    std::atomic<int> numPhotonsGen(1);
-//    tasking::parallel_for
-//        (size_t(0), tasking::get_num_of_threads(), size_t(1), [&](size_t k) {
-//          while (numPhotonsRec < param.photonMapSize) {
-//            Light *light;
-//            long id;
-//            if (photonLights.size() == 1) {
-//              light = photonLights[0];
-//              id = 1;
-//            } else {
-//              float r;
-//              rng->local().Get1f(r);
-//              auto it =
-//                  std::upper_bound(photonValues.begin(), photonValues.end(), r);
-//              id = it - photonValues.begin();
-//              light = photonLights[id - 1];
-//            }
-//            //! generate one photons
-//            ++numPhotonsGen;
-//            DiffRay ray = light->RandomPhoton();
-//            ray.Normalize();
-//            DiffHitInfo hInfo;
-//            hInfo.c.z = BIGFLOAT;
-//            Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
-//            //! trace photon
-//            size_t bounce = 0;
-//            while (bounce < param.photonMapBounce) {
-//              if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
-//                const Material *mtl = hInfo.c.node->GetMaterial();
-//                if (mtl->IsPhotonSurface(0) && bounce != 0) {
-//                  // cyPhotonMap::Photon photon;
-//                  // photon.position.x = hInfo.c.p.x;
-//                  // photon.position.y = hInfo.c.p.y;
-//                  // photon.position.z = hInfo.c.p.z;
-//                  // photon.SetDirection(cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z));
-//                  // photon.SetPower(cyColor(intensity.x, intensity.y, intensity.z));
-//                  scene->photonmap.AddPhoton(cyPoint3f(hInfo.c.p.x,
-//                                                       hInfo.c.p.y,
-//                                                       hInfo.c.p.z),
-//                                             cyPoint3f(ray.c.dir.x,
-//                                                       ray.c.dir.y,
-//                                                       ray.c.dir.z),
-//                                             cyColor(intensity.x,
-//                                                     intensity.y,
-//                                                     intensity.z));
-//                  //scene->photonmap[numPhotonsRec] = photon;
-//                  ++numPhotonsRec;
-//                }
-//                bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
-//                if (flag) {
-//                  ++bounce;
-//                  ray.Normalize();
-//                  hInfo.Init();
-//                } else { bounce = param.photonMapBounce; }
-//              } else { bounce = param.photonMapBounce; }
-//            }
-//          }
-//        });
-//    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
-//    scene->photonmap.PrepareForIrradianceEstimation();
-//  }
+  if (param.photonMapSize > 0) {
+    scene->photonmap.AllocatePhotons
+        (static_cast<qaUINT>(param.photonMapSize));
+    //! find out all point lights
+    std::vector<Light *> photonLights;
+    std::vector<float> photonValues(1, 0.f);
+    float totalValue = 0.f;
+    for (auto &light : scene->lights) {
+      if (light->IsPhotonSource()) {
+        photonLights.push_back(light);
+        photonValues.push_back(ColorLuma(light->GetPhotonIntensity()));
+        totalValue += ColorLuma(light->GetPhotonIntensity());
+      }
+    }
+    for (auto &v : photonValues) { v /= totalValue; }
+    //! trace photons
+    std::atomic<int> numPhotonsRec(1);
+    std::atomic<int> numPhotonsGen(1);
+    tasking::parallel_for
+        (size_t(0), tasking::get_num_of_threads(), size_t(1), [&](size_t k) {
+          while (numPhotonsRec < param.photonMapSize) {
+            Light *light;
+            long id;
+            if (photonLights.size() == 1) {
+              light = photonLights[0];
+              id = 1;
+            } else {
+              float r;
+              rng->local().Get1f(r);
+              auto it =
+                  std::upper_bound(photonValues.begin(), photonValues.end(), r);
+              id = it - photonValues.begin();
+              light = photonLights[id - 1];
+            }
+            //! generate one photons
+            ++numPhotonsGen;
+            DiffRay ray = light->RandomPhoton();
+            ray.Normalize();
+            DiffHitInfo hInfo;
+            hInfo.c.z = BIGFLOAT;
+            Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
+            //! trace photon
+            size_t bounce = 0;
+            while (bounce < param.photonMapBounce) {
+              if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+                const Material *mtl = hInfo.c.node->GetMaterial();
+                if (mtl->IsPhotonSurface(0) && bounce != 0) {
+                  // cyPhotonMap::Photon photon;
+                  // photon.position.x = hInfo.c.p.x;
+                  // photon.position.y = hInfo.c.p.y;
+                  // photon.position.z = hInfo.c.p.z;
+                  // photon.SetDirection(cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z));
+                  // photon.SetPower(cyColor(intensity.x, intensity.y, intensity.z));
+                  scene->photonmap.AddPhoton((cyPoint3f&)hInfo.c.p,
+                                             (cyPoint3f&)ray.c.dir,
+                                             (cyColor&)intensity);
+                  //scene->photonmap[numPhotonsRec] = photon;
+                  ++numPhotonsRec;
+                }
+                bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
+                if (flag) {
+                  ++bounce;
+                  ray.Normalize();
+                  hInfo.Init();
+                } else { bounce = param.photonMapBounce; }
+              } else { bounce = param.photonMapBounce; }
+            }
+          }
+        });
+    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
+    scene->photonmap.PrepareForIrradianceEstimation();
+  }
 #endif
 };
 ///--------------------------------------------------------------------------//
@@ -204,7 +202,7 @@ void Renderer::PixelRender(size_t i, size_t j, size_t tile_idx)
   // initializations
   SuperSamplerHalton sampler(Color3f(0.005f, 0.001f, 0.005f),
                              static_cast<int>(param.sppMin),
-                              static_cast<int>(param.sppMax));
+                             static_cast<int>(param.sppMax));
   float depth = 0.0f;
   // start looping
   while (sampler.Loop()) {
@@ -276,15 +274,16 @@ void Renderer::ThreadRender()
   //-------------------------------------------------------------------------//
   // Rendering
   //-------------------------------------------------------------------------//
-  if (mpiRank == 0) {
+  if (mpiRank == 0)
+  {
     printf("\nRunning with %zu threads on rank %zu\n",
            tasking::get_num_of_threads(), mpiRank);
   }
-  const auto tileSta(static_cast<size_t>(mpiRank));
-  const auto tileNum(static_cast<size_t>(tileCount));
-  const auto tileStp(static_cast<size_t>(mpiSize));
+  const auto tileStart(static_cast<size_t>(mpiRank));
+  const auto tileStop(static_cast<size_t>(tileCount));
+  const auto tileStep(static_cast<size_t>(mpiSize));
   tasking::init();
-  tasking::parallel_for(tileSta, tileNum, tileStp, [&](size_t k) {
+  tasking::parallel_for(tileStart, tileStop, tileStep, [&](size_t k) {
     const size_t tileX(k % tileDimX);
     const size_t tileY(k / tileDimX);
     const size_t iStart =
@@ -296,12 +295,13 @@ void Renderer::ThreadRender()
     const size_t jEnd =
         MIN(pixelRegion[3], (tileY + 1) * tileSize + pixelRegion[1]);
     const size_t numPixels = (iEnd - iStart) * (jEnd - jStart);
-    tasking::parallel_for(size_t(0), numPixels, size_t(1), [=](size_t idx) {
+    tasking::parallel_for(size_t(0), numPixels, size_t(1), [=](size_t idx)
+    {
       const size_t j = jStart + idx / (iEnd - iStart);
       const size_t i = iStart + idx % (iEnd - iStart);
-      if (!threadStop) { PixelRender(i, j, k); }
+      if (!tasking::has_stop_signal()) { PixelRender(i, j, k); }
     });
-    renderImage->IncrementNumRenderPixel(static_cast<int>(numPixels));
+    image->IncrementNumRenderPixel(static_cast<int>(numPixels));
   });
   //-------------------------------------------------------------------------//
   // Stop timing

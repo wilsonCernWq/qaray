@@ -19,7 +19,7 @@
 // unique
 //extern Node rootNode;
 //extern Camera camera;
-//extern RenderImage renderImage;
+//extern FrameBuffer renderImage;
 //extern MaterialList materials;
 //extern LightList lights;
 //extern ObjFileList objList;

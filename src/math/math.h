@@ -45,10 +45,12 @@
 # include <glm/gtx/norm.hpp>
 #endif
 //-----------------------------------------------------------------------------
+typedef void          qaVOID;
 typedef bool          qaBOOL;
+typedef char          qaCHAR;
 typedef unsigned char qaUCHAR;
-typedef unsigned int  qaUINT;
 typedef int           qaINT;
+typedef unsigned int  qaUINT;
 typedef float         qaFLOAT;
 typedef double        qaDOUBLE;
 //-----------------------------------------------------------------------------

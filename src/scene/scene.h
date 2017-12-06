@@ -63,7 +63,7 @@ class Scene {
 };
 extern Scene scene;
 ///--------------------------------------------------------------------------//
-extern RenderImage renderImage;
+extern FrameBuffer renderImage;
 ///--------------------------------------------------------------------------//
 
 }

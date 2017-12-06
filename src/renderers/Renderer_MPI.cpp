@@ -66,7 +66,10 @@ void Renderer_MPI::StartTimer()
 {
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
-  if (mpiSize == 1) { TimeFrame(START_FRAME); }
+  if (mpiSize == 1)
+  {
+    Renderer::StartTimer();
+  }
   else {
     t1 = MPI_Wtime();
   }
@@ -81,10 +84,14 @@ void Renderer_MPI::StopTimer()
 {
 #ifdef USE_MPI
   MPI_Barrier(MPI_COMM_WORLD);
-  if (mpiSize == 1) { TimeFrame(STOP_FRAME); }
-  else {
+  if (mpiSize == 1)
+  {
+    Renderer::StopTimer();
+  }
+  else
+  {
     t2 = MPI_Wtime();
-    if (mpiRank == 0) printf("\nElapsed time is %f\n", t2 - t1);
+    if (mpiRank == 0) printf("\nElapsed MPI Time is %f\n", t2 - t1);
   }
 #else
   Renderer::StartTimer();
@@ -118,10 +125,10 @@ void Renderer_MPI::Render() {
   // Render
   //-------------------------------------------------------------------------//
   // first we render locally
-  renderImage->ResetNumRenderedPixels();
-  threadStop = false;
+  image->ResetNumRenderedPixels();
+  tasking::signal_start();
   ThreadRender();
-  threadStop = true;
+  tasking::signal_stop();
   //-------------------------------------------------------------------------//
   // debug
   //renderImage->ComputeZBufferImage();
@@ -138,7 +145,7 @@ void Renderer_MPI::Render() {
   int master = 0;
   int tag[5] = {100, 200, 300, 400, 500};
   if (mpiRank == master) { // receive data
-    RenderImage finalImage;
+    FrameBuffer finalImage;
     finalImage.Init(static_cast<int>(pixelW), static_cast<int>(pixelH));
     for (int target = 0; target < mpiSize; ++target) {
       if (target == master) {
