@@ -74,12 +74,10 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
   image = &fb;
   scene = &sc;
   //! camera
-  focal = scene->camera.focalDistance;
   dof = scene->camera.depthOfField;
-  aspect = static_cast<float>(scene->camera.imgWidth) /
-      static_cast<float>(scene->camera.imgHeight);
-  screenH =
-      2.f * focal * std::tan(scene->camera.fovy * PI / 2.f / 180.f);
+  focal = scene->camera.focalDistance;
+  aspect = scene->camera.imgWidth / static_cast<float>(scene->camera.imgHeight);
+  screenH = 2.f * focal * std::tan(scene->camera.fovy * PI / 2.f / 180.f);
   screenW = aspect * screenH;
   Point3 X = normalize(cross(scene->camera.dir, scene->camera.up));
   Point3 Y = normalize(cross(X, scene->camera.dir));
@@ -123,10 +121,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
     t1 = std::chrono::system_clock::now();
     //-----------------------------------------------------------------------//
-//    scene->photonmap.AllocatePhotons
-//        (static_cast<qaUINT>(param.photonMapSize));
-    scene->photonmap.CreateAllPhotons
-        (static_cast<qaUINT>(param.photonMapSize));
+    scene->photonmap.CreateAllPhotons(param.photonMapSize);
     //! find out all point lights
     std::vector<Light *> photonLights;
     for (auto &light : scene->lights)
@@ -135,13 +130,17 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     }
     const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
     //! generate the photon map
-    std::mutex guard;
-    std::atomic<qaUINT> numPhotonsRec(0);
-    std::atomic<qaUINT> numPhotonsGen(0);
+    std::atomic<qaUINT> numOfEmittedRays(0);
     const auto start = size_t(0);
     const auto stop = tasking::get_num_of_threads();
     const auto step = size_t(1);
-    //tasking::parallel_for(start, stop, step, [&] (size_t k) {
+    const auto maxPhotonIdeal = param.photonMapSize / stop; // integer division
+    tasking::parallel_for(start, stop, step, [&] (size_t k)
+    {
+      size_t idxPhoton = k * maxPhotonIdeal;
+      size_t maxPhoton = k == stop ?
+                         param.photonMapSize :
+                         idxPhoton + maxPhotonIdeal;
       while (true) {
         Light *light;
         //! randomly pick a light
@@ -169,13 +168,11 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
             //! if it is a diffuse surface
             if (mtl->IsPhotonSurface(0))
             {
-              //! fetch a photon index in a critical session
-              qaINT idx = -1;
-              //guard.lock();
-              idx = numPhotonsRec++;
-              //guard.unlock();
+              //! fetch a photon index
+              size_t idx = idxPhoton++;
               //! check if the map is filled
-              if (idx < param.photonMapSize) {
+              if (idx < maxPhoton)
+              {
                 scene->photonmap[idx].position = (cyPoint3f &) hInfo.c.p;
                 scene->photonmap[idx].SetDirection((cyPoint3f &) ray.c.dir);
                 scene->photonmap[idx].SetPower(cyColor(intensity.r,
@@ -185,18 +182,17 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
               }
               else { finished = true; break; }
             }
-            if (mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
-              ++bounce;
-              ray.Normalize();
-              hInfo.Init();
+            if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
+            {
+              ++bounce; ray.Normalize(); hInfo.Init();
             } else { break; }
           } else { break; }
         }
-        if (recorded) { ++numPhotonsGen; }
+        if (recorded) { ++numOfEmittedRays; }
         if (finished) { break; }
       }
-    //});
-    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
+    });
+    scene->photonmap.ScalePhotonPowers(1.f / numOfEmittedRays);
     scene->photonmap.PrepareForIrradianceEstimation();
     //-----------------------------------------------------------------------//
     t2 = std::chrono::system_clock::now();
