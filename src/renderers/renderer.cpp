@@ -27,6 +27,7 @@
 
 #include "renderer.h"
 #include <chrono>
+#include <mutex>
 
 namespace qaray {
 ///--------------------------------------------------------------------------//
@@ -122,60 +123,81 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
     t1 = std::chrono::system_clock::now();
     //-----------------------------------------------------------------------//
-    scene->photonmap.AllocatePhotons
+//    scene->photonmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.photonMapSize));
+    scene->photonmap.CreateAllPhotons
         (static_cast<qaUINT>(param.photonMapSize));
-//    scene->causticsmap.AllocatePhotons
-//        (static_cast<qaUINT>(param.causticsMapSize));
     //! find out all point lights
     std::vector<Light *> photonLights;
-    for (auto &light : scene->lights) {
+    for (auto &light : scene->lights)
+    {
       if (light->IsPhotonSource()) { photonLights.push_back(light); }
     }
     const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
-    //! trace photons
-    std::atomic<qaINT> numPhotonsRec(0);
-    std::atomic<qaINT> numPhotonsGen(0);
-    auto start = size_t(0);
-    auto stop = tasking::get_num_of_threads();
-    auto step = size_t(1);
-    while (true) {
-      Light *light;
-      if (photonLights.size() == 1) { light = photonLights[0]; }
-      else {
-        qaFLOAT r; rng->local().Get1f(r);
-        size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
-                        photonLights.size() - 1);
-        light = photonLights[id];
-      }
-      //! generate one photons
-      DiffRay ray = light->RandomPhoton(); ray.Normalize();
-      DiffHitInfo hInfo; hInfo.Init();
-      Color3f intensity = light->GetPhotonIntensity() * lightScale;
-      qaBOOL recorded = false;
-      //! trace photon
-      size_t bounce = 0;
-      while (bounce < param.photonMapBounce) {
-        if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
-          const Material *mtl = hInfo.c.node->GetMaterial();
-          if (mtl->IsPhotonSurface(0)) {
-            scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
-                                       (cyPoint3f &) ray.c.dir,
-                                       (cyColor &) intensity);
-            ++numPhotonsRec;
-            recorded = true;
-            if (numPhotonsRec >= param.photonMapSize) { break; }
-          }
-          if (mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
-            ++bounce; ray.Normalize(); hInfo.Init();
-          }
-          else { bounce = param.photonMapBounce; }
+    //! generate the photon map
+    std::mutex guard;
+    std::atomic<qaUINT> numPhotonsRec(0);
+    std::atomic<qaUINT> numPhotonsGen(0);
+    const auto start = size_t(0);
+    const auto stop = tasking::get_num_of_threads();
+    const auto step = size_t(1);
+    tasking::parallel_for(start, stop, step, [&] (size_t k)
+    {
+      while (true) {
+        Light *light;
+        //! randomly pick a light
+        if (photonLights.size() == 1) { light = photonLights[0]; }
+        else {
+          qaFLOAT r;
+          rng->local().Get1f(r);
+          size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
+                          photonLights.size() - 1);
+          light = photonLights[id];
         }
-        else { bounce = param.photonMapBounce; }
+        //! generate one photons
+        DiffRay ray = light->RandomPhoton(); ray.Normalize();
+        DiffHitInfo hInfo; hInfo.Init();
+        Color3f intensity = light->GetPhotonIntensity() * lightScale;
+        qaBOOL finished = false; // whether the map is filled
+        qaBOOL recorded = false; // whether a photon is recorded
+        //! trace photon
+        size_t bounce = 0;
+        while (bounce < param.photonMapBounce)
+        {
+          //! trace the photon
+          if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+            const Material *mtl = hInfo.c.node->GetMaterial();
+            //! if it is a diffuse surface
+            if (mtl->IsPhotonSurface(0))
+            {
+              //! fetch a photon index in a critical session
+              qaINT idx = -1;
+              guard.lock();
+              idx = numPhotonsRec++;
+              guard.unlock();
+              //! check if the map is filled
+              if (idx < param.photonMapSize) {
+                scene->photonmap[idx].position = (cyPoint3f &) hInfo.c.p;
+                scene->photonmap[idx].SetDirection((cyPoint3f &) ray.c.dir);
+                scene->photonmap[idx].SetPower(cyColor(intensity.r,
+                                                       intensity.g,
+                                                       intensity.b));
+                recorded = true;
+              }
+              else { finished = true; break; }
+            }
+            if (mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
+              ++bounce;
+              ray.Normalize();
+              hInfo.Init();
+            } else { break; }
+          } else { break; }
+        }
+        if (recorded) { ++numPhotonsGen; }
+        if (finished) { break; }
       }
-      if (recorded) { ++numPhotonsGen; }
-      if (numPhotonsRec >= param.photonMapSize) { break; }
-    }
-    scene->photonmap.ScalePhotonPowers(4.f * PI / numPhotonsGen);
+    });
+    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
     scene->photonmap.PrepareForIrradianceEstimation();
     //-----------------------------------------------------------------------//
     t2 = std::chrono::system_clock::now();
