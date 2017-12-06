@@ -47,7 +47,7 @@ MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     reflection(0, 0, 0),
     refraction(0, 0, 0),
     absorption(0, 0, 0),
-    kill(0),
+    kill(0.2),
     ior(1),
     specularGlossiness(20.f),
     reflectionGlossiness(0),
@@ -328,7 +328,7 @@ const
   // Shading Directional Lights
   //
   //qaBOOL doDirectLight = true;
-  qaBOOL doDirectLight = select != DIFFUSE && select != SPECULAR;
+  qaBOOL doDirectLight = select != DIFFUSE;
   if (doDirectLight) {
     const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
     for (auto &light : lights) {
@@ -349,23 +349,22 @@ const
   //
   //qaBOOL doPhotonGather = select == DIFFUSE &&
   //       (bounceCount != Material::maxBounce || Material::maxBounce == 0);
-  qaBOOL doPhotonGather = (select == DIFFUSE || select == SPECULAR);
+  qaBOOL doPhotonGather = (select == DIFFUSE);
   if (doPhotonGather) {
     // gather photons
     cyColor cyI;
     cyPoint3f cyD;
     cyPoint3f cyP(p.x, p.y, p.z);
     cyPoint3f cyN(N.x, N.y, N.z);
-    const float radius = 1.f;
-    scene.photonmap.EstimateIrradiance<400>
+    const float radius = 0.5f;
+    scene.photonmap.EstimateIrradiance<200>
         (cyI, cyD, radius, cyP, &cyN, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
     // shade
-    Color3f I(cyI.r, cyI.g, cyI.b);
-    I *= RCP_PI / (radius * radius);
-    Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
-    auto H = normalize(V + L);
-    auto cosNL = MAX(0.f, dot(N, L));
+    const Color3f I(cyI.r, cyI.g, cyI.b);
+    const Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+    const auto H = normalize(V + L);
+    const auto cosNL = MAX(0.f, dot(N, L));
     color += I * cosNL * BxDF / PDF;
   }
   //

@@ -3,7 +3,7 @@
 #include "scene/scene.h"
 
 //------------------------------------------------------------------------------
-
+namespace qaray {
 class MtlBlinn_MonteCarloGI : public Material {
  public:
   MtlBlinn_MonteCarloGI();
@@ -41,6 +41,19 @@ class MtlBlinn_MonteCarloGI : public Material {
   Color3f Shade(const DiffRay &ray, const DiffHitInfo &hInfo,
                 const LightList &lights, int bounceCount) const override;
 
+  // Photon Extensions
+  // If this method returns true, the photon will be stored
+  bool IsPhotonSurface(int subMtlID) const override
+  {
+    return !((ColorLuma(reflection.GetColor()) > 0) ||
+             (ColorLuma(refraction.GetColor()) > 0));
+  }
+
+  // If this method returns true, a new photon with the given direction and
+  // color will be traced
+  bool RandomPhotonBounce(DiffRay &, Color3f &,
+                          const DiffHitInfo &) const override;
+
   // OpenGL Extensions
   void SetViewportMaterial(int subMtlID) const override;
 
@@ -51,5 +64,5 @@ class MtlBlinn_MonteCarloGI : public Material {
   float ior; // index of refraction
   float reflectionGlossiness, refractionGlossiness;
 };
-
+}
 //------------------------------------------------------------------------------

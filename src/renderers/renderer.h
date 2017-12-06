@@ -49,7 +49,7 @@ struct RendererParam {
   size_t sppMax = 16;
   size_t sppMin = 4;
   size_t photonMapSize   = size_t(1000000);
-  size_t photonMapBounce = 2;
+  size_t photonMapBounce = 5;
   size_t causticsMapSize   = size_t(100000);;
   size_t causticsMapBounce = 5;
   void SetSPPMax(int spp){ sppMax = static_cast<size_t>(spp); }

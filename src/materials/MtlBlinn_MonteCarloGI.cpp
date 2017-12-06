@@ -39,22 +39,22 @@ const
 {
   // input parameters
   Color3f color = hInfo.c.hasTexture ?
-                emission.Sample(hInfo.c.uvw, hInfo.c.duvw) : emission
-                    .GetColor();
+                  emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
+                  emission.GetColor();
   const auto
-      N = glm::normalize(hInfo.c.N);   // surface normal in world coordinate
-  const auto V = glm::normalize(-ray.c.dir); // ray incoming direction
-  const auto Vx = glm::normalize(-ray.x.dir); // diff ray incoming direction
-  const auto Vy = glm::normalize(-ray.y.dir); // diff ray incoming direction
+      N = normalize(hInfo.c.N);   // surface normal in world coordinate
+  const auto V = normalize(-ray.c.dir); // ray incoming direction
+  const auto Vx = normalize(-ray.x.dir); // diff ray incoming direction
+  const auto Vy = normalize(-ray.y.dir); // diff ray incoming direction
   const auto
       p = hInfo.c.p;                  // surface position in world coordinate
   const auto px = ray.x.p + ray.x.dir * hInfo.x.z;
   const auto py = ray.y.p + ray.y.dir * hInfo.y.z;
 
   // coordinate
-  const auto Y = glm::dot(N, V) > 0.f ? N : -N;    // Vy
-  const auto Z = glm::cross(V, Y);
-  const auto X = glm::normalize(glm::cross(Y, Z)); // Vx
+  const auto Y = dot(N, V) > 0.f ? N : -N;    // Vy
+  const auto Z = cross(V, Y);
+  const auto X = normalize(cross(Y, Z)); // Vx
 
   // index of refraction
   const float nIOR = hInfo.c.hasFrontHit ? 1.f / ior : ior;
@@ -66,10 +66,10 @@ const
     // jitter normal
     Point3 tjN = N, rjN = N;
     if (refractionGlossiness > glossy_threshold) {
-      tjN = glm::normalize(N + rng->local().UniformBall(refractionGlossiness));
+      tjN = normalize(N + rng->local().UniformBall(refractionGlossiness));
     }
     if (reflectionGlossiness > glossy_threshold) {
-      rjN = glm::normalize(N + rng->local().UniformBall(reflectionGlossiness));
+      rjN = normalize(N + rng->local().UniformBall(reflectionGlossiness));
     }
 
     // incidence angle & refraction angle
@@ -87,22 +87,22 @@ const
     const float cosOy = SQRT(1.f - sinOy * sinOy);
 
     // ray directions
-    tDir = -X * sinO - Y * cosO;
+    tDir  = -X * sinO - Y * cosO;
     txDir = -X * sinOx - Y * cosOx;
     tyDir = -X * sinOy - Y * cosOy;
-    rDir = 2.f * rjN * (glm::dot(rjN, V)) - V;
-    rxDir = 2.f * rjN * (glm::dot(rjN, Vx)) - Vx;
-    ryDir = 2.f * rjN * (glm::dot(rjN, Vy)) - Vy;
+    rDir  = 2.f * rjN * (dot(rjN, V)) - V;
+    rxDir = 2.f * rjN * (dot(rjN, Vx)) - Vx;
+    ryDir = 2.f * rjN * (dot(rjN, Vy)) - Vy;
 
     // loop early termination
     if (refractionGlossiness > glossy_threshold ||
         reflectionGlossiness > glossy_threshold) { break; }
-  } while ((glm::dot(tDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(txDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(tyDir, Y) > refraction_angle_threshold) ||
-      (glm::dot(rDir, Y) < -reflection_angle_threshold) ||
-      (glm::dot(rxDir, Y) < -reflection_angle_threshold) ||
-      (glm::dot(ryDir, Y) < -reflection_angle_threshold));
+  } while ((dot(tDir, Y)  > refraction_angle_threshold) ||
+           (dot(txDir, Y) > refraction_angle_threshold) ||
+           (dot(tyDir, Y) > refraction_angle_threshold) ||
+           (dot(rDir, Y)  < -reflection_angle_threshold) ||
+           (dot(rxDir, Y) < -reflection_angle_threshold) ||
+           (dot(ryDir, Y) < -reflection_angle_threshold));
 
   // reflection and transmission coefficients
   const float C0 = (nIOR - 1.f) * (nIOR - 1.f) / ((nIOR + 1.f) * (nIOR + 1.f));
@@ -127,8 +127,8 @@ const
   //!--- refraction ---
   if (bounceCount > 0 &&
       (tK.x > refraction_color_threshold ||
-          tK.y > refraction_color_threshold ||
-          tK.z > refraction_color_threshold)) {
+       tK.y > refraction_color_threshold ||
+       tK.z > refraction_color_threshold)) {
     DiffRay tRay(p, tDir, px, txDir, py, tyDir);
     DiffHitInfo tHit;
     tHit.c.z = BIGFLOAT;
@@ -147,8 +147,8 @@ const
   //!--- reflection ---
   if (bounceCount > 0 &&
       (rK.x > reflection_color_threshold ||
-          rK.y > reflection_color_threshold ||
-          rK.z > reflection_color_threshold)) {
+       rK.y > reflection_color_threshold ||
+       rK.z > reflection_color_threshold)) {
     DiffRay rRay(p, rDir, px, rxDir, py, ryDir);
     DiffHitInfo rHit;
     rRay.Normalize();
@@ -217,7 +217,7 @@ const
         // Point3 mc_coe =
         //   glm::normalize(CosWeightedSampleHemiSphere(Halton(idx_halton,2), Halton(idx_halton,3)));
         // ++idx_halton;
-
+        //
         //-- Compute local coordinate frame
         //-- Method 1
         // Point3 new_z = Y;
@@ -238,7 +238,6 @@ const
           new_y = glm::normalize(Point3(0, -new_z.z, new_z.y));
         }
         new_x = glm::normalize(glm::cross(new_y, new_z));
-
         // generate ray
         Point3 dirMC = mc_coe.x * new_x + mc_coe.y * new_y + mc_coe.z * new_z;
         DiffRay rayMC(p, dirMC);
@@ -264,6 +263,15 @@ const
     color += (indirectShadecolor + directShadecolor);
   }
   return color;
+}
+
+bool MtlBlinn_MonteCarloGI::RandomPhotonBounce(DiffRay &ray,
+                                               Color3f &color,
+                                               const DiffHitInfo &hInfo)
+const
+{
+
+  return false;
 }
 
 //------------------------------------------------------------------------------
