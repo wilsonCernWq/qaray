@@ -59,7 +59,10 @@ namespace tasking {
 size_t get_num_of_threads();
 void set_num_of_threads(size_t num_of_threads);
 void init();
-void parallel_for(size_t start, size_t end, size_t step, std::function<void(size_t)> T);
+void parallel_for(size_t start,
+                  size_t end,
+                  size_t step,
+                  std::function<void(size_t)> T);
 
 #if defined(USE_TBB)
 template<typename T>
