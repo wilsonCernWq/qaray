@@ -321,14 +321,14 @@ const
         doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
       }
       break;
-    case (ABSORB):doShade = false;
+    case (ABSORB): doShade = false;
       break;
   }
   //
   // Shading Directional Lights
   //
   //qaBOOL doDirectLight = true;
-  qaBOOL doDirectLight = select != DIFFUSE;
+  qaBOOL doDirectLight = select != DIFFUSE && select != SPECULAR;
   if (doDirectLight) {
     const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
     for (auto &light : lights) {
@@ -349,7 +349,7 @@ const
   //
   //qaBOOL doPhotonGather = select == DIFFUSE &&
   //       (bounceCount != Material::maxBounce || Material::maxBounce == 0);
-  qaBOOL doPhotonGather = select == DIFFUSE;
+  qaBOOL doPhotonGather = (select == DIFFUSE || select == SPECULAR);
   if (doPhotonGather) {
     // gather photons
     cyColor cyI;
@@ -357,12 +357,12 @@ const
     cyPoint3f cyP(p.x, p.y, p.z);
     cyPoint3f cyN(N.x, N.y, N.z);
     const float radius = 1.f;
-    scene.photonmap.EstimateIrradiance<200>
+    scene.photonmap.EstimateIrradiance<400>
         (cyI, cyD, radius, cyP, &cyN, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
     // shade
     Color3f I(cyI.r, cyI.g, cyI.b);
-    I *= RCP_PI / length2(radius);
+    I *= RCP_PI / (radius * radius);
     Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
     auto H = normalize(V + L);
     auto cosNL = MAX(0.f, dot(N, L));

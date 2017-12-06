@@ -192,7 +192,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         if (finished) { break; }
       }
     });
-    scene->photonmap.ScalePhotonPowers(1.f / numOfEmittedRays);
+    scene->photonmap.ScalePhotonPowers(4.f * PI / numOfEmittedRays);
     scene->photonmap.PrepareForIrradianceEstimation();
     //-----------------------------------------------------------------------//
     t2 = std::chrono::system_clock::now();
