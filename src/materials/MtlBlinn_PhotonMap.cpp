@@ -358,7 +358,7 @@ const
     // shade
     Color3f I(cyI.r, cyI.g, cyI.b);
     I *= RCP_PI / length2(radius);
-    Point3 L = normalize(Point3(cyD.x, cyD.y, cyD.z));
+    Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
     auto H = normalize(V + L);
     auto cosNL = MAX(0.f, dot(N, L));
     color += I * cosNL * BxDF / PDF;

@@ -16,11 +16,13 @@ FrameBuffer::FrameBuffer() :
 
 FrameBuffer::~FrameBuffer()
 {
-  delete[] mask;
-  delete[] img;
-  delete[] zbuffer;
-  delete[] zbufferImg;
-  delete[] irradComp;
+  if (mask) delete[] mask;
+  if (img) delete[] img;
+  if (zbuffer) delete[] zbuffer;
+  if (zbufferImg) delete[] zbufferImg;
+  if (sampleCount) delete[] sampleCount;
+  if (sampleCountImg) delete[] sampleCountImg;
+  if (irradComp) delete[] irradComp;
 }
 
 qaVOID FrameBuffer::Init(qaUINT w, qaUINT h)
@@ -95,7 +97,7 @@ qaINT FrameBuffer::ComputeSampleCountImage()
     for (qaINT i = 0; i < size; i++) sampleCountImg[i] = 0;
   } else {
     for (qaINT i = 0; i < size; i++) {
-      qaUCHAR c = qaUCHAR((255 * (sampleCount[i] - smin)) / (smax - smin));
+      auto c = qaUCHAR((255 * (sampleCount[i] - smin)) / (smax - smin));
       if (c < 0) c = 0;
       if (c > 255) c = 255;
       sampleCountImg[i] = c;
@@ -122,16 +124,12 @@ qaBOOL FrameBuffer::SavePNG(const qaCHAR *filename,
 
 qaBOOL FrameBuffer::SaveImage(const qaCHAR *filename) const
 {
-  return SavePNG(filename,
-                 &img[0].r,
-                 3);
+  return SavePNG(filename, &img[0].r, 3);
 }
 
 qaBOOL FrameBuffer::SaveZImage(const qaCHAR *filename) const
 {
-  return SavePNG(filename,
-                 zbufferImg,
-                 1);
+  return SavePNG(filename, zbufferImg, 1);
 }
 
 qaBOOL FrameBuffer::SaveSampleCountImage(const qaCHAR *filename) const

@@ -122,10 +122,10 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
     t1 = std::chrono::system_clock::now();
     //-----------------------------------------------------------------------//
-    scene->photonmap.CreateAllPhotons
-        (static_cast<qaUINT>(param.photonMapSize));
-//    scene->photonmap.AllocatePhotons
+//    scene->photonmap.CreateAllPhotons
 //        (static_cast<qaUINT>(param.photonMapSize));
+    scene->photonmap.AllocatePhotons
+        (static_cast<qaUINT>(param.photonMapSize));
 //    scene->causticsmap.AllocatePhotons
 //        (static_cast<qaUINT>(param.causticsMapSize));
     //! find out all point lights
@@ -162,14 +162,14 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
           if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
             const Material *mtl = hInfo.c.node->GetMaterial();
             if (mtl->IsPhotonSurface(0)) {
-              scene->photonmap[numPhotonsRec].position.x = hInfo.c.p.x;
-              scene->photonmap[numPhotonsRec].position.y = hInfo.c.p.y;
-              scene->photonmap[numPhotonsRec].position.z = hInfo.c.p.z;
-              scene->photonmap[numPhotonsRec].SetDirection((cyPoint3f&)ray.c.dir);
-              scene->photonmap[numPhotonsRec].SetPower((cyColor&)intensity);
-//              scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
-//                                         (cyPoint3f &) ray.c.dir,
-//                                         (cyColor &) intensity);
+//              scene->photonmap[numPhotonsRec].position.x = hInfo.c.p.x;
+//              scene->photonmap[numPhotonsRec].position.y = hInfo.c.p.y;
+//              scene->photonmap[numPhotonsRec].position.z = hInfo.c.p.z;
+//              scene->photonmap[numPhotonsRec].SetDirection((cyPoint3f&)ray.c.dir);
+//              scene->photonmap[numPhotonsRec].SetPower((cyColor&)intensity);
+              scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
+                                         (cyPoint3f &) ray.c.dir,
+                                         (cyColor &) intensity);
               ++numPhotonsRec;
             }
             bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
