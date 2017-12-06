@@ -24,11 +24,9 @@
 /// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     //
 ///                                                                          //
 ///--------------------------------------------------------------------------//
-
 #include "MtlBlinn_PathTracing.h"
 #include "lights/lights.h"
 #include "materials/materials.h"
-
 //------------------------------------------------------------------------------
 namespace qaray {
 
@@ -47,13 +45,6 @@ MtlBlinn_PathTracing::MtlBlinn_PathTracing() :
 //------------------------------------------------------------------------------
 
 float ColorMax(const Color3f &c) { return MAX(c.x, MAX(c.y, c.z)); }
-
-void GetRandomSamples(const DiffHitInfo &hInfo, float &r1, float &r2)
-{
-//  r1 = rng->Get();
-//  r2 = rng->Get();
-  //TBBHaltonRNG.local().Get(r1, r2);
-}
 
 //------------------------------------------------------------------------------
 
@@ -169,37 +160,31 @@ const
   //
   // Shading Directional Lights
   //
-  //if (bounceCount == 0 || select <= sumDirectLight)
-  {
-    // const float normCoefDI = 
-    //   (bounceCount == 0 ? 1.f : sumDirectLight) / 
-    //   (lights.size() == 0 ? 1.f : lights.size()) * (float)M_PI;
-    const float normCoefDI =
-        (lights.size() == 0 ? 1.f : 1.f / lights.size()) / (float) M_PI;
-    for (auto &light : lights) {
-      if (light->IsAmbient()) {}
-      else {
-        auto intensity = light->Illuminate(p, N) * normCoefDI;
-        auto L = glm::normalize(-light->Direction(p));
-        auto H = glm::normalize(V + L);
-        auto cosNL = MAX(0.f, dot(N, L));
-        auto cosNH = MAX(0.f, dot(N, H));
-        color += normCoefDI * intensity * cosNL *
-            (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-      }
+  const float normCoefDI =
+      (lights.size() == 0 ? 1.f : 1.f / lights.size()) / (float) M_PI;
+  for (auto &light : lights) {
+    if (light->IsAmbient()) {}
+    else {
+      auto intensity = light->Illuminate(p, N) * normCoefDI;
+      auto L = normalize(-light->Direction(p));
+      auto H = normalize(V + L);
+      auto cosNL = MAX(0.f, dot(N, L));
+      auto cosNH = MAX(0.f, dot(N, H));
+      color += normCoefDI * intensity * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
     }
   }
   //
   // Shading Indirectional Lights
   //
-  /*else*/ if (bounceCount > 0) {
+  if (bounceCount > 0) {
     //
     // Coordinate Frame for the Hemisphere
     const Point3 nZ = Y;
     const Point3 nY = (ABS(nZ.x) > ABS(nZ.y)) ?
-                      glm::normalize(Point3(nZ.z, 0, -nZ.x)) :
-                      glm::normalize(Point3(0, -nZ.z, nZ.y));
-    const Point3 nX = glm::normalize(glm::cross(nY, nZ));
+                      normalize(Point3(nZ.z, 0, -nZ.x)) :
+                      normalize(Point3(0, -nZ.z, nZ.y));
+    const Point3 nX = normalize(cross(nY, nZ));
     Point3 sampleDir(0.f);
     bool doShade = false;
     //
@@ -210,15 +195,13 @@ const
     if (select <= sumRefraction && coefRefraction > 1e-6f) {
       if (refractionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
         const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = -(sample.x * nX + sample.y * nY + sample.z * nZ);
         /* PDF */
         PDF = coefRefraction;
         /* BSDF */
-        const Point3 L = glm::normalize(sampleDir);
+        const Point3 L = normalize(sampleDir);
         const Point3 H = tDir;
         const float cosVH = MAX(0.f, dot(V, H));
         const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
@@ -237,19 +220,16 @@ const
     else if (select < sumReflection && coefReflection > 1e-6f) {
       if (reflectionGlossiness > glossiness_power_threshold) {
         /* Random Sampling for Glossy Surface */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
         const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
         PDF = coefReflection;
         /* BRDF */
-        const Point3 L = glm::normalize(sampleDir);
+        const Point3 L = normalize(sampleDir);
         const Point3 H = rDir;
         const float cosVH = MAX(0.f, dot(V, H));
-        BxDF =
-            sampleReflection * POW(cosVH, reflectionGlossiness);
+        BxDF = sampleReflection * POW(cosVH, reflectionGlossiness);
       } else {
         /* Ray Direction */
         sampleDir = rDir;
@@ -265,16 +245,14 @@ const
       if (specularGlossiness > glossiness_power_threshold) {
         if (hInfo.c.hasFrontHit) {
           /* Random Sampling for Glossy Surface */
-          float r1, r2;
-          GetRandomSamples(hInfo, r1, r2);
           const Point3
-              sample = glm::normalize(rng->local().CosWeightedHemisphere());
+              sample = normalize(rng->local().CosWeightedHemisphere());
           sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
           /* PDF */
           PDF = coefSpecular;
           /* BRDF */
-          const Point3 L = glm::normalize(sampleDir);
-          const Point3 H = glm::normalize(V + L);
+          const Point3 L = normalize(sampleDir);
+          const Point3 H = normalize(V + L);
           const float cosNH = MAX(0.f, dot(N, H));
           BxDF = sampleSpecular * POW(cosNH, specularGlossiness);
           doShade = true;
@@ -285,10 +263,8 @@ const
     else if (coefDiffuse > 1e-6f) {
       if (hInfo.c.hasFrontHit) {
         /* Generate Random Sample */
-        float r1, r2;
-        GetRandomSamples(hInfo, r1, r2);
         const Point3
-            sample = glm::normalize(rng->local().CosWeightedHemisphere());
+            sample = normalize(rng->local().CosWeightedHemisphere());
         sampleDir = sample.x * nX + sample.y * nY + sample.z * nZ;
         /* PDF */
         PDF = coefDiffuse;
@@ -318,11 +294,6 @@ const
         incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
       }
       Point3 outgoing = incoming * BxDF / PDF;
-      // Attenuate Outgoing Ray
-      if (hInfo.c.hasFrontHit) {
-        // TODO making volume effect here
-        //outgoing *= MIN(1.f, 1.f / (0.0025f * hInfo.c.z * hInfo.c.z));
-      }
       color += outgoing;
     }
   }

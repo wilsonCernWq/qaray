@@ -59,9 +59,8 @@ void TimeFrame(TimeState state)
 ///--------------------------------------------------------------------------//
 /// Constructor
 ///--------------------------------------------------------------------------//
-Renderer::Renderer(RendererParam& param) :
-    param(param), threadStop(false)
-{}
+Renderer::Renderer(RendererParam &param) :
+    param(param), threadStop(false) {}
 void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
 {
   //!
@@ -98,7 +97,7 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   pixelSize[1] = pixelRegion[3] - pixelRegion[1];
   //! frame-buffer
   renderImage->Init(static_cast<int>(pixelSize[0]),
-                   static_cast<int>(pixelSize[1])); /* reinitialize local fb */
+                    static_cast<int>(pixelSize[1])); /* reinitialize local fb */
   colorBuffer = renderImage->GetPixels();
   depthBuffer = renderImage->GetZBuffer();
   sampleCountBuffer = renderImage->GetSampleCount();
@@ -115,76 +114,84 @@ void Renderer::ComputeScene(RenderImage &fb, Scene &sc)
   //-------------------------------------------------------------------------//
   // TODO: Photon Map for MPI Mode
 #ifdef USE_GUI
-  if (param.photonMapSize > 0) {
-    scene->photonmap.AllocatePhotons
-        (static_cast<qaUINT>(param.photonMapSize));
-    scene->causticsmap.AllocatePhotons
-        (static_cast<qaUINT>(param.causticsMapSize));
-    //! find out all point lights
-    std::vector<Light*> photonLights;
-    std::vector<float>  photonValues(1,0.f);
-    float totalValue = 0.f;
-    for (auto &light : scene->lights) {
-      if (light->IsPhotonSource()) {
-        photonLights.push_back(light);
-        photonValues.push_back(ColorLuma(light->GetPhotonIntensity()));
-        totalValue += ColorLuma(light->GetPhotonIntensity());
-      }
-    }
-    for (auto& v : photonValues) { v /= totalValue; }
-    //! trace photons
-    std::atomic<int> numPhotonsRec(0);
-    std::atomic<int> numPhotonsGen(0);
-    tasking::parallel_for
-        (size_t(0), tasking::get_num_of_threads(), size_t(1),
-         [&] (size_t k)
-         {
-           while (numPhotonsRec < param.photonMapSize)
-           {
-             Light* light;
-             long id;
-             if (photonLights.size() == 1) {
-               light = photonLights[0];
-               id = 1;
-             } else {
-               float r; rng->local().Get1f(r);
-               auto it = std::upper_bound(photonValues.begin(), photonValues.end(), r);
-               id = it - photonValues.begin();
-               light = photonLights[id - 1];
-             }
-             //! generate one photons
-             ++numPhotonsGen;
-             DiffRay ray = light->RandomPhoton(); ray.Normalize();
-             DiffHitInfo hInfo; hInfo.c.z = BIGFLOAT;
-             Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
-             //! trace photon
-             size_t bounce = 0;
-             while (bounce < param.photonMapBounce)
-             {
-               if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
-                 const Material *mtl = hInfo.c.node->GetMaterial();
-                 if (mtl->IsPhotonSurface(0) && bounce != 0)
-                 {
-                   scene->photonmap.AddPhoton(cyPoint3f(hInfo.c.p.x, hInfo.c.p.y, hInfo.c.p.z),
-                                              cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z),
-                                              cyColor(intensity.x, intensity.y, intensity.z));
-                   ++numPhotonsRec;
-                 }
-                 bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
-                 if (flag) {
-                   ++bounce;
-                   ray.Normalize();
-                   hInfo.Init();
-                 }
-                 else { bounce = param.photonMapBounce; }
-               }
-               else { bounce = param.photonMapBounce; }
-             }
-           }
-         });
-    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
-    scene->photonmap.PrepareForIrradianceEstimation();
-   }
+//  if (param.photonMapSize > 0) {
+//    scene->photonmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.photonMapSize));
+//    //! find out all point lights
+//    std::vector<Light *> photonLights;
+//    std::vector<float> photonValues(1, 0.f);
+//    float totalValue = 0.f;
+//    for (auto &light : scene->lights) {
+//      if (light->IsPhotonSource()) {
+//        photonLights.push_back(light);
+//        photonValues.push_back(ColorLuma(light->GetPhotonIntensity()));
+//        totalValue += ColorLuma(light->GetPhotonIntensity());
+//      }
+//    }
+//    for (auto &v : photonValues) { v /= totalValue; }
+//    //! trace photons
+//    std::atomic<int> numPhotonsRec(1);
+//    std::atomic<int> numPhotonsGen(1);
+//    tasking::parallel_for
+//        (size_t(0), tasking::get_num_of_threads(), size_t(1), [&](size_t k) {
+//          while (numPhotonsRec < param.photonMapSize) {
+//            Light *light;
+//            long id;
+//            if (photonLights.size() == 1) {
+//              light = photonLights[0];
+//              id = 1;
+//            } else {
+//              float r;
+//              rng->local().Get1f(r);
+//              auto it =
+//                  std::upper_bound(photonValues.begin(), photonValues.end(), r);
+//              id = it - photonValues.begin();
+//              light = photonLights[id - 1];
+//            }
+//            //! generate one photons
+//            ++numPhotonsGen;
+//            DiffRay ray = light->RandomPhoton();
+//            ray.Normalize();
+//            DiffHitInfo hInfo;
+//            hInfo.c.z = BIGFLOAT;
+//            Color3f intensity = light->GetPhotonIntensity() / photonValues[id];
+//            //! trace photon
+//            size_t bounce = 0;
+//            while (bounce < param.photonMapBounce) {
+//              if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+//                const Material *mtl = hInfo.c.node->GetMaterial();
+//                if (mtl->IsPhotonSurface(0) && bounce != 0) {
+//                  // cyPhotonMap::Photon photon;
+//                  // photon.position.x = hInfo.c.p.x;
+//                  // photon.position.y = hInfo.c.p.y;
+//                  // photon.position.z = hInfo.c.p.z;
+//                  // photon.SetDirection(cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z));
+//                  // photon.SetPower(cyColor(intensity.x, intensity.y, intensity.z));
+//                  scene->photonmap.AddPhoton(cyPoint3f(hInfo.c.p.x,
+//                                                       hInfo.c.p.y,
+//                                                       hInfo.c.p.z),
+//                                             cyPoint3f(ray.c.dir.x,
+//                                                       ray.c.dir.y,
+//                                                       ray.c.dir.z),
+//                                             cyColor(intensity.x,
+//                                                     intensity.y,
+//                                                     intensity.z));
+//                  //scene->photonmap[numPhotonsRec] = photon;
+//                  ++numPhotonsRec;
+//                }
+//                bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
+//                if (flag) {
+//                  ++bounce;
+//                  ray.Normalize();
+//                  hInfo.Init();
+//                } else { bounce = param.photonMapBounce; }
+//              } else { bounce = param.photonMapBounce; }
+//            }
+//          }
+//        });
+//    scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
+//    scene->photonmap.PrepareForIrradianceEstimation();
+//  }
 #endif
 };
 ///--------------------------------------------------------------------------//
@@ -198,8 +205,7 @@ void Renderer::PixelRender(size_t i, size_t j, size_t tile_idx)
                              static_cast<int>(param.sppMax));
   float depth = 0.0f;
   // start looping
-  while (sampler.Loop())
-  {
+  while (sampler.Loop()) {
     // calculate one sample
     const Point3 texpos = sampler.NewPixelSample() + Point3(i, j, 0.f);
     const Point3 cpt = screenA + texpos.x * screenU + texpos.y * screenV;
@@ -276,7 +282,7 @@ void Renderer::ThreadRender()
   const auto tileNum(static_cast<size_t>(tileCount));
   const auto tileStp(static_cast<size_t>(mpiSize));
   tasking::init();
-  tasking::parallel_for(tileSta, tileNum, tileStp, [=](size_t k) {
+  tasking::parallel_for(tileSta, tileNum, tileStp, [&](size_t k) {
     const size_t tileX(k % tileDimX);
     const size_t tileY(k / tileDimX);
     const size_t iStart =

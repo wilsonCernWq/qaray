@@ -33,7 +33,7 @@
 
 namespace qaray {
 class MtlBlinn_PhotonMap : public Material {
- public:
+public:
   MtlBlinn_PhotonMap();
 
   void SetDiffuse(Color3f dif) { diffuse.SetColor(dif); }
@@ -42,7 +42,7 @@ class MtlBlinn_PhotonMap : public Material {
 
   void SetGlossiness(float gloss) { specularGlossiness = gloss; }
 
-  void SetEmission(Color3f e) { emission.SetColor(e); }
+  void SetEmission(Color3f emit) { emission.SetColor(emit); }
 
   void SetReflection(Color3f reflect) { reflection.SetColor(reflect); }
 
@@ -50,7 +50,7 @@ class MtlBlinn_PhotonMap : public Material {
 
   void SetAbsorption(Color3f absorb) { absorption = absorb; }
 
-  void SetRefractionIndex(float _ior) { ior = _ior; }
+  void SetRefractionIndex(float idx) { ior = idx; }
 
   void SetDiffuseTexture(TextureMap *map) { diffuse.SetTexture(map); }
 
@@ -79,22 +79,72 @@ class MtlBlinn_PhotonMap : public Material {
 
   // If this method returns true, a new photon with the given direction and
   // color will be traced
-  bool RandomPhotonBounce(DiffRay &, Color3f &, const DiffHitInfo &) const override;
+  bool RandomPhotonBounce(DiffRay &, Color3f &,
+                          const DiffHitInfo &) const override;
 
   // OpenGL Extensions
   void SetViewportMaterial(int subMtlID) const override;
 
- private:
+private:
+
   bool ComputeFresnel(const DiffRay &, const DiffHitInfo &,
                       Point3& transmitDir, Point3& reflectDir,
-                      float& transmitRatio, float& reflectRatio)
+                      float& transmitRatio, float& reflectRatio) const;
+
+  enum MtlSelection { TRANSMIT, REFLECT, SPECULAR, DIFFUSE, ABSORB };
+
+  MtlSelection RandomSelectMtl(float &scale,
+                               const Color3f &sampleTransmission,
+                               const Color3f &sampleReflection,
+                               const Color3f &sampleDiffuse,
+                               const Color3f &sampleSpecular)
   const;
 
- private:
+  bool SampleTransmitBxDF(Point3 &sampleDir,
+                          Color3f &BxDF,
+                          float &PDF,
+                          const Point3 &N,
+                          const Point3 &Y,
+                          const Point3 &V,
+                          const Point3 &tDir,
+                          const Color3f &color,
+                          bool photonMap = false)
+  const;
+
+  bool SampleReflectionBxDF(Point3 &sampleDir,
+                            Color3f &BxDF,
+                            float &PDF,
+                            const Point3 &N,
+                            const Point3 &Y,
+                            const Point3 &V,
+                            const Point3 &rDir,
+                            const Color3f &color,
+                            bool photonMap = false)
+  const;
+
+  bool SampleSpecularBxDF(Point3 &sampleDir,
+                          Color3f &BxDF,
+                          float &PDF,
+                          const Point3 &N,
+                          const Point3 &V,
+                          const Color3f &color,
+                          bool photonMap = false)
+  const;
+
+  bool SampleDiffuseBxDF(Point3 &sampleDir,
+                         Color3f &BxDF,
+                         float &PDF,
+                         const Point3 &N,
+                         const Color3f &color,
+                         bool photonMap = false)
+  const;
+
+private:
   TexturedColor diffuse, specular;
   TexturedColor reflection, refraction;
   TexturedColor emission;
   Color3f absorption;
+  float kill;
   float ior; // index of refraction
   float specularGlossiness, reflectionGlossiness, refractionGlossiness;
 };

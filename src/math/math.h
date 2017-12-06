@@ -87,15 +87,6 @@ typedef qaray::vec4f Point4;
 typedef qaray::mat3f Matrix3;
 typedef qaray::mat4f Matrix4;
 //-----------------------------------------------------------------------------
-inline float ColorLuma(const Color3f &c)
-{
-  return 0.2126f *c.x + 0.7152f * c.y + 0.0722f * c.z;
-}
-inline Color3f ToColor(const Color3c &c)
-{
-  return Color3f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
-}
-//-----------------------------------------------------------------------------
 template<typename T>
 qaFLOAT length(const T& v) { return glm::length(v); }
 template<typename T>
@@ -119,5 +110,27 @@ using namespace qaray;
 #define SIN(x)    (std::sin(x))
 #define COS(x)    (std::cos(x))
 #define BIGFLOAT 1.0e30f
+//-----------------------------------------------------------------------------
+namespace qaray {
+inline float ColorLuma(const Color3f &c)
+{
+  return 0.2126f * c.x + 0.7152f * c.y + 0.0722f * c.z;
+}
+inline Color3f ToColor(const Color3c &c)
+{
+  return Color3f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
+}
+inline Point3 TransformToLocalFrame(const Point3 &N,
+                                    const Point3 &sample)
+{
+  const Point3 Z = N;
+  const Point3 Y = (ABS(Z.x) > ABS(Z.y)) ?
+                    normalize(Point3(Z.z, 0, -Z.x)) :
+                    normalize(Point3(0, -Z.z, Z.y));
+  const Point3 X = normalize(cross(Y, Z));
+  const Point3 unit = normalize(sample);
+  return unit.x * X + unit.y * Y + unit.z * Z;
+}
+}
 //-----------------------------------------------------------------------------
 #endif //QARAY_MATH_H

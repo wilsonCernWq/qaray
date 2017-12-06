@@ -656,7 +656,7 @@ void MtlBlinn_PhotonMap::SetViewportMaterial(int subMtlID) const
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r);
   c = Color4f(specular.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_SPECULAR, &c.r);
-  glMaterialf(GL_FRONT, GL_SHININESS, reflectionGlossiness * 1.5f);
+  glMaterialf(GL_FRONT, GL_SHININESS, specularGlossiness * 1.5f);
   c = Color4f(emission.GetColor(), 1.f);
   glMaterialfv(GL_FRONT, GL_EMISSION, &c.r);
   const TextureMap *dm = diffuse.GetTexture();
