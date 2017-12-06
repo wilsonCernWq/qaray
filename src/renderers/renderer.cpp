@@ -141,8 +141,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     const auto start = size_t(0);
     const auto stop = tasking::get_num_of_threads();
     const auto step = size_t(1);
-    tasking::parallel_for(start, stop, step, [&] (size_t k)
-    {
+    //tasking::parallel_for(start, stop, step, [&] (size_t k) {
       while (true) {
         Light *light;
         //! randomly pick a light
@@ -196,7 +195,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         if (recorded) { ++numPhotonsGen; }
         if (finished) { break; }
       }
-    });
+    //});
     scene->photonmap.ScalePhotonPowers(1.f / numPhotonsGen);
     scene->photonmap.PrepareForIrradianceEstimation();
     //-----------------------------------------------------------------------//
