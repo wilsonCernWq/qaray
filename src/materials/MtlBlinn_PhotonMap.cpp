@@ -327,25 +327,29 @@ const
   //
   // Shading Directional Lights
   //
-  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
-  for (auto &light : lights) {
-    if (light->IsAmbient()) {}
-    else {
-      auto intensity = light->Illuminate(p, N) * normCoefDI;
-      auto L = normalize(-light->Direction(p));
-      auto H = normalize(V + L);
-      auto cosNL = MAX(0.f, dot(N, L));
-      auto cosNH = MAX(0.f, dot(N, H));
-      color += intensity * cosNL *
-          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+  //qaBOOL doDirectLight = true;
+  qaBOOL doDirectLight = select != DIFFUSE;
+  if (doDirectLight) {
+    const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
+    for (auto &light : lights) {
+      if (light->IsAmbient()) {}
+      else {
+        auto intensity = light->Illuminate(p, N) * normCoefDI;
+        auto L = normalize(-light->Direction(p));
+        auto H = normalize(V + L);
+        auto cosNL = MAX(0.f, dot(N, L));
+        auto cosNH = MAX(0.f, dot(N, H));
+        color += intensity * cosNL *
+            (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+      }
     }
   }
   //
   // Gather Photon
   //
-  bool doPhotonGather = select == DIFFUSE &&
-      (bounceCount != Material::maxBounce || Material::maxBounce == 0);
-  doPhotonGather = true;
+  //qaBOOL doPhotonGather = select == DIFFUSE &&
+  //       (bounceCount != Material::maxBounce || Material::maxBounce == 0);
+  qaBOOL doPhotonGather = select == DIFFUSE;
   if (doPhotonGather) {
     // gather photons
     cyColor cyI;
@@ -367,31 +371,31 @@ const
   //
   // Shading Indirectional Lights
   //
-//  if (bounceCount > 0 && !doPhotonGather) // Select BxDF
-//  {
-//    if (doShade) {
-//      // Generate ray
-//      DiffRay sampleRay(p, sampleDir);
-//      sampleRay.Normalize();
-//      DiffHitInfo sampleHInfo;
-//      sampleHInfo.Init();
-//      // Integrate Incoming Ray
-//      Color3f incoming(0.f);
-//      if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
-//        // Attenuation When the Ray Travels Inside the Material
-//        if (!sampleHInfo.c.hasFrontHit) {
-//          incoming *= Attenuation(absorption, sampleHInfo.c.z);
-//        }
-//        const auto *mtl = sampleHInfo.c.node->GetMaterial();
-//        incoming =
-//            mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
-//      } else {
-//        incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
-//      }
-//      Point3 outgoing = incoming * BxDF / (PDF * scale);
-//      color += outgoing;
-//    }
-//  }
+  if (bounceCount > 0 && !doPhotonGather) // Select BxDF
+  {
+    if (doShade) {
+      // Generate ray
+      DiffRay sampleRay(p, sampleDir);
+      sampleRay.Normalize();
+      DiffHitInfo sampleHInfo;
+      sampleHInfo.Init();
+      // Integrate Incoming Ray
+      Color3f incoming(0.f);
+      if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
+        // Attenuation When the Ray Travels Inside the Material
+        if (!sampleHInfo.c.hasFrontHit) {
+          incoming *= Attenuation(absorption, sampleHInfo.c.z);
+        }
+        const auto *mtl = sampleHInfo.c.node->GetMaterial();
+        incoming =
+            mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
+      } else {
+        incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
+      }
+      Point3 outgoing = incoming * BxDF / (PDF * scale);
+      color += outgoing;
+    }
+  }
   return color;
 }
 // If this method returns true, a new photon with the given direction and
