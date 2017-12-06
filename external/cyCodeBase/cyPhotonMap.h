@@ -79,6 +79,7 @@ class PhotonMap {
   /// Calling this method before adding photons avoids
   /// multiple memory allocations while adding photons.
   void AllocatePhotons(unsigned int n) { photons.reserve(n + 1); }
+  void CreateAllPhotons(unsigned int n) { photons.resize(n + 1); }
 
   /// Adds a photon to the map with the given position, direction, and power.
   /// Assumes that the direction is normalized.

@@ -94,8 +94,8 @@ class Renderer {
   virtual void StartTimer();
   virtual void StopTimer();
   virtual void KillTimer();
-  virtual void Init() {}
-  virtual void Terminate() {};
+  virtual void Init();
+  virtual void Terminate();
   virtual void Render() = 0;
 };
 }

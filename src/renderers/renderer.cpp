@@ -122,10 +122,12 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
     t1 = std::chrono::system_clock::now();
     //-----------------------------------------------------------------------//
-    scene->photonmap.AllocatePhotons
+    scene->photonmap.CreateAllPhotons
         (static_cast<qaUINT>(param.photonMapSize));
-    scene->causticsmap.AllocatePhotons
-        (static_cast<qaUINT>(param.causticsMapSize));
+//    scene->photonmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.photonMapSize));
+//    scene->causticsmap.AllocatePhotons
+//        (static_cast<qaUINT>(param.causticsMapSize));
     //! find out all point lights
     std::vector<Light *> photonLights;
     for (auto &light : scene->lights) {
@@ -133,8 +135,8 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     }
     const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
     //! trace photons
-    std::atomic<qaINT> numPhotonsRec(1);
-    std::atomic<qaINT> numPhotonsGen(1);
+    std::atomic<qaINT> numPhotonsRec(0);
+    std::atomic<qaINT> numPhotonsGen(0);
     auto start = size_t(0);
     auto stop = tasking::get_num_of_threads();
     auto step = size_t(1);
@@ -160,16 +162,14 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
           if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
             const Material *mtl = hInfo.c.node->GetMaterial();
             if (mtl->IsPhotonSurface(0)) {
-              // cyPhotonMap::Photon photon;
-              // photon.position.x = hInfo.c.p.x;
-              // photon.position.y = hInfo.c.p.y;
-              // photon.position.z = hInfo.c.p.z;
-              // photon.SetDirection(cyPoint3f(ray.c.dir.x, ray.c.dir.y, ray.c.dir.z));
-              // photon.SetPower(cyColor(intensity.x, intensity.y, intensity.z));
-              // scene->photonmap[numPhotonsRec] = photon;
-              scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
-                                         (cyPoint3f &) ray.c.dir,
-                                         (cyColor &) intensity);
+              scene->photonmap[numPhotonsRec].position.x = hInfo.c.p.x;
+              scene->photonmap[numPhotonsRec].position.y = hInfo.c.p.y;
+              scene->photonmap[numPhotonsRec].position.z = hInfo.c.p.z;
+              scene->photonmap[numPhotonsRec].SetDirection((cyPoint3f&)ray.c.dir);
+              scene->photonmap[numPhotonsRec].SetPower((cyColor&)intensity);
+//              scene->photonmap.AddPhoton((cyPoint3f &) hInfo.c.p,
+//                                         (cyPoint3f &) ray.c.dir,
+//                                         (cyColor &) intensity);
               ++numPhotonsRec;
             }
             bool flag = mtl->RandomPhotonBounce(ray, intensity, hInfo);
@@ -195,6 +195,11 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     //-----------------------------------------------------------------------//
   }
 #endif
+};
+void Renderer::Init() {}
+void Renderer::Terminate()
+{
+  scene->photonmap.Clear();
 };
 ///--------------------------------------------------------------------------//
 /// Render each individual pixel
