@@ -111,6 +111,7 @@ using namespace qaray;
 #define FLOOR(x)  (std::floor(x))
 #define SIN(x)    (std::sin(x))
 #define COS(x)    (std::cos(x))
+#define ROUND(x)  (std::round(x))
 #define BIGFLOAT 1.0e30f
 //-----------------------------------------------------------------------------
 #include "cyPoint.h"

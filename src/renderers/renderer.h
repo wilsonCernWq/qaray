@@ -34,6 +34,7 @@
 #include <iostream>
 #include <atomic>
 #include <algorithm>
+#include <functional>
 ///--------------------------------------------------------------------------//
 #include "math/math.h"
 #include "scene/scene.h"
@@ -45,28 +46,31 @@ namespace qaray {
 ///--------------------------------------------------------------------------//
 ///--------------------------------------------------------------------------//
 struct RendererParam {
-  bool useSRGB = true;
+  qaBOOL useSRGB = true;
   size_t sppMax = 16;
   size_t sppMin = 4;
-  size_t photonMapSize   = size_t(10000);
+  size_t photonMapSize = size_t(10000);
   size_t photonMapBounce = 5;
-  size_t causticsMapSize   = size_t(1000);;
+  qaFLOAT photonMapRadius = 1.f;
+  size_t causticsMapSize = size_t(1000);
   size_t causticsMapBounce = 5;
+  qaFLOAT causticsMapRadius = 1.f;
   void SetPhotonMapSize(size_t sz) { photonMapSize = sz; }
-  void SetSPPMax(int spp){ sppMax = static_cast<size_t>(spp); }
-  void SetSPPMin(int spp){ sppMin = static_cast<size_t>(spp); }
+  void SetCausticsMapSize(size_t sz) { causticsMapSize = sz; }
+  void SetSPPMax(int spp) { sppMax = static_cast<size_t>(spp); }
+  void SetSPPMin(int spp) { sppMin = static_cast<size_t>(spp); }
   void SetSRGB(bool flag) { useSRGB = flag; }
 };
 class Renderer {
  protected:
   //! get all user defined parameters
-  RendererParam& param;
+  RendererParam &param;
   //! load scene
-  Scene*       scene = nullptr;
-  FrameBuffer* image = nullptr;
+  Scene *scene = nullptr;
+  FrameBuffer *image = nullptr;
   //! handy buffers
   Color3c *colorBuffer; // RGB qaUCHAR
-  float   *depthBuffer;
+  float *depthBuffer;
   qaUCHAR *sampleCountBuffer;
   qaUCHAR *irradianceCountBuffer;
   qaUCHAR *maskBuffer;
@@ -89,7 +93,7 @@ class Renderer {
   size_t mpiRank = 0;
  public:
   explicit Renderer(RendererParam &param);
-  void ComputeScene(FrameBuffer& renderImage, Scene& scene);
+  void ComputeScene(FrameBuffer &renderImage, Scene &scene);
   void ThreadRender();
   void PixelRender(size_t i, size_t j, size_t tile_idx);
   virtual void StartTimer();
@@ -98,7 +102,6 @@ class Renderer {
   virtual void Init();
   virtual void Terminate();
   virtual void Render() = 0;
-  //! PhotonMap Extension
 };
 }
 

@@ -173,7 +173,7 @@ const
     BxDF = color * glossiness; // ==> rho / pi
     PDF = photonMap ?
           0.5f : // ==> 1 / (2*pi) uniform hemisphere sampling
-          1.f;  // ==> cosTheta / pi cos-weighted hemisphere sampling
+          1.f;   // ==> cosTheta / pi cos-weighted hemisphere sampling
   } else {
     sampleDir = tDir;
     BxDF = color; // ==> reflect all light
@@ -233,7 +233,7 @@ const
   return true;
 }
 ///--------------------------------------------------------------------------//
-Color3f MtlBlinn_PhotonMap::ComputeSecondaryRay(const Point3& pos,
+Color3f MtlBlinn_PhotonMap::ComputeSecondaryRay(const Point3 &pos,
                                                 const Point3 &dir,
                                                 const Color3f &BxDF,
                                                 const float &PDF,
@@ -249,8 +249,7 @@ Color3f MtlBlinn_PhotonMap::ComputeSecondaryRay(const Point3& pos,
   sampleHInfo.c.hasDiffuseHit = hasDiffuseHit;
   // Integrate Incoming Ray
   Color3f incoming(0.f);
-  if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo))
-  {
+  if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
     // Attenuation When the Ray Travels Inside the Material
     if (!sampleHInfo.c.hasFrontHit) {
       incoming *= Attenuation(absorption, sampleHInfo.c.z);
@@ -307,7 +306,8 @@ const
       auto H = normalize(V + L);
       auto cosNL = MAX(0.f, dot(N, L));
       auto cosNH = MAX(0.f, dot(N, H));
-      color += intensity * cosNL * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+      color += intensity * cosNL
+          * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
     }
   }
   //
@@ -357,10 +357,8 @@ const
   //
   // Shading Indirectional Lights
   //
-  if (ColorLuma(sampleDiffuse) > color_luma_threshold)
-  {
-    if (hInfo.c.hasDiffuseHit)
-    {
+  if (ColorLuma(sampleDiffuse) > color_luma_threshold) {
+    if (hInfo.c.hasDiffuseHit) {
       //
       // Gather Photon
       //
@@ -368,9 +366,8 @@ const
       cyPoint3f cyD;
       cyPoint3f cyP(p.x, p.y, p.z);
       cyPoint3f cyN(N.x, N.y, N.z);
-      const float radius = 0.5;
-      scene.photonmap.EstimateIrradiance<200>
-          (cyI, cyD, radius, cyP, &cyN, 0.5f,
+      scene.photonmap.map.EstimateIrradiance<200>
+          (cyI, cyD, scene.photonmap.radius, cyP, &cyN, 0.5f,
            cyPhotonMap::FILTER_TYPE_QUADRATIC);
       Color3f I(cyI.r, cyI.g, cyI.b);
       if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
@@ -378,19 +375,23 @@ const
         const auto H = normalize(V + L);
         const auto cosNL = MAX(0.f, dot(N, L));
         const auto cosNH = MAX(0.f, dot(N, H));
-        color += I * cosNL * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+        color += I * cosNL
+            * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
       }
-    }
-    else if (bounceCount  > 0)
-    {
-      //const qaUINT MCSample = bounceCount == Material::maxBounce ? 20 : 1;
-      const qaUINT MCSample = 20;
+    } else if (bounceCount > 0) {
+      const qaUINT MCSample = 5;
       for (size_t i = 0; i < MCSample; ++i) {
         if (hInfo.c.hasFrontHit) {
           Point3 sampleDir;
           Color3f BxDF;
           qaFLOAT PDF = 1.f;
-          qaBOOL doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V, sampleDiffuse, sampleSpecular);
+          qaBOOL doShade = SampleDiffuseBxDF(sampleDir,
+                                             BxDF,
+                                             PDF,
+                                             N,
+                                             V,
+                                             sampleDiffuse,
+                                             sampleSpecular);
           if (doShade) {
             color += 1.f / MCSample * ComputeSecondaryRay(p,
                                                           sampleDir,
@@ -476,7 +477,14 @@ const
     case (DIFFUSE):
       if (hInfo.c.hasFrontHit) {
         doShade =
-            SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V, sampleDiffuse, sampleSpecular, true);
+            SampleDiffuseBxDF(sampleDir,
+                              BxDF,
+                              PDF,
+                              N,
+                              V,
+                              sampleDiffuse,
+                              sampleSpecular,
+                              true);
       }
       break;
     case (ABSORB):doShade = false;

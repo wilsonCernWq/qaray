@@ -118,83 +118,177 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
 #ifdef USE_GUI
   if (param.photonMapSize > 0 && param.causticsMapSize > 0 && mpiSize == 1) {
     //-----------------------------------------------------------------------//
+    scene->photonmap.size = param.photonMapSize;
+    scene->photonmap.radius = param.photonMapRadius;
+    scene->photonmap.bounce = param.photonMapBounce;
+    scene->causticsmap.size = param.causticsMapSize;
+    scene->causticsmap.radius = param.causticsMapRadius;
+    scene->causticsmap.bounce = param.causticsMapBounce;
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
-    t1 = std::chrono::system_clock::now();
-    //-----------------------------------------------------------------------//
-    scene->photonmap.CreateAllPhotons(param.photonMapSize);
     //! find out all point lights
     std::vector<Light *> photonLights;
-    for (auto &light : scene->lights)
-    {
+    for (auto &light : scene->lights) {
       if (light->IsPhotonSource()) { photonLights.push_back(light); }
     }
     const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
-    //! generate the photon map
-    std::atomic<qaUINT> numPhotonsRec(0);
-    std::atomic<qaUINT> numOfEmittedRays(0);
-    while (true) {
-      Light *light;
-      //! randomly pick a light
-      if (photonLights.size() == 1) { light = photonLights[0]; }
-      else {
-        qaFLOAT r;
-        rng->local().Get1f(r);
-        size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
-                        photonLights.size() - 1);
-        light = photonLights[id];
-      }
-      //! generate one photons
-      DiffRay ray = light->RandomPhoton(); ray.Normalize();
-      DiffHitInfo hInfo; hInfo.Init();
-      Color3f intensity = light->GetPhotonIntensity() * lightScale;
-      qaBOOL finished = false; // whether the map is filled
-      qaBOOL recorded = false; // whether a photon is recorded
-      //! trace photon
-      size_t bounce = 0;
-      while (bounce < param.photonMapBounce)
-      {
-        //! trace the photon
-        if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
-          const Material *mtl = hInfo.c.node->GetMaterial();
-          //! if it is a diffuse surface
-          if (mtl->IsPhotonSurface(0))
-          {
-            //! fetch a photon index
-            size_t idx = idx = numPhotonsRec++;
-            //! check if the map is filled
-            if (idx >= param.photonMapSize)
-            { finished = true; break; }
-            else if (bounce != 0)
-            {
-              scene->photonmap[idx].position = (cyPoint3f &) hInfo.c.p;
-              scene->photonmap[idx].SetDirection((cyPoint3f &) ray.c.dir);
-              scene->photonmap[idx].SetPower(cyColor(intensity.r,
-                                                     intensity.g,
-                                                     intensity.b));
-              recorded = true;
+    //-----------------------------------------------------------------------//
+    // Photon Map
+    //-----------------------------------------------------------------------//
+    {
+      //---------------------------------------------------------------------//
+      t1 = std::chrono::system_clock::now();
+      //---------------------------------------------------------------------//
+      scene->photonmap.map.CreateAllPhotons(param.photonMapSize);
+      //! generate the photon map
+      qaUINT numPhotonsRec(0);
+      qaUINT numOfEmittedRays(0);
+      while (true) {
+        Light *light;
+        //! randomly pick a light
+        if (photonLights.size() == 1) { light = photonLights[0]; }
+        else {
+          qaFLOAT r;
+          rng->local().Get1f(r);
+          size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
+                          photonLights.size() - 1);
+          light = photonLights[id];
+        }
+        //! generate one photons
+        DiffRay ray = light->RandomPhoton();
+        ray.Normalize();
+        DiffHitInfo hInfo;
+        hInfo.Init();
+        Color3f intensity = light->GetPhotonIntensity() * lightScale;
+        qaBOOL finished = false; // whether the map is filled
+        qaBOOL recorded = false; // whether a photon is recorded
+        //! trace photon
+        size_t bounce = 0;
+        while (bounce < param.photonMapBounce) {
+          //! trace the photon
+          if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+            const Material *mtl = hInfo.c.node->GetMaterial();
+            //! if it is a diffuse surface
+            if (mtl->IsPhotonSurface(0) && bounce != 0) {
+              //! fetch a photon index
+              size_t idx = numPhotonsRec++;
+              //! check if the map is filled
+              if (idx >= param.photonMapSize) {
+                finished = true;
+                break;
+              }
+              else {
+                scene->photonmap.map[idx].position = (cyPoint3f &) hInfo.c.p;
+                scene->photonmap.map[idx].SetDirection((cyPoint3f &) ray.c.dir);
+                scene->photonmap.map[idx].SetPower(cyColor(intensity.r,
+                                                           intensity.g,
+                                                           intensity.b));
+                recorded = true;
+              }
             }
-          }
-          if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
-          {
-            ++bounce; ray.Normalize(); hInfo.Init();
+            if (mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
+              ++bounce;
+              ray.Normalize();
+              hInfo.Init();
+            } else { break; }
           } else { break; }
-        } else { break; }
+        }
+        if (recorded) { ++numOfEmittedRays; }
+        if (finished) { break; }
       }
-      if (recorded) { ++numOfEmittedRays; }
-      if (finished) { break; }
+      scene->photonmap.map.ScalePhotonPowers(1.f / numOfEmittedRays);
+      scene->photonmap.map.PrepareForIrradianceEstimation();
+      //---------------------------------------------------------------------//
+      t2 = std::chrono::system_clock::now();
+      std::chrono::duration<double> dt = t2 - t1;
+      printf("\nPhoton Map Takes %f s to Build\n", dt.count());
+      FILE *fp = fopen("photonmap.dat", "wb");
+      auto x = scene->photonmap.map.NumPhotons();
+      fwrite(scene->photonmap.map.GetPhotons(), sizeof(cyPhotonMap::Photon),
+             scene->photonmap.map.NumPhotons(), fp);
+      fclose(fp);
+      //---------------------------------------------------------------------//
     }
-    scene->photonmap.ScalePhotonPowers(1.f / numOfEmittedRays / 2.f);
-    scene->photonmap.PrepareForIrradianceEstimation();
     //-----------------------------------------------------------------------//
-    t2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> dt = t2 - t1;
-    printf("\nPhoton Map Takes %f s to Build\n", dt.count());
-    FILE *fp = fopen("photonmap.dat", "wb");
-    auto x = scene->photonmap.NumPhotons();
-    fwrite(scene->photonmap.GetPhotons(), sizeof(cyPhotonMap::Photon),
-           scene->photonmap.NumPhotons(), fp);
-    fclose(fp);
+    // Caustics Map
     //-----------------------------------------------------------------------//
+    {
+      //---------------------------------------------------------------------//
+      t1 = std::chrono::system_clock::now();
+      //---------------------------------------------------------------------//
+      scene->causticsmap.map.CreateAllPhotons(param.causticsMapSize);
+      //! generate the photon map
+      qaUINT numPhotonsRec(0);
+      qaUINT numOfEmittedRays(0);
+      while (true) {
+        Light *light;
+        //! randomly pick a light
+        if (photonLights.size() == 1) { light = photonLights[0]; }
+        else {
+          qaFLOAT r;
+          rng->local().Get1f(r);
+          size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
+                          photonLights.size() - 1);
+          light = photonLights[id];
+        }
+        //! generate one photons
+        DiffRay ray = light->RandomPhoton();
+        ray.Normalize();
+        DiffHitInfo hInfo;
+        hInfo.Init();
+        Color3f intensity = light->GetPhotonIntensity() * lightScale;
+        qaBOOL finished = false; // whether the map is filled
+        qaBOOL recorded = false; // whether a photon is recorded
+        //! trace photon
+        size_t bounce = 0;
+        while (bounce < param.causticsMapBounce) {
+          //! trace the photon
+          if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
+            const Material *mtl = hInfo.c.node->GetMaterial();
+            //! if it is a diffuse surface
+            if (mtl->IsPhotonSurface(0) && !hInfo.c.hasDiffuseHit
+                && bounce != 0) {
+              //! fetch a photon index
+              size_t idx = numPhotonsRec++;
+              //! check if the map is filled
+              if (idx >= param.causticsMapSize) {
+                finished = true;
+                break;
+              }
+              else {
+                scene->causticsmap.map[idx].position = (cyPoint3f &) hInfo.c.p;
+                scene->causticsmap.map[idx]
+                    .SetDirection((cyPoint3f &) ray.c.dir);
+                scene->causticsmap.map[idx].SetPower(cyColor(intensity.r,
+                                                             intensity.g,
+                                                             intensity.b));
+                recorded = true;
+              }
+            }
+            if (mtl->RandomPhotonBounce(ray, intensity, hInfo)) {
+              bool diffuseHit = hInfo.c.hasDiffuseHit;
+              ++bounce;
+              ray.Normalize();
+              hInfo.Init();
+              hInfo.c.hasDiffuseHit = (diffuseHit || mtl->IsPhotonSurface(0));
+            } else { break; }
+          } else { break; }
+        }
+        if (recorded) { ++numOfEmittedRays; }
+        if (finished) { break; }
+      }
+      scene->causticsmap.map.ScalePhotonPowers(1.f / numOfEmittedRays);
+      scene->causticsmap.map.PrepareForIrradianceEstimation();
+      //---------------------------------------------------------------------//
+      t2 = std::chrono::system_clock::now();
+      std::chrono::duration<double> dt = t2 - t1;
+      printf("\nCaustics Map Takes %f s to Build\n", dt.count());
+      FILE *fp = fopen("caustics.dat", "wb");
+      auto x = scene->causticsmap.map.NumPhotons();
+      fwrite(scene->causticsmap.map.GetPhotons(), sizeof(cyPhotonMap::Photon),
+             scene->causticsmap.map.NumPhotons(), fp);
+      fclose(fp);
+      //---------------------------------------------------------------------//
+    }
   }
 #endif
 };
@@ -202,6 +296,7 @@ void Renderer::Init() {}
 void Renderer::Terminate()
 {
   scene->photonmap.Clear();
+  scene->causticsmap.Clear();
 };
 ///--------------------------------------------------------------------------//
 /// Render each individual pixel

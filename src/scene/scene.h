@@ -45,6 +45,13 @@
 
 namespace qaray {
 ///--------------------------------------------------------------------------//
+struct PhotonMap {
+  cyPhotonMap map;
+  size_t size;
+  size_t bounce;
+  qaFLOAT radius;
+  void Clear() { map.Clear(); }
+};
 class Scene {
  public:
   Node rootNode;
@@ -55,8 +62,8 @@ class Scene {
   TexturedColor background;
   TexturedColor environment;
   TextureList textureList;
-  cyPhotonMap photonmap;
-  cyPhotonMap causticsmap;
+  PhotonMap photonmap;
+  PhotonMap causticsmap;
  public:
   bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
   bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);
