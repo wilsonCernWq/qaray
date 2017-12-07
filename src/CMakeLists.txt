@@ -25,16 +25,18 @@ macro(qw_add_library name)
   #
   # -- linked libraries are placed as extra arguments in the argument list
   foreach (l ${ARGN})
-    set(lnk_list ${lnk_list} ${l}_${PROJECT_ID})
+    set(lnk_list ${lnk_list} ${PROJECT_ID}_${l})
   endforeach ()
   # -- debug
   message(STATUS "link to ${lnk_list}")
   #
   # now create the library
   #
-  add_library(${name}_${PROJECT_ID} ${${src_list}})
-  target_link_libraries(${name}_${PROJECT_ID} ${lnk_list} ${COMMON_LIBS})
-  set_target_properties(${name}_${PROJECT_ID}
+  add_library(${PROJECT_ID}_${name} ${${src_list}})
+  target_link_libraries(${PROJECT_ID}_${name}
+      ${lnk_list}
+      ${COMMON_LIBS})
+  set_target_properties(${PROJECT_ID}_${name}
       PROPERTIES
       COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
       LINK_FLAGS "${COMMON_LINK_FLAGS}"
@@ -42,7 +44,7 @@ macro(qw_add_library name)
   #
   # register library
   #
-  set(ALL_LIBS ${ALL_LIBS} ${name}_${PROJECT_ID})
+  set(ALL_LIBS ${ALL_LIBS} ${PROJECT_ID}_${name})
 endmacro()
 #
 # add library
@@ -85,9 +87,9 @@ set_target_properties(${PROJECT_ID}
 #
 # add other executables
 #
-add_executable(photon_vis_${PROJECT_ID} exe/PhotonMapViz.cpp)
-target_link_libraries(photon_vis_${PROJECT_ID} ${COMMON_LIBS})
-set_target_properties(photon_vis_${PROJECT_ID}
+add_executable(photon_vis exe/PhotonMapViz.cpp)
+target_link_libraries(photon_vis ${COMMON_LIBS})
+set_target_properties(photon_vis
     PROPERTIES
     COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
     LINK_FLAGS "${COMMON_LINK_FLAGS}"
