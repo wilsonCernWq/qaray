@@ -55,8 +55,12 @@ struct RendererParam {
   size_t causticsMapSize = size_t(1000);
   size_t causticsMapBounce = 5;
   qaFLOAT causticsMapRadius = 1.f;
+  void SetPhotonMapBounce(size_t b) { photonMapBounce = b; }
   void SetPhotonMapSize(size_t sz) { photonMapSize = sz; }
+  void SetPhotonMapRadius(qaFLOAT r) { photonMapRadius = r; }
+  void SetCausticsMapBounce(size_t b) { causticsMapBounce = b; }
   void SetCausticsMapSize(size_t sz) { causticsMapSize = sz; }
+  void SetCausticsMapRadius(qaFLOAT r) { causticsMapRadius = r; }
   void SetSPPMax(int spp) { sppMax = static_cast<size_t>(spp); }
   void SetSPPMin(int spp) { sppMin = static_cast<size_t>(spp); }
   void SetSRGB(bool flag) { useSRGB = flag; }

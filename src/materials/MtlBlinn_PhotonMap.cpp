@@ -373,7 +373,7 @@ const
     cyPoint3f cyD;
     cyPoint3f cyP(p.x, p.y, p.z);
     cyPoint3f cyN(N.x, N.y, N.z);
-    scene.photonmap.map.EstimateIrradiance<200>
+    scene.photonmap.map.EstimateIrradiance<100>
         (cyI, cyD, scene.photonmap.radius, cyP, &cyN, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
     Color3f I(cyI.r, cyI.g, cyI.b);
@@ -395,8 +395,8 @@ const
     cyPoint3f cyD;
     cyPoint3f cyP(p.x, p.y, p.z);
     cyPoint3f cyN(N.x, N.y, N.z);
-    scene.causticsmap.map.EstimateIrradiance<200>
-        (cyI, cyD, scene.causticsmap.radius, cyP, &cyN, 1.0f,
+    scene.causticsmap.map.EstimateIrradiance<100>
+        (cyI, cyD, scene.causticsmap.radius, cyP, &cyN, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
     Color3f I(cyI.r, cyI.g, cyI.b);
     if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
