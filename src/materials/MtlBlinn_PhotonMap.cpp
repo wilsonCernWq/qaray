@@ -295,22 +295,6 @@ const
   const Color3f sampleSpecular = Sample(hInfo, specular);
   const Color3f sampleDiffuse = Sample(hInfo, diffuse);
   //
-  // Shading Directional Lights
-  //
-  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
-  for (auto &light : lights) {
-    if (light->IsAmbient()) {}
-    else {
-      auto intensity = light->Illuminate(p, N) * normCoefDI;
-      auto L = normalize(-light->Direction(p));
-      auto H = normalize(V + L);
-      auto cosNL = MAX(0.f, dot(N, L));
-      auto cosNH = MAX(0.f, dot(N, H));
-      color += intensity * cosNL
-          * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-    }
-  }
-  //
   // Other Rays
   //
   if (bounceCount > 0) {
@@ -355,56 +339,112 @@ const
     }
   }
   //
-  // Shading Indirectional Lights
+  // Shading Method
   //
-  if (ColorLuma(sampleDiffuse) > color_luma_threshold) {
+  qaBOOL doGatherPhoton = false;
+  qaBOOL doGatherCaustics = false;
+  qaBOOL doMCSample = false;
+  qaBOOL doDirectLight = true;
+  // Method 1:
+  doDirectLight = true;
+  if (ColorLuma(sampleDiffuse) > color_luma_threshold)
+  {
+    //! version 1
     if (hInfo.c.hasDiffuseHit) {
-      //
-      // Gather Photon
-      //
-      cyColor cyI;
-      cyPoint3f cyD;
-      cyPoint3f cyP(p.x, p.y, p.z);
-      cyPoint3f cyN(N.x, N.y, N.z);
-      scene.photonmap.map.EstimateIrradiance<200>
-          (cyI, cyD, scene.photonmap.radius, cyP, &cyN, 0.5f,
-           cyPhotonMap::FILTER_TYPE_QUADRATIC);
-      Color3f I(cyI.r, cyI.g, cyI.b);
-      if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
-        const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
-        const auto H = normalize(V + L);
-        const auto cosNL = MAX(0.f, dot(N, L));
-        const auto cosNH = MAX(0.f, dot(N, H));
-        color += I * cosNL
-            * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
-      }
+      doGatherPhoton = true;
     } else if (bounceCount > 0) {
-      const qaUINT MCSample = 5;
-      for (size_t i = 0; i < MCSample; ++i) {
-        if (hInfo.c.hasFrontHit) {
-          Point3 sampleDir;
-          Color3f BxDF;
-          qaFLOAT PDF = 1.f;
-          qaBOOL doShade = SampleDiffuseBxDF(sampleDir,
-                                             BxDF,
-                                             PDF,
-                                             N,
-                                             V,
-                                             sampleDiffuse,
-                                             sampleSpecular);
-          if (doShade) {
-            color += 1.f / MCSample * ComputeSecondaryRay(p,
-                                                          sampleDir,
-                                                          BxDF,
-                                                          PDF,
-                                                          lights,
-                                                          bounceCount,
-                                                          true);
-          }
+      doMCSample = true;
+    }
+    doGatherCaustics = true;
+  }
+  // // Method 2
+  // doDirectLight = true;
+  // if (ColorLuma(sampleDiffuse) > color_luma_threshold)
+  // {
+  //   doGatherPhoton = true;
+  //   doMCSample = false;
+  //   doGatherCaustics = true;
+  // }
+  //
+  // Gather Photon
+  //
+  if (doGatherPhoton) {
+    cyColor cyI;
+    cyPoint3f cyD;
+    cyPoint3f cyP(p.x, p.y, p.z);
+    cyPoint3f cyN(N.x, N.y, N.z);
+    scene.photonmap.map.EstimateIrradiance<200>
+        (cyI, cyD, scene.photonmap.radius, cyP, &cyN, 1.f,
+         cyPhotonMap::FILTER_TYPE_QUADRATIC);
+    Color3f I(cyI.r, cyI.g, cyI.b);
+    if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
+      const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+      const auto H = normalize(V + L);
+      const auto cosNL = MAX(0.f, dot(N, L));
+      const auto cosNH = MAX(0.f, dot(N, H));
+      color += I * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    }
+  }
+  //
+  // Gather Caustics
+  //
+  if (doGatherCaustics)
+  {
+    cyColor cyI;
+    cyPoint3f cyD;
+    cyPoint3f cyP(p.x, p.y, p.z);
+    cyPoint3f cyN(N.x, N.y, N.z);
+    scene.causticsmap.map.EstimateIrradiance<200>
+        (cyI, cyD, scene.causticsmap.radius, cyP, &cyN, 1.0f,
+         cyPhotonMap::FILTER_TYPE_QUADRATIC);
+    Color3f I(cyI.r, cyI.g, cyI.b);
+    if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
+      const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+      const auto H = normalize(V + L);
+      const auto cosNL = MAX(0.f, dot(N, L));
+      const auto cosNH = MAX(0.f, dot(N, H));
+      color += I * cosNL *
+          (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    }
+  }
+  //
+  // MC Integration
+  //
+  if (doMCSample) {
+    const qaUINT MCSample = 5;
+    for (size_t i = 0; i < MCSample; ++i) {
+      if (hInfo.c.hasFrontHit) {
+        Point3 sampleDir;
+        Color3f BxDF;
+        qaFLOAT PDF = 1.f;
+        qaBOOL doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V,
+                                           sampleDiffuse, sampleSpecular);
+        if (doShade) {
+          color += 1.f / MCSample * ComputeSecondaryRay(p, sampleDir, BxDF,
+                                                        PDF, lights,
+                                                        bounceCount, true);
         }
       }
     }
-
+  }
+  //
+  // Shading Directional Lights
+  //
+  if (doDirectLight) {
+    const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
+    for (auto &light : lights) {
+      if (light->IsAmbient()) {}
+      else {
+        auto intensity = light->Illuminate(p, N) * normCoefDI;
+        auto L = normalize(-light->Direction(p));
+        auto H = normalize(V + L);
+        auto cosNL = MAX(0.f, dot(N, L));
+        auto cosNH = MAX(0.f, dot(N, H));
+        color += intensity * cosNL
+            * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+      }
+    }
   }
   return color;
 }
@@ -453,38 +493,18 @@ const
                                 sampleDiffuse);
   switch (select) {
     case (TRANSMIT):
-      doShade = SampleTransmitBxDF(sampleDir,
-                                   BxDF,
-                                   PDF,
-                                   N,
-                                   Y,
-                                   V,
-                                   tDir,
-                                   sampleTransmission,
-                                   true);
+      doShade = SampleTransmitBxDF(sampleDir, BxDF, PDF, N, Y, V, tDir,
+                                   sampleTransmission, true);
       break;
     case (REFLECT):
-      doShade = SampleReflectionBxDF(sampleDir,
-                                     BxDF,
-                                     PDF,
-                                     N,
-                                     Y,
-                                     V,
-                                     rDir,
-                                     sampleReflection,
-                                     true);
+      doShade = SampleReflectionBxDF(sampleDir, BxDF, PDF, N, Y, V, rDir,
+                                     sampleReflection, true);
       break;
     case (DIFFUSE):
       if (hInfo.c.hasFrontHit) {
         doShade =
-            SampleDiffuseBxDF(sampleDir,
-                              BxDF,
-                              PDF,
-                              N,
-                              V,
-                              sampleDiffuse,
-                              sampleSpecular,
-                              true);
+            SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V,
+                              sampleDiffuse, sampleSpecular, true);
       }
       break;
     case (ABSORB):doShade = false;

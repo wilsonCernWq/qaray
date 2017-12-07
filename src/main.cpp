@@ -34,6 +34,8 @@ int main(int argc, char **argv)
       tasking::set_num_of_threads(static_cast<size_t>(std::atoi(argv[++i])));
     } else if (str == "-photon-map-size") {
       param.SetPhotonMapSize(std::atoi(argv[++i]));
+    } else if (str == "-caustics-map-size") {
+      param.SetCausticsMapSize(std::atoi(argv[++i]));
     } else {
       file = argv[i];
     }
