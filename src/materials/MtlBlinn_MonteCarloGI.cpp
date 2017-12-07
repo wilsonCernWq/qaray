@@ -19,7 +19,7 @@ MtlBlinn_MonteCarloGI::MtlBlinn_MonteCarloGI() :
 //------------------------------------------------------------------------------
 
 static int maxBounceMC = 1;
-static int maxMCSample = 8;
+static int maxMCSample = 10;
 
 const float glossy_threshold = 0.001f;
 const float total_reflection_threshold = 1.001f;
@@ -263,15 +263,6 @@ const
     color += (indirectShadecolor + directShadecolor);
   }
   return color;
-}
-
-bool MtlBlinn_MonteCarloGI::RandomPhotonBounce(DiffRay &ray,
-                                               Color3f &color,
-                                               const DiffHitInfo &hInfo)
-const
-{
-
-  return false;
 }
 
 //------------------------------------------------------------------------------

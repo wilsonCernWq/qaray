@@ -162,7 +162,9 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
             //! fetch a photon index
             size_t idx = idx = numPhotonsRec++;
             //! check if the map is filled
-            if (idx < param.photonMapSize)
+            if (idx >= param.photonMapSize)
+            { finished = true; break; }
+            else if (bounce != 0)
             {
               scene->photonmap[idx].position = (cyPoint3f &) hInfo.c.p;
               scene->photonmap[idx].SetDirection((cyPoint3f &) ray.c.dir);
@@ -171,7 +173,6 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
                                                      intensity.b));
               recorded = true;
             }
-            else { finished = true; break; }
           }
           if (mtl->RandomPhotonBounce(ray, intensity, hInfo))
           {

@@ -73,8 +73,7 @@ public:
   // If this method returns true, the photon will be stored
   bool IsPhotonSurface(int subMtlID) const override
   {
-    return !((ColorLuma(reflection.GetColor()) > 0) ||
-             (ColorLuma(refraction.GetColor()) > 0));
+    return ColorLuma(diffuse.GetColor()) > 0;
   }
 
   // If this method returns true, a new photon with the given direction and
@@ -138,6 +137,14 @@ private:
                          const Color3f &color,
                          bool photonMap = false)
   const;
+
+  Color3f ComputeSecondaryRay(const Point3& pos,
+                              const Point3 &dir,
+                              const Color3f &BxDF,
+                              const float &pdf,
+                              const LightList &lights,
+                              int bounceCount,
+                              bool hasDiffuseHit = false) const;
 
 private:
   TexturedColor diffuse, specular;

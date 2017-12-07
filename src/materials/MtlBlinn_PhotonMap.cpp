@@ -259,6 +259,37 @@ const
   return true;
 }
 ///--------------------------------------------------------------------------//
+Color3f MtlBlinn_PhotonMap::ComputeSecondaryRay(const Point3& pos,
+                                                const Point3 &dir,
+                                                const Color3f &BxDF,
+                                                const float &PDF,
+                                                const LightList &lights,
+                                                int bounceCount,
+                                                bool hasDiffuseHit) const
+{
+  // Generate ray
+  DiffRay sampleRay(pos, dir);
+  sampleRay.Normalize();
+  DiffHitInfo sampleHInfo;
+  sampleHInfo.Init();
+  sampleHInfo.c.hasDiffuseHit = hasDiffuseHit;
+  // Integrate Incoming Ray
+  Color3f incoming(0.f);
+  if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo))
+  {
+    // Attenuation When the Ray Travels Inside the Material
+    if (!sampleHInfo.c.hasFrontHit) {
+      incoming *= Attenuation(absorption, sampleHInfo.c.z);
+    }
+    const auto *mtl = sampleHInfo.c.node->GetMaterial();
+    incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
+  } else {
+    incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
+  }
+  Point3 outgoing = incoming * BxDF / PDF;
+  return outgoing;
+}
+///--------------------------------------------------------------------------//
 Color3f MtlBlinn_PhotonMap::Shade(const DiffRay &ray,
                                   const DiffHitInfo &hInfo,
                                   const LightList &lights,
@@ -291,109 +322,134 @@ const
   const Color3f sampleSpecular = Sample(hInfo, specular);
   const Color3f sampleDiffuse = Sample(hInfo, diffuse);
   //
-  // Russian Roulette
+  // Shading Directional Lights
   //
-  Point3 sampleDir;
-  Color3f BxDF;
-  qaFLOAT PDF = 1.f;
-  qaFLOAT scale = 1.f;
-  qaBOOL doShade = false;
-  auto select = RandomSelectMtl(scale, sampleTransmission, sampleReflection,
-                                sampleDiffuse, sampleSpecular);
-  // Generate Parameters
-  switch (select) {
-    case (TRANSMIT):
-      doShade = SampleTransmitBxDF(sampleDir, BxDF, PDF, N, Y, V, tDir,
-                                   sampleTransmission);
-      break;
-    case (REFLECT):
-      doShade = SampleReflectionBxDF(sampleDir, BxDF, PDF, N, Y, V, rDir,
-                                     sampleReflection);
-      break;
-    case (SPECULAR):
+  const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
+  for (auto &light : lights) {
+    if (light->IsAmbient()) {}
+    else {
+      auto intensity = light->Illuminate(p, N) * normCoefDI;
+      auto L = normalize(-light->Direction(p));
+      auto H = normalize(V + L);
+      auto cosNL = MAX(0.f, dot(N, L));
+      auto cosNH = MAX(0.f, dot(N, H));
+      color += intensity * cosNL * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+    }
+  }
+  //
+  // Other Rays
+  //
+  if (bounceCount > 0) {
+    //
+    // Reflect
+    //
+    if (ColorLuma(sampleReflection) > color_luma_threshold) {
+      Point3 sampleDir;
+      Color3f BxDF;
+      qaFLOAT PDF = 1.f;
+      qaBOOL doShade = SampleReflectionBxDF(sampleDir, BxDF, PDF, N, Y, V, rDir,
+                                            sampleReflection);
+      if (doShade) {
+        color += ComputeSecondaryRay(p,
+                                     sampleDir,
+                                     BxDF,
+                                     PDF,
+                                     lights,
+                                     bounceCount);
+      }
+
+    }
+    //
+    // Transmission
+    //
+    if (ColorLuma(sampleTransmission) > color_luma_threshold) {
+      Point3 sampleDir;
+      Color3f BxDF;
+      qaFLOAT PDF = 1.f;
+      qaBOOL doShade = SampleTransmitBxDF(sampleDir, BxDF, PDF, N, Y, V, tDir,
+                                          sampleTransmission);
+
+      if (doShade) {
+        color += ComputeSecondaryRay(p,
+                                     sampleDir,
+                                     BxDF,
+                                     PDF,
+                                     lights,
+                                     bounceCount);
+      }
+
+    }
+    //
+    // Specular
+    //
+    if (ColorLuma(sampleSpecular) > color_luma_threshold) {
+      Point3 sampleDir;
+      Color3f BxDF;
+      qaFLOAT PDF = 1.f;
+      qaBOOL doShade = false;
       if (hInfo.c.hasFrontHit) {
         doShade =
             SampleSpecularBxDF(sampleDir, BxDF, PDF, N, V, sampleSpecular);
       }
-      break;
-    case (DIFFUSE):
-      if (hInfo.c.hasFrontHit) {
-        doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
-      }
-      break;
-    case (ABSORB): doShade = false;
-      break;
-  }
-  //
-  // Shading Directional Lights
-  //
-  //qaBOOL doDirectLight = true;
-  qaBOOL doDirectLight = select != DIFFUSE;
-  if (doDirectLight) {
-    const float normCoefDI = (lights.empty() ? 1.f : 1.f / lights.size());
-    for (auto &light : lights) {
-      if (light->IsAmbient()) {}
-      else {
-        auto intensity = light->Illuminate(p, N) * normCoefDI;
-        auto L = normalize(-light->Direction(p));
-        auto H = normalize(V + L);
-        auto cosNL = MAX(0.f, dot(N, L));
-        auto cosNH = MAX(0.f, dot(N, H));
-        color += intensity * cosNL *
-            (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
+      if (doShade) {
+        color += ComputeSecondaryRay(p,
+                                     sampleDir,
+                                     BxDF,
+                                     PDF,
+                                     lights,
+                                     bounceCount);
       }
     }
-  }
-  //
-  // Gather Photon
-  //
-  //qaBOOL doPhotonGather = select == DIFFUSE &&
-  //       (bounceCount != Material::maxBounce || Material::maxBounce == 0);
-  qaBOOL doPhotonGather = (select == DIFFUSE);
-  if (doPhotonGather) {
-    // gather photons
-    cyColor cyI;
-    cyPoint3f cyD;
-    cyPoint3f cyP(p.x, p.y, p.z);
-    cyPoint3f cyN(N.x, N.y, N.z);
-    const float radius = 0.5f;
-    scene.photonmap.EstimateIrradiance<200>
-        (cyI, cyD, radius, cyP, &cyN, 1.f,
-         cyPhotonMap::FILTER_TYPE_QUADRATIC);
-    // shade
-    const Color3f I(cyI.r, cyI.g, cyI.b);
-    const Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
-    const auto H = normalize(V + L);
-    const auto cosNL = MAX(0.f, dot(N, L));
-    color += I * cosNL * BxDF / PDF;
   }
   //
   // Shading Indirectional Lights
   //
-  if (bounceCount > 0 && !doPhotonGather) // Select BxDF
+  if (ColorLuma(sampleDiffuse) > color_luma_threshold)
   {
-    if (doShade) {
-      // Generate ray
-      DiffRay sampleRay(p, sampleDir);
-      sampleRay.Normalize();
-      DiffHitInfo sampleHInfo;
-      sampleHInfo.Init();
-      // Integrate Incoming Ray
-      Color3f incoming(0.f);
-      if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
-        // Attenuation When the Ray Travels Inside the Material
-        if (!sampleHInfo.c.hasFrontHit) {
-          incoming *= Attenuation(absorption, sampleHInfo.c.z);
-        }
-        const auto *mtl = sampleHInfo.c.node->GetMaterial();
-        incoming =
-            mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
-      } else {
-        incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
+    if (hInfo.c.hasDiffuseHit)
+    {
+      //
+      // Gather Photon
+      //
+      cyColor cyI;
+      cyPoint3f cyD;
+      cyPoint3f cyP(p.x, p.y, p.z);
+      cyPoint3f cyN(N.x, N.y, N.z);
+      const float radius = 0.5;
+      scene.photonmap.EstimateIrradiance<200>
+          (cyI, cyD, radius, cyP, &cyN, 0.5f,
+           cyPhotonMap::FILTER_TYPE_QUADRATIC);
+      Color3f I(cyI.r, cyI.g, cyI.b);
+      if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
+        const Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+        const auto H = normalize(V + L);
+        const auto cosNL = MAX(0.f, dot(N, L));
+        color += I * cosNL * sampleDiffuse;
       }
-      Point3 outgoing = incoming * BxDF / (PDF * scale);
-      color += outgoing;
     }
+    else if (bounceCount  > 0)
+    {
+      //const qaUINT MCSample = bounceCount == Material::maxBounce ? 20 : 1;
+      const qaUINT MCSample = 20;
+      for (size_t i = 0; i < MCSample; ++i) {
+        if (hInfo.c.hasFrontHit) {
+          Point3 sampleDir;
+          Color3f BxDF;
+          qaFLOAT PDF = 1.f;
+          qaBOOL doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
+          if (doShade) {
+            color += 1.f / MCSample * ComputeSecondaryRay(p,
+                                                          sampleDir,
+                                                          BxDF,
+                                                          PDF,
+                                                          lights,
+                                                          bounceCount,
+                                                          true);
+          }
+        }
+      }
+    }
+
   }
   return color;
 }

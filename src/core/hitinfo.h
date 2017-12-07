@@ -44,6 +44,7 @@ class HitInfo {
   const Node *node;   // the object node that was hit, false if the ray hits the back side
   bool hasFrontHit;   // true if the ray hits the front side,
   bool hasTexture;
+  bool hasDiffuseHit;
  public:
   HitInfo() { Init(); }
   void Init();

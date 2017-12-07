@@ -38,5 +38,6 @@ void HitInfo::Init()
   mtlID = 0;
   hasFrontHit = true;
   hasTexture = false;
+  hasDiffuseHit = false;
 }
 }
