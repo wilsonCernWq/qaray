@@ -110,8 +110,7 @@ MtlBlinn_PhotonMap::MtlSelection
 MtlBlinn_PhotonMap::RandomSelectMtl(float &scale,
                                     const Color3f &sampleTransmission,
                                     const Color3f &sampleReflection,
-                                    const Color3f &sampleDiffuse,
-                                    const Color3f &sampleSpecular)
+                                    const Color3f &sampleDiffuse)
 const
 {
   //
@@ -119,7 +118,6 @@ const
   //
   float lumaTransmission = ColorLuma(sampleTransmission);
   float lumaReflection = ColorLuma(sampleReflection);
-  float lumaSpecular = ColorLuma(sampleSpecular);
   float lumaDiffuse = ColorLuma(sampleDiffuse);
   //
   // Throw A Dice
@@ -131,8 +129,7 @@ const
   //
   const float coefTransmit = lumaTransmission;
   const float coefReflection = coefTransmit + lumaReflection;
-  const float coefSpecular = coefReflection + lumaSpecular;
-  const float coefDiffuse = coefSpecular + lumaDiffuse;
+  const float coefDiffuse = coefReflection + lumaDiffuse;
   const float coefAbsorb = coefDiffuse + kill;
   const float coefSum = coefAbsorb;
   const float rcpCoefSum = 1.f / coefSum;
@@ -144,9 +141,6 @@ const
   } else if (select < coefReflection && lumaReflection > color_luma_threshold) {
     selectedMtl = REFLECT;
     scale = lumaReflection * rcpCoefSum;
-  } else if (select < coefSpecular && lumaSpecular > color_luma_threshold) {
-    selectedMtl = SPECULAR;
-    scale = lumaSpecular * rcpCoefSum;
   } else if (select < coefDiffuse && lumaDiffuse > color_luma_threshold) {
     selectedMtl = DIFFUSE;
     scale = lumaDiffuse * rcpCoefSum;
@@ -216,43 +210,23 @@ const
   }
   return true;
 }
-bool MtlBlinn_PhotonMap::SampleSpecularBxDF(Point3 &sampleDir,
-                                            Color3f &BxDF,
-                                            float &PDF,
-                                            const Point3 &N,
-                                            const Point3 &V,
-                                            const Color3f &color,
-                                            bool photonMap)
-const
-{
-  if (specularGlossiness > glossiness_power_threshold) {
-    sampleDir = photonMap ?
-                TransformToLocalFrame(N, rng->local().UniformHemisphere()) :
-                TransformToLocalFrame(N, rng->local().CosWeightedHemisphere());
-    const Point3 L = normalize(sampleDir);
-    const Point3 H = normalize(V + L);
-    const float cosNH = MAX(0.f, dot(N, H));
-    BxDF = color * POW(cosNH, specularGlossiness);
-    PDF = photonMap ?
-          0.5f :
-          1.f;
-    return true;
-  } else {
-    return false;
-  }
-}
 bool MtlBlinn_PhotonMap::SampleDiffuseBxDF(Point3 &sampleDir,
                                            Color3f &BxDF,
                                            float &PDF,
                                            const Point3 &N,
-                                           const Color3f &color,
+                                           const Point3 &V,
+                                           const Color3f &colorDiffuse,
+                                           const Color3f &colorSpecular,
                                            bool photonMap)
 const
 {
   sampleDir = photonMap ?
               TransformToLocalFrame(N, rng->local().UniformHemisphere()) :
               TransformToLocalFrame(N, rng->local().CosWeightedHemisphere());
-  BxDF = color;
+  const Point3 L = normalize(sampleDir);
+  const Point3 H = normalize(V + L);
+  const float cosNH = MAX(0.f, dot(N, H));
+  BxDF = colorDiffuse + colorSpecular * POW(cosNH, specularGlossiness);
   PDF = photonMap ?
         0.5f :
         1.f;
@@ -379,27 +353,6 @@ const
       }
 
     }
-    //
-    // Specular
-    //
-    if (ColorLuma(sampleSpecular) > color_luma_threshold) {
-      Point3 sampleDir;
-      Color3f BxDF;
-      qaFLOAT PDF = 1.f;
-      qaBOOL doShade = false;
-      if (hInfo.c.hasFrontHit) {
-        doShade =
-            SampleSpecularBxDF(sampleDir, BxDF, PDF, N, V, sampleSpecular);
-      }
-      if (doShade) {
-        color += ComputeSecondaryRay(p,
-                                     sampleDir,
-                                     BxDF,
-                                     PDF,
-                                     lights,
-                                     bounceCount);
-      }
-    }
   }
   //
   // Shading Indirectional Lights
@@ -421,10 +374,11 @@ const
            cyPhotonMap::FILTER_TYPE_QUADRATIC);
       Color3f I(cyI.r, cyI.g, cyI.b);
       if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
-        const Point3 L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+        const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
         const auto H = normalize(V + L);
         const auto cosNL = MAX(0.f, dot(N, L));
-        color += I * cosNL * sampleDiffuse;
+        const auto cosNH = MAX(0.f, dot(N, H));
+        color += I * cosNL * (sampleDiffuse + sampleSpecular * POW(cosNH, specularGlossiness));
       }
     }
     else if (bounceCount  > 0)
@@ -436,7 +390,7 @@ const
           Point3 sampleDir;
           Color3f BxDF;
           qaFLOAT PDF = 1.f;
-          qaBOOL doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse);
+          qaBOOL doShade = SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V, sampleDiffuse, sampleSpecular);
           if (doShade) {
             color += 1.f / MCSample * ComputeSecondaryRay(p,
                                                           sampleDir,
@@ -482,8 +436,8 @@ const
   const Color3f rK = Sample(hInfo, reflection);
   const Color3f sampleTransmission = totReflection ? Color3f(0.f) : tK * tC;
   const Color3f sampleReflection = totReflection ? (rK + tK) : (rK + tK * rC);
-  const Color3f sampleSpecular = Sample(hInfo, specular);
   const Color3f sampleDiffuse = Sample(hInfo, diffuse);
+  const Color3f sampleSpecular = Sample(hInfo, specular);
   //
   // Select a BxDF
   //
@@ -495,8 +449,7 @@ const
   auto select = RandomSelectMtl(scale,
                                 sampleTransmission,
                                 sampleReflection,
-                                sampleDiffuse,
-                                sampleSpecular);
+                                sampleDiffuse);
   switch (select) {
     case (TRANSMIT):
       doShade = SampleTransmitBxDF(sampleDir,
@@ -520,22 +473,10 @@ const
                                      sampleReflection,
                                      true);
       break;
-    case (SPECULAR):
-      if (hInfo.c.hasFrontHit) {
-        doShade =
-            SampleSpecularBxDF(sampleDir,
-                               BxDF,
-                               PDF,
-                               N,
-                               V,
-                               sampleSpecular,
-                               true);
-      }
-      break;
     case (DIFFUSE):
       if (hInfo.c.hasFrontHit) {
         doShade =
-            SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, sampleDiffuse, true);
+            SampleDiffuseBxDF(sampleDir, BxDF, PDF, N, V, sampleDiffuse, sampleSpecular, true);
       }
       break;
     case (ABSORB):doShade = false;

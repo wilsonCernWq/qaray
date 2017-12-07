@@ -90,13 +90,12 @@ private:
                       Point3& transmitDir, Point3& reflectDir,
                       float& transmitRatio, float& reflectRatio) const;
 
-  enum MtlSelection { TRANSMIT, REFLECT, SPECULAR, DIFFUSE, ABSORB };
+  enum MtlSelection { TRANSMIT, REFLECT, DIFFUSE, ABSORB };
 
   MtlSelection RandomSelectMtl(float &scale,
                                const Color3f &sampleTransmission,
                                const Color3f &sampleReflection,
-                               const Color3f &sampleDiffuse,
-                               const Color3f &sampleSpecular)
+                               const Color3f &sampleDiffuse)
   const;
 
   bool SampleTransmitBxDF(Point3 &sampleDir,
@@ -121,20 +120,13 @@ private:
                             bool photonMap = false)
   const;
 
-  bool SampleSpecularBxDF(Point3 &sampleDir,
-                          Color3f &BxDF,
-                          float &PDF,
-                          const Point3 &N,
-                          const Point3 &V,
-                          const Color3f &color,
-                          bool photonMap = false)
-  const;
-
   bool SampleDiffuseBxDF(Point3 &sampleDir,
                          Color3f &BxDF,
                          float &PDF,
                          const Point3 &N,
-                         const Color3f &color,
+                         const Point3 &V,
+                         const Color3f &colorDiffuse,
+                         const Color3f &colorSpecular,
                          bool photonMap = false)
   const;
 
