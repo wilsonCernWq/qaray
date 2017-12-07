@@ -47,7 +47,7 @@ namespace qaray {
 ///--------------------------------------------------------------------------//
 struct RendererParam {
   qaBOOL useSRGB = true;
-  size_t sppMax = 16;
+  size_t sppMax = 8;
   size_t sppMin = 4;
   size_t photonMapSize = size_t(10000);
   size_t photonMapBounce = 5;

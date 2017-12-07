@@ -47,7 +47,7 @@ MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
     reflection(0, 0, 0),
     refraction(0, 0, 0),
     absorption(0, 0, 0),
-    kill(0.2),
+    kill(0.1),
     ior(1),
     specularGlossiness(20.f),
     reflectionGlossiness(0),
@@ -250,12 +250,12 @@ Color3f MtlBlinn_PhotonMap::ComputeSecondaryRay(const Point3 &pos,
   // Integrate Incoming Ray
   Color3f incoming(0.f);
   if (scene.TraceNodeNormal(scene.rootNode, sampleRay, sampleHInfo)) {
+    const auto *mtl = sampleHInfo.c.node->GetMaterial();
+    incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
     // Attenuation When the Ray Travels Inside the Material
     if (!sampleHInfo.c.hasFrontHit) {
       incoming *= Attenuation(absorption, sampleHInfo.c.z);
     }
-    const auto *mtl = sampleHInfo.c.node->GetMaterial();
-    incoming = mtl->Shade(sampleRay, sampleHInfo, lights, bounceCount - 1);
   } else {
     incoming = scene.environment.SampleEnvironment(sampleRay.c.dir);
   }
@@ -517,6 +517,7 @@ const
     ray = DiffRay(hInfo.c.p, sampleDir);
     ray.Normalize();
     c = c * BxDF / (PDF * scale);
+    if (!hInfo.c.hasFrontHit) { c *= Attenuation(absorption, hInfo.c.z); }
     return true;
   } else {
     return false;

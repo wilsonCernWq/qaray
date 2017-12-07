@@ -245,8 +245,10 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
           if (scene->TraceNodeNormal(scene->rootNode, ray, hInfo)) {
             const Material *mtl = hInfo.c.node->GetMaterial();
             //! if it is a diffuse surface
-            if (mtl->IsPhotonSurface(0) && !hInfo.c.hasDiffuseHit
-                && bounce != 0) {
+            if (mtl->IsPhotonSurface(0) &&
+                !hInfo.c.hasDiffuseHit &&
+                bounce != 0)
+            {
               //! fetch a photon index
               size_t idx = numPhotonsRec++;
               //! check if the map is filled
