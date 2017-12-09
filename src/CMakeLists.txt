@@ -87,13 +87,15 @@ set_target_properties(${PROJECT_ID}
 #
 # add other executables
 #
-add_executable(photon_vis exe/PhotonMapViz.cpp)
-target_link_libraries(photon_vis ${COMMON_LIBS})
-set_target_properties(photon_vis
-    PROPERTIES
-    COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
-    LINK_FLAGS "${COMMON_LINK_FLAGS}"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    CXX_STANDARD 11)
+if(USE_GUI)
+  add_executable(photon_vis exe/PhotonMapViz.cpp)
+  target_link_libraries(photon_vis ${COMMON_LIBS})
+  set_target_properties(photon_vis
+      PROPERTIES
+      COMPILE_FLAGS "${COMMON_COMPILE_FLAGS}"
+      LINK_FLAGS "${COMMON_LINK_FLAGS}"
+      ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+      CXX_STANDARD 11)
+endif(USE_GUI)
