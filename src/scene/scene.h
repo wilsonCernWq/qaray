@@ -64,6 +64,7 @@ class Scene {
   TextureList textureList;
   PhotonMap photonmap;
   PhotonMap causticsmap;
+  bool usePhotonMap;
  public:
   bool TraceNodeShadow(Node &node, Ray &ray, HitInfo &hInfo);
   bool TraceNodeNormal(Node &node, DiffRay &ray, DiffHitInfo &hInfo);

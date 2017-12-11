@@ -379,7 +379,11 @@ const
     }
     doGatherPhoton = false;
     doMCSample = true;
-    doGatherCaustics = true;
+    if (scene.usePhotonMap) {
+      doGatherCaustics = true;
+    } else {
+      doGatherCaustics = false;
+    }
   }
   
   //

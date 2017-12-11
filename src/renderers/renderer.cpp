@@ -115,7 +115,11 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
   // Initialize Photon Map
   //-------------------------------------------------------------------------//
   // TODO: Photon Map for MPI Mode
-  if (param.photonMapSize > 0 && param.causticsMapSize > 0) {
+  scene->usePhotonMap = param.usePhotonMap;
+  if (param.photonMapSize > 0 &&
+      param.causticsMapSize > 0 &&
+      param.usePhotonMap)
+  {
     //-----------------------------------------------------------------------//
     scene->photonmap.size = param.photonMapSize;
     scene->photonmap.radius = param.photonMapRadius;
