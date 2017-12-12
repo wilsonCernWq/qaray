@@ -446,7 +446,8 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
   //
   // Read OBJ file using tinyobjloader
   //
-  /* reference https://github.com/syoyo/tinyobjloader */
+  // reference https://github.com/syoyo/tinyobjloader
+  //
   std::string inputfile(filename);
   TriMesh::ComputePath(filename, directory_name);
   tinyobj::attrib_t attrib;
@@ -457,7 +458,7 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
       tinyobj::LoadObj(&attrib, &shapes, &materials, &err,
                        inputfile.c_str(), directory_name.c_str());
   // `err` may contain warning message.
-  if (!err.empty()) { *outStream << err << std::endl; }
+  if (!err.empty()) { *outStream << std::endl << err << std::endl; }
   if (!ret) { return false; }
   //
   // Setup fields in class
@@ -523,7 +524,7 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
     for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
       int fv = shapes[s].mesh.num_face_vertices[f];
       if (fv != 3) {
-        *outStream << "Error: This mesh is not a triangular mesh."
+        *outStream << std::endl << "Error: This mesh is not a triangular mesh."
                    << std::endl;
         return false;
       }
@@ -548,16 +549,15 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
         }
         // Texture
         if (idx.texcoord_index >= 0) { // -1 as invalid
-          // tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-          // tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-          // _vt.emplace_back(tx, ty, 0.f);
+          //tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+          //tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
           textureFace.v[v] = static_cast<unsigned int>(idx.texcoord_index);
           hasTextures = true;
         }
         // Optional: vertex colors
-        // tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
-        // tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
-        // tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
+        //tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
+        //tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
+        //tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
       }
       // Per-face material
       auto _mtl_idx = shapes[s].mesh.material_ids[f];
@@ -676,8 +676,6 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
   }
 
 #else
-
-  ComputePath(filename, directory_name);
 
   FILE *fp = fopen(filename, "r");
   if (!fp) {
