@@ -30,7 +30,7 @@
       </object>
     </object>
     <!-- teapot -->
-    <object type="obj" name="trc2017/solid_teapot.obj" material="mtl3">
+    <object type="obj" name="trc2017/solid_teapot.obj" material="mtl2">
       <scale value="0.8"/>
       <rotate angle="-30" z="1"/>
       <translate x="0" y="5" z="0"/>
@@ -58,12 +58,6 @@
       <glossiness value="20"/>
     </material>
     <material type="blinn" name="mtl2">
-      <diffuse  value="0"/>
-      <specular value="1.0"/>
-      <glossiness value="80"/>
-      <reflection value="1.0"/>
-    </material>
-    <material type="blinn" name="mtl3">
       <diffuse  value="0"/>
       <specular value="1.0"/>
       <glossiness value="80"/>
