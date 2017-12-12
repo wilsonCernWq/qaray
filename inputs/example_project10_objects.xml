@@ -106,7 +106,7 @@
       <intensity value="0.2"/>
     </light>
     <light type="point" name="pointLight">
-      <intensity value="1.0"/>
+      <intensity value="100.0"/>
       <position x="-50" y="-100" z="50"/>
       <size value="5"/>
     </light>
