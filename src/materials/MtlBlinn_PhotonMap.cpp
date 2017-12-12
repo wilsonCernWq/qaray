@@ -195,7 +195,7 @@ const
     } while (dot(sampleDir, Y) < 0);
     const Point3 L = normalize(sampleDir);
     const auto cosNL = MAX(0.f, dot(N, L));
-    BxDF = photonMap ? color : color * cosNL;
+    BxDF = photonMap ? color : color;
     const float y0 = SQRT(1.f / (reflectionGlossiness * reflectionGlossiness + 1.f));
     const float y1 = SQRT(1 - cosNL * cosNL);
     PDF = 0.5f / (1.f - MAX(y0, y1));
