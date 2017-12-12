@@ -169,7 +169,7 @@ inline void PhotonMap::Photon::SetPower(const Color &c)
   power = c.r;
   if (power < c.g) power = c.g;
   if (power < c.b) power = c.b;
-  color = Color24(c / power);
+  color = Color24(255.f * c / power);
 }
 
 inline void PhotonMap::Photon::SetDirection(const Point3f &dir)

@@ -346,18 +346,18 @@ const
   qaBOOL doMCSample = false;
   qaBOOL doDirectLight = true;
   // // Method 1:
-  // qaUINT MCSample = 5;
-  // doDirectLight = true;
-  // if (ColorLuma(sampleDiffuse) > color_luma_threshold)
-  // {
-  //   //! version 1
-  //   if (hInfo.c.hasDiffuseHit) {
-  //     doGatherPhoton = true;
-  //   } else if (bounceCount > 0) {
-  //     doMCSample = true;
-  //   }
-  //   doGatherCaustics = true;
-  // }
+  qaUINT MCSample = 5;
+  doDirectLight = true;
+  if (ColorLuma(sampleDiffuse) > color_luma_threshold)
+  {
+    //! version 1
+    if (hInfo.c.hasDiffuseHit) {
+      doGatherPhoton = true;
+    } else if (bounceCount > 0) {
+      doMCSample = true;
+    }
+    doGatherCaustics = true;
+  }
   // // Method 2
   // qaUINT MCSample = 5;
   // doDirectLight = true;
@@ -367,24 +367,24 @@ const
   //   doMCSample = false;
   //   doGatherCaustics = true;
   // }
-  // Method 3
-  qaUINT MCSample;
-  doDirectLight = true;
-  if (ColorLuma(sampleDiffuse) > color_luma_threshold)
-  {
-    if (hInfo.c.hasDiffuseHit) {
-      MCSample = 1;
-    } else if (bounceCount > 0) {
-      MCSample = 10;
-    }
-    doGatherPhoton = false;
-    doMCSample = true;
-    if (scene.usePhotonMap) {
-      doGatherCaustics = true;
-    } else {
-      doGatherCaustics = false;
-    }
-  }
+  // // Method 3
+  // qaUINT MCSample;
+  // doDirectLight = true;
+  // if (ColorLuma(sampleDiffuse) > color_luma_threshold)
+  // {
+  //   if (hInfo.c.hasDiffuseHit) {
+  //     MCSample = 1;
+  //   } else if (bounceCount > 0) {
+  //     MCSample = 10;
+  //   }
+  //   doGatherPhoton = false;
+  //   doMCSample = true;
+  //   if (scene.usePhotonMap) {
+  //     doGatherCaustics = true;
+  //   } else {
+  //     doGatherCaustics = false;
+  //   }
+  // }
   
   //
   // Gather Photon
