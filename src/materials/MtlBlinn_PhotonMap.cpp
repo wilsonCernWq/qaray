@@ -164,14 +164,7 @@ const
     do {
       sampleDir = normalize(normalize(tDir) + rng->local().UniformBall(2.f * refractionGlossiness));
     } while (dot(sampleDir, Y) > 0);
-    //const Point3 L = normalize(sampleDir);
-    //const auto cosNL = MAX(0.f, dot(N, L));
-    //BxDF = photonMap ? color : color * cosNL; // ==> rho / pi
     BxDF = color;
-    // compute sinTheta
-    //const float y0 = SQRT(1.f / (refractionGlossiness * refractionGlossiness + 1.f));
-    //const float y1 = SQRT(1 - cosNL * cosNL);
-    //PDF = 0.5f / (1.f - MAX(y0, y1)); // 1 / (2*pi*sinTheta)
     PDF = 1.f;
   } else {
     sampleDir = tDir;
@@ -195,13 +188,8 @@ const
     do {
       sampleDir = normalize(normalize(rDir) + rng->local().UniformBall(2.f * reflectionGlossiness));
     } while (dot(sampleDir, Y) < 0);
-    //const Point3 L = normalize(sampleDir);
-    //const auto cosNL = MAX(0.f, dot(N, L));
-    //BxDF = photonMap ? color : (color * cosNL);
     BxDF = color;
-    //const float y0 = SQRT(1.f / (reflectionGlossiness * reflectionGlossiness + 1.f));
-    //const float y1 = SQRT(1 - cosNL * cosNL);
-    PDF = 1.f; //0.5f / (1.f - MAX(y0, y1));
+    PDF = 1.f;
   } else {
     sampleDir = rDir;
     BxDF = color;
