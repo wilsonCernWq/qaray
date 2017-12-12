@@ -29,9 +29,13 @@
       </object>
     </object>
     <!-- Teapot -->
-    <object type="obj" name="solid_teapot.obj" material="mtlTeapot">
+    <object type="obj" name="trc2017/solid_teapot.obj" material="mtlTeapot">
       <scale value="0.8"/>
       <translate x="0" y="5" z="0"/>
+    </object>
+    <object type="obj" name="trc2017/bridge.obj" material="mtlTeapot">
+      <scale value="2.5"/>
+      <translate x="0" y="0" z="2"/>
     </object>
     <!-- Materials -->
     <material type="blinn" name="wall">

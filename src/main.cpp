@@ -29,9 +29,11 @@ int main(int argc, char **argv)
     } else if (str == "-bounce") {
       Material::maxBounce = std::atoi(argv[++i]);
     } else if (str == "-srgb") {
-      param.SetSRGB(std::atoi(argv[++i]) != 0);
+      param.SetSRGBFlag(std::atoi(argv[++i]) != 0);
     } else if (str == "-threads") {
       tasking::set_num_of_threads(static_cast<size_t>(std::atoi(argv[++i])));
+    } else if (str == "-use-photon-map") {
+      param.SetPhotonMappingFlag(true);
     } else if (str == "-photon-map-size") {
       param.SetPhotonMapSize(std::atoi(argv[++i]));
     } else if (str == "-caustics-map-size") {

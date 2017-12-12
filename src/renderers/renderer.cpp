@@ -180,11 +180,9 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
                 break;
               }
               else {
-                scene->photonmap.map[idx].position = (cyPoint3f &) hInfo.c.p;
-                scene->photonmap.map[idx].SetDirection((cyPoint3f &) ray.c.dir);
-                scene->photonmap.map[idx].SetPower(cyColor(intensity.r,
-                                                           intensity.g,
-                                                           intensity.b));
+                scene->photonmap.map[idx].position = hInfo.c.p;
+                scene->photonmap.map[idx].SetDirection(ray.c.dir);
+                scene->photonmap.map[idx].SetPower(intensity);
                 recorded = true;
               }
             }
@@ -260,12 +258,9 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
                 break;
               }
               else {
-                scene->causticsmap.map[idx].position = (cyPoint3f &) hInfo.c.p;
-                scene->causticsmap.map[idx]
-                    .SetDirection((cyPoint3f &) ray.c.dir);
-                scene->causticsmap.map[idx].SetPower(cyColor(intensity.r,
-                                                             intensity.g,
-                                                             intensity.b));
+                scene->causticsmap.map[idx].position = hInfo.c.p;
+                scene->causticsmap.map[idx].SetDirection(ray.c.dir);
+                scene->causticsmap.map[idx].SetPower(intensity);
                 recorded = true;
               }
             }

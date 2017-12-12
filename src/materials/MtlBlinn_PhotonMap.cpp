@@ -390,16 +390,13 @@ const
   // Gather Photon
   //
   if (doGatherPhoton) {
-    cyColor cyI;
-    cyPoint3f cyD;
-    cyPoint3f cyP(p.x, p.y, p.z);
-    cyPoint3f cyN(N.x, N.y, N.z);
+    Color3f I;
+    Point3  D;
     scene.photonmap.map.EstimateIrradiance<100>
-        (cyI, cyD, scene.photonmap.radius, cyP, &cyN, 1.f,
+        (I, D, scene.photonmap.radius, p, &N, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
-    Color3f I(cyI.r, cyI.g, cyI.b);
     if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
-      const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+      const auto L = -normalize(D);
       const auto H = normalize(V + L);
       const auto cosNL = MAX(0.f, dot(N, L));
       const auto cosNH = MAX(0.f, dot(N, H));
@@ -412,16 +409,13 @@ const
   //
   if (doGatherCaustics)
   {
-    cyColor cyI;
-    cyPoint3f cyD;
-    cyPoint3f cyP(p.x, p.y, p.z);
-    cyPoint3f cyN(N.x, N.y, N.z);
+    Color3f I;
+    Point3  D;
     scene.causticsmap.map.EstimateIrradiance<100>
-        (cyI, cyD, scene.causticsmap.radius, cyP, &cyN, 1.f,
+        (I, D, scene.causticsmap.radius, p, &N, 1.f,
          cyPhotonMap::FILTER_TYPE_QUADRATIC);
-    Color3f I(cyI.r, cyI.g, cyI.b);
     if (ColorLuma(I) > color_luma_threshold) { // in case we found nothing
-      const auto L = -normalize(Point3(cyD.x, cyD.y, cyD.z));
+      const auto L = -normalize(D);
       const auto H = normalize(V + L);
       const auto cosNL = MAX(0.f, dot(N, L));
       const auto cosNH = MAX(0.f, dot(N, H));

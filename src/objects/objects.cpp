@@ -253,14 +253,14 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
       // Non-Shadow Ray
       if (diffray != nullptr && diffhit != nullptr) {
         hInfo.p = p;
-        hInfo.N = ToPoint3(GetNormal(faceID, cyPoint3f(bc.x, bc.y, bc.z)));
+        hInfo.N = GetNormal(faceID, bc);
         hInfo.hasFrontHit = front;
         hInfo.mtlID = GetMaterialIndex(faceID);
         // Texture Coordinates
         // TODO: we need to remove cyCodeBase dependencies
         if (HasTextureVertices()) {
           hInfo.hasTexture = true;
-          hInfo.uvw = ToPoint3(GetTexCoord(faceID, (cyPoint3f&)bc));
+          hInfo.uvw = GetTexCoord(faceID, bc);
         }
         // Ray Differential
         if (diffray->hasDiffRay) {
@@ -287,8 +287,8 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
           if (HasTextureVertices()) {
             const Point3 bcx(ax,bx,cx);
             const Point3 bcy(ay,by,cy);
-            hInfo.duvw[0] = DiffRay::rdx * (ToPoint3(GetTexCoord(faceID, (cyPoint3f&)bcx)) - hInfo.uvw);
-            hInfo.duvw[1] = DiffRay::rdy * (ToPoint3(GetTexCoord(faceID, (cyPoint3f&)bcy)) - hInfo.uvw);
+            hInfo.duvw[0] = DiffRay::rdx * (GetTexCoord(faceID, bcx) - hInfo.uvw);
+            hInfo.duvw[1] = DiffRay::rdy * (GetTexCoord(faceID, bcy) - hInfo.uvw);
           }
         } else {
           diffhit->x.z = t;

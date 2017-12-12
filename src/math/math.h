@@ -114,16 +114,17 @@ using namespace qaray;
 #define ROUND(x)  (std::round(x))
 #define BIGFLOAT 1.0e30f
 //-----------------------------------------------------------------------------
-#include "cyPoint.h"
+// #include "cyPoint.h"
 namespace qaray {
+// from Color24 -> Color
 inline Color3f ToColor(const Color3c &c)
 {
   return Color3f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 }
-inline Point3 ToPoint3(const cyPoint3f &c)
-{
-  return Point3(c.x, c.y, c.z);
-}
+//inline Point3 ToPoint3(const cyPoint3f &c)
+//{
+//  return Point3(c.x, c.y, c.z);
+//}
 inline qaFLOAT ColorLuma(const Color3f &c)
 {
   return 0.2126f * c.x + 0.7152f * c.y + 0.0722f * c.z;

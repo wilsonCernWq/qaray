@@ -41,7 +41,7 @@
       <rotate angle="30" z="1"/>
       <translate x="13" y="-20" z="3"/>
     </object>
-    <object type="obj" name="wooddoll.obj">
+    <object type="obj" name="examples/wooddoll.obj">
       <scale value="10"/>
       <rotate angle="90" x="1"/>
       <rotate angle="60" z="1"/>

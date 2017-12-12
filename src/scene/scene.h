@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 #include <atomic>
-#include <cyPhotonMap.h>
+#include "exe/cyPhotonMap.h"
 ///--------------------------------------------------------------------------//
 #include "math/math.h"
 #include "core/core.h"
