@@ -55,13 +55,11 @@ MtlBlinn_PhotonMap::MtlBlinn_PhotonMap() :
 ///--------------------------------------------------------------------------//
 void MtlBlinn_PhotonMap::SetReflectionGlossiness(float gloss)
 {
-  reflectionGlossiness = gloss > glossiness_value_threshold ?
-                         1.f / gloss : -1.f;
+  reflectionGlossiness = gloss > glossiness_value_threshold ? gloss : -1.f;
 }
 void MtlBlinn_PhotonMap::SetRefractionGlossiness(float gloss)
 {
-  refractionGlossiness = gloss > glossiness_value_threshold ?
-                         1.f / gloss : -1.f;
+  refractionGlossiness = gloss > glossiness_value_threshold ? gloss : -1.f;
 }
 //---------------------------------------------------------------------------//
 bool MtlBlinn_PhotonMap::ComputeFresnel(const DiffRay &ray,
@@ -94,7 +92,7 @@ const
   const float sinI = SQRT(1 - cosI * cosI);
   const float sinO = MAX(0.f, MIN(1.f, sinI * nIOR));
   const float cosO = SQRT(1.f - sinO * sinO);
-  transmitDir = -X * sinO - Y * cosO;      // Transmission
+  transmitDir = -X * sinO - Y * cosO;     // Transmission
   reflectDir = 2.f * N * (dot(N, V)) - V; // Reflection
   //
   // Reflection and Transmission Coefficients
@@ -163,17 +161,20 @@ bool MtlBlinn_PhotonMap::SampleTransmitBxDF(Point3 &sampleDir,
 const
 {
   if (refractionGlossiness > glossiness_power_threshold) {
-    sampleDir = photonMap ?
-                -TransformToLocalFrame(Y, rng->local().UniformHemisphere()) :
-                -TransformToLocalFrame(Y, rng->local().CosWeightedHemisphere());
+    do {
+      sampleDir = normalize(normalize(tDir) + rng->local().UniformBall(refractionGlossiness));
+    } while (dot(sampleDir, Y) > 0);
     const Point3 L = normalize(sampleDir);
     const Point3 H = normalize(V + L);
-    const float cosVH = MAX(0.f, dot(V, H));
-    const float glossiness = POW(cosVH, refractionGlossiness); // My Hack
-    BxDF = color * glossiness; // ==> rho / pi
-    PDF = photonMap ?
-          0.5f : // ==> 1 / (2*pi) uniform hemisphere sampling
-          1.f;   // ==> cosTheta / pi cos-weighted hemisphere sampling
+    const auto cosNL = MAX(0.f, dot(N, L));
+    const auto cosNH = MAX(0.f, dot(N, H));
+    BxDF = photonMap ?
+           color * POW(cosNH, refractionGlossiness) :
+           color * POW(cosNH, refractionGlossiness) * cosNL; // ==> rho / pi
+    // compute sinTheta
+    const float y0 = SQRT(1.f / (refractionGlossiness * refractionGlossiness + 1.f));
+    const float y1 = SQRT(1 - cosNL * cosNL);
+    PDF = 0.5f / (1.f - MAX(y0, y1)); // 1 / (2*pi*sinTheta)
   } else {
     sampleDir = tDir;
     BxDF = color; // ==> reflect all light
@@ -193,16 +194,19 @@ bool MtlBlinn_PhotonMap::SampleReflectionBxDF(Point3 &sampleDir,
 const
 {
   if (reflectionGlossiness > glossiness_power_threshold) {
-    sampleDir = photonMap ?
-                TransformToLocalFrame(Y, rng->local().UniformHemisphere()) :
-                TransformToLocalFrame(Y, rng->local().CosWeightedHemisphere());
+    do {
+      sampleDir = normalize(normalize(rDir) + rng->local().UniformBall(reflectionGlossiness));
+    } while (dot(sampleDir, Y) < 0);
     const Point3 L = normalize(sampleDir);
     const Point3 H = normalize(V + L);
-    const float cosNH = MAX(0.f, dot(N, H));
-    BxDF = color * POW(cosNH, reflectionGlossiness);
-    PDF = photonMap ?
-          0.5f :
-          1.f;
+    const auto cosNL = MAX(0.f, dot(N, L));
+    const auto cosNH = MAX(0.f, dot(N, H));
+    BxDF = photonMap ?
+           color * POW(cosNH, reflectionGlossiness) :
+           color * POW(cosNH, reflectionGlossiness) * cosNL;
+    const float y0 = SQRT(1.f / (reflectionGlossiness * reflectionGlossiness + 1.f));
+    const float y1 = SQRT(1 - cosNL * cosNL);
+    PDF = 0.5f / (1.f - MAX(y0, y1));
   } else {
     sampleDir = rDir;
     BxDF = color;
