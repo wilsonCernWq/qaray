@@ -162,7 +162,7 @@ const
 {
   if (refractionGlossiness > glossiness_power_threshold) {
     do {
-      sampleDir = normalize(normalize(tDir) + rng->local().UniformBall(refractionGlossiness));
+      sampleDir = normalize(normalize(tDir) + rng->local().UniformBall(2.f * refractionGlossiness));
     } while (dot(sampleDir, Y) > 0);
     //const Point3 L = normalize(sampleDir);
     //const auto cosNL = MAX(0.f, dot(N, L));
@@ -193,7 +193,7 @@ const
 {
   if (reflectionGlossiness > glossiness_power_threshold) {
     do {
-      sampleDir = normalize(normalize(rDir) + rng->local().UniformBall(reflectionGlossiness));
+      sampleDir = normalize(normalize(rDir) + rng->local().UniformBall(2.f * reflectionGlossiness));
     } while (dot(sampleDir, Y) < 0);
     //const Point3 L = normalize(sampleDir);
     //const auto cosNL = MAX(0.f, dot(N, L));
