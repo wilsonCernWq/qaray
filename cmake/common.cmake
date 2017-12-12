@@ -111,12 +111,12 @@ IF (EXISTS ${PROJECT_SOURCE_DIR}/external/glm)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/glm)
     ADD_DEFINITIONS(-DUSE_GLM)
 ENDIF ()
-# #
-# #--- cyCodeBase
-# #   https://github.com/cemyuksel/cyCodeBase.git
-# INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/cyCodeBase)
 #
 #----------------------------------------------------------------------------
+#
+#--- tinyobjloader
+#   https://github.com/syoyo/tinyobjloader
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/external/tinyobjloader)
 #
 #--- lodePNG
 #   http://lodev.org/lodepng/
