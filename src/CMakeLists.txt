@@ -74,7 +74,11 @@ endforeach ()
 #
 # add executable
 #
-add_executable(${PROJECT_ID} ${MAIN} ${CXX})
+add_executable(${PROJECT_ID} ${MAIN} ${CXX}
+    ext/cyPhotonMap.h
+    ext/cyTriMesh.h
+    ext/cyBVH.h
+    )
 target_link_libraries(${PROJECT_ID} ${ALL_LIBS} ${COMMON_LIBS})
 set_target_properties(${PROJECT_ID}
     PROPERTIES

@@ -344,19 +344,29 @@ const
   qaBOOL doGatherPhoton = false;
   qaBOOL doGatherCaustics = false;
   qaBOOL doMCSample = false;
-  qaBOOL doDirectLight = true;
+  qaBOOL doDirectLight = false;
   // // Method 1:
   qaUINT MCSample = 5;
   doDirectLight = true;
   if (ColorLuma(sampleDiffuse) > color_luma_threshold)
   {
-    //! version 1
-    if (hInfo.c.hasDiffuseHit) {
-      doGatherPhoton = true;
-    } else if (bounceCount > 0) {
-      doMCSample = true;
+    if (scene.usePhotonMap) {
+      if (hInfo.c.hasDiffuseHit) {
+        doGatherPhoton = true;
+      } else if (bounceCount > 0) {
+        doMCSample = true;
+      }
+      doGatherCaustics = true;
     }
-    doGatherCaustics = true;
+    else
+    {
+      if (bounceCount > 0) {
+        if (hInfo.c.hasDiffuseHit) { MCSample = 1; }
+        doMCSample = true;
+      }
+      doGatherPhoton = false;
+      doGatherCaustics = false;
+    }
   }
   // // Method 2
   // qaUINT MCSample = 5;
@@ -385,7 +395,6 @@ const
   //     doGatherCaustics = false;
   //   }
   // }
-  
   //
   // Gather Photon
   //

@@ -1,10 +1,7 @@
 <xml>
   <scene>
     <!-- Objects -->
-    <!-- -->
-    <object type="obj" name="cornell-box.obj"/>
-    <!-- -->
-    <!-- -->
+    <!-- box -->
     <object name="box">
       <translate x="0" y="0" z="12"/>
       <object type="plane" name="WallBottom" material="wall">
@@ -32,7 +29,7 @@
 	<translate x="15"/>
       </object>
     </object>
-    <!-- -->
+    <!-- teapot -->
     <object type="obj" name="trc2017/solid_teapot.obj" material="mtl3">
       <scale value="0.8"/>
       <rotate angle="-30" z="1"/>
@@ -42,17 +39,6 @@
         <translate x="0" y="0" z="1.01"/>
       </object>
     </object>
-    <!--
-	<object type="sphere" name="sphere1" material="mtl2">
-	<scale value="4"/>
-	<translate x="8" y="-6" z="4"/>
-	</object>
-	<object type="sphere" name="sphere2" material="mtl3">
-	<scale value="4"/>
-	<translate x="-8" y="-6" z="4"/>
-	</object>
-    -->
-
     <!-- Materials -->
     <material type="blinn" name="wall">
       <diffuse  r="1" g="1" b="1"/>
@@ -84,14 +70,12 @@
       <refraction value="1.0" index="1.52"/>
       <absorption r="0.1" g="0.001" b="0.1"/>
     </material>
-
     <!-- Lights -->
     <light type="point" name="pointLight">
       <intensity value="100.5"/>
       <position x="0" y="0" z="22"/>
     </light>
   </scene>
-
   <camera>
     <position x="0" y="-60" z="12"/>
     <target x="0" y="0" z="12"/>

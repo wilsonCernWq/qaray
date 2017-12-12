@@ -1,10 +1,10 @@
 <xml>
   <scene>
-    <background r="1" g="1" b="1" texture="clouds.png">
+    <background r="1" g="1" b="1" texture="examples/clouds.png">
       <scale y="0.4"/>
       <translate y="-0.1"/>
     </background>
-    <environment value="0.7" texture="clouds.png"/>
+    <environment value="0.7" texture="examples/clouds.png"/>
     
     <!-- Objects -->
     <object type="plane" name="groundPlane" material="ground">
@@ -35,7 +35,7 @@
       <scale value="2"/>
       <translate x="22" y="-30" z="2"/>
     </object>
-    <object type="obj" name="SciFi_Fighter_MK6.obj">
+    <object type="obj" name="examples/SciFi_Fighter_MK6.obj">
       <scale value="0.03"/>
       <rotate angle="90" x="1"/>
       <rotate angle="30" z="1"/>
@@ -58,7 +58,7 @@
       <specular value="0"/>
     </material>
     <material type="blinn" name="bricks">
-      <diffuse texture="bricks.png">
+      <diffuse texture="examples/bricks.png">
         <scale value="0.05"/>
       </diffuse>
       <specular value="0.3"/>

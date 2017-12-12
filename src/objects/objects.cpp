@@ -9,6 +9,7 @@
 ///
 //------------------------------------------------------------------------------
 
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "objects.h"
 #include <stack>
 

@@ -16,8 +16,8 @@
 #include "core/core.h"
 #include "samplers/sampler_selection.h"
 
-#include "exe/cyTriMesh.h"
-#include "exe/cyBVH.h"
+#include "ext/cyTriMesh.h"
+#include "ext/cyBVH.h"
 
 //------------------------------------------------------------------------------
 

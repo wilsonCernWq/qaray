@@ -638,8 +638,16 @@ void TriObj::ViewportDisplay(const Material *mtl) const
       }
     }
     for (int j = 0; j < 3; j++) {
-      if (HasTextureVertices()) glTexCoord3fv(&VT(FT(i).v[j]).x);
-      if (HasNormals()) glNormal3fv(&VN(FN(i).v[j]).x);
+      if (HasTextureVertices()) {
+        auto& ft = FT(i);
+        auto& vt_id = ft.v[j];
+        glTexCoord3fv(&VT(vt_id).x);
+      }
+      if (HasNormals()) {
+        auto& fn = FN(i);
+        auto& vn_id = fn.v[j];
+        glNormal3fv(&VN(vn_id).x);
+      }
       glVertex3fv(&V(F(i).v[j]).x);
     }
   }

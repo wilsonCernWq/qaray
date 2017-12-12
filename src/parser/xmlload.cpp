@@ -240,20 +240,16 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
                 m->SetGlossiness(mtl.Ns);
                 m->SetRefractionIndex(mtl.Ni);
                 if (mtl.map_Kd.data != nullptr)
-                  m->SetDiffuseTexture(new TextureMap(ReadTexture(mtl.map_Kd
-                                                                      .data)));
+                  m->SetDiffuseTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Kd.data).c_str())));
                 if (mtl.map_Ks.data != nullptr)
-                  m->SetDiffuseTexture(new TextureMap(ReadTexture(mtl.map_Ks
-                                                                      .data)));
+                  m->SetDiffuseTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Ks.data).c_str())));
                 if (mtl.illum > 2 && mtl.illum <= 7) {
                   m->SetReflection(Color3f(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
                   if (mtl.map_Ks.data != nullptr)
-                    m->SetReflectionTexture(new TextureMap(ReadTexture(mtl.map_Ks
-                                                                           .data)));
+                    m->SetReflectionTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Ks.data).c_str())));
                   float gloss = acosf(powf(2, 1 / mtl.Ns));
                   if (mtl.illum >= 6) {
-                    m->SetRefraction(
-                        1.f - Color3f(mtl.Tf[0], mtl.Tf[1], mtl.Tf[2]));
+                    m->SetRefraction(1.f - Color3f(mtl.Tf[0], mtl.Tf[1], mtl.Tf[2]));
                   }
                 }
                 mm->AppendMaterial(m);
