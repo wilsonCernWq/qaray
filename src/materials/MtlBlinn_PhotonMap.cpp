@@ -28,7 +28,7 @@
 #include "materials/materials.h"
 ///--------------------------------------------------------------------------//
 const float total_reflection_threshold = 1.001f;
-const float glossiness_value_threshold = 0.001f;
+const float glossiness_value_threshold = 0.00001f;
 const float glossiness_power_threshold = 0.f;
 const float color_luma_threshold = 0.00001f;
 static Color3f Sample(const DiffHitInfo &hInfo, const TexturedColor &c)
