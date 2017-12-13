@@ -67,7 +67,7 @@
       <diffuse  value="0"/>
       <specular value="1.0"/>
       <glossiness value="80"/>
-      <refraction value="1.0" index="1.52" glossiness="0.01f"/>
+      <refraction value="1.0" index="1.52"/>
       <absorption r="0.1" g="0.001" b="0.1"/>
     </material>
     <!-- Lights -->
