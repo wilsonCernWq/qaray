@@ -186,7 +186,9 @@ const
 {
   if (reflectionGlossiness > glossiness_power_threshold) {
     do {
-      sampleDir = normalize(normalize(rDir) + rng->local().UniformBall(2.f * reflectionGlossiness));
+      sampleDir = normalize
+          (normalize(rDir) +
+              rng->local().UniformBall(2.f * reflectionGlossiness));
     } while (dot(sampleDir, Y) < 0);
     BxDF = color;
     PDF = 1.f;

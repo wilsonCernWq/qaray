@@ -44,7 +44,6 @@
 
 namespace qaray {
 ///--------------------------------------------------------------------------//
-///--------------------------------------------------------------------------//
 struct RendererParam {
   qaBOOL useSRGB = true;
   size_t sppMax = 8;
@@ -67,6 +66,7 @@ struct RendererParam {
   void SetSPPMin(int spp) { sppMin = static_cast<size_t>(spp); }
   void SetSRGBFlag(bool flag) { useSRGB = flag; }
 };
+///--------------------------------------------------------------------------//
 class Renderer {
  protected:
   //! get all user defined parameters

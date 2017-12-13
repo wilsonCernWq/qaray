@@ -456,7 +456,7 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
   std::string err;
   bool ret =
       tinyobj::LoadObj(&attrib, &shapes, &materials, &err,
-                       inputfile.c_str(), directory_name.c_str());
+                       inputfile.c_str(), directory_name.c_str(), true);
   // `err` may contain warning message.
   if (!err.empty()) { *outStream << std::endl << err << std::endl; }
   if (!ret) { return false; }
