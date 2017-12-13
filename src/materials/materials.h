@@ -54,8 +54,8 @@ Color3f Attenuation(const Color3f &absorption, float l);
 
 //-----------------------------------------------------------------------------
 
-//using MtlBlinn = MtlBlinn_PhotonMap;
-using MtlBlinn = MtlBlinn_PathTracing;
+using MtlBlinn = MtlBlinn_PhotonMap;
+//using MtlBlinn = MtlBlinn_PathTracing;
 //using MtlBlinn = MtlBlinn_MonteCarloGI;
 //using MtlBlinn = MtlBlinn_Basic;
 //using MtlBlinn = MtlPhong_Basic;

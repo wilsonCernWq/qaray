@@ -80,7 +80,7 @@
     <target x="-2" y="0" z="7"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
-    <width value="300"/>
-    <height value="300"/>
+    <width value="800"/>
+    <height value="800"/>
   </camera>
 </xml>

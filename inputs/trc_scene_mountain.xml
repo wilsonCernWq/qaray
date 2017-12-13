@@ -29,13 +29,13 @@
       </object>
     </object>
     <!-- Teapot -->
-    <object type="obj" name="trc2017/solid_teapot.obj" material="mtlTeapot">
+    <object type="obj" name="trc2017/Teapot00.obj" material="mtlTeapot">
       <scale value="0.8"/>
       <translate x="0" y="5" z="0"/>
     </object>
-    <object type="obj" name="trc2017/bridge.obj" material="mtlTeapot">
-      <scale value="2.5"/>
-      <translate x="0" y="0" z="2"/>
+    <object type="obj" name="trc2017/Teapot01.obj" material="mtlTeapot">
+      <scale value="0.8"/>
+      <translate x="0" y="5" z="0"/>
     </object>
     <!-- Materials -->
     <material type="blinn" name="wall">
@@ -67,8 +67,8 @@
     </light>
   </scene>
   <camera>
-    <position x="0" y="-33" z="6.5"/>
-    <target x="0" y="0" z="6.5"/>
+    <position x="0" y="-20" z="15"/>
+    <target x="0" y="5" z="5.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
     <width value="960"/>
