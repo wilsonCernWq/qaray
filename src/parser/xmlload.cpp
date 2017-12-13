@@ -468,7 +468,9 @@ void LoadLight(TiXmlElement *element)
         if (COMPARE(child->Value(), "intensity")) {
           Color3f c(1, 1, 1);
           ReadColor(child, c);
-          l->SetIntensity(c);
+          float f = 0;
+          ReadFloat(child, f, "strength");
+          l->SetIntensity(c * f);
           PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
         } else if (COMPARE(child->Value(), "position")) {
           Point3 v(0, 0, 0);
