@@ -19,13 +19,24 @@
       </object>
     </object>
     <!-- Teapot -->
-    <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
-      <scale value="0.8"/>
-      <translate x="0" y="5" z="0"/>
-    </object>
-    <object type="obj" name="trc2017/tower.obj" material="mtlTeapot">
-      <scale value="2.895"/>
-      <translate x="-0.11672" y="4.02632" z="-1.76096"/>
+    <object name="christmas" >
+      <translate x="0" y="0" z="0"/>
+      <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
+	<scale value="0.8"/>
+	<translate x="0" y="5" z="0"/>
+      </object>
+      <object type="obj" name="trc2017/house1.obj">
+	<scale value="0.61"/>
+	<translate x="-3.01079" y="3.92459" z="1.42112"/>
+      </object>
+      <object type="obj" name="trc2017/house2.obj">
+	<scale value="0.61"/>
+	<translate x="-3.01079" y="3.92459" z="1.42112"/>
+      </object>
+      <object type="obj" name="trc2017/snow.obj">
+	<scale value="0.61"/>
+	<translate x="-3.01079" y="3.92459" z="1.42112"/>
+      </object>
     </object>
     <!-- Materials -->
     <material type="blinn" name="wall">
@@ -47,6 +58,15 @@
       <intensity value="200.5"/>
       <position x="0" y="0" z="22"/>
     </light>
+    
+    <light type="spot" name="spotLight">
+      <intensity r="1.0" g="0.156" b="0.132" strength="300"/>
+      <position x="7.73706" y="0.58030" z="8.80022"/>
+      <rotation x="0.829" y="0.109" z="-0.548" angle="25"/>
+      <angle value="180"/>
+      <blend value="1.0"/>
+    </light>
+    
   </scene>
   <camera>
     <position x="0" y="-33" z="6.5"/>
