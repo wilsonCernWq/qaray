@@ -1,7 +1,6 @@
 <xml>
   <scene>
     <!-- Objects -->
-    <!-- box -->
     <object name="box">
       <translate x="0" y="0" z="12"/>
       <object type="plane" name="WallBottom" material="wall">
@@ -29,11 +28,14 @@
 	<translate x="15"/>
       </object>
     </object>
-    <!-- teapot -->
-    <object type="sphere" name="sphere" material="mtl">
-      <scale value="8"/>
-      <rotate angle="30" y="1"/>
-      <translate x="0" y="0" z="8"/>
+    <!-- Teapot -->
+    <object type="obj" name="trc2017/solid_teapot.obj" material="mtlTeapot">
+      <scale value="0.8"/>
+      <translate x="0" y="5" z="0"/>
+    </object>
+    <object type="obj" name="trc2017/tower.obj" material="mtlTeapot">
+      <scale value="2.895"/>
+      <translate x="-0.11672" y="4.02632" z="-1.76096"/>
     </object>
     <!-- Materials -->
     <material type="blinn" name="wall">
@@ -48,25 +50,28 @@
       <diffuse  r="0.5" g="0.5" b="1.0"/>
       <specular value="0"/>
     </material>
-    <material type="blinn" name="mtl">
+    <material type="blinn" name="mtlTeapot">
       <diffuse  value="0"/>
-      <specular value="1.0"/>
+      <specular vakye="1.0"/>
       <glossiness value="80"/>
-      <refraction value="1.0" index="1.52" glossiness="0.01f"/>
+      <refraction value="1.0" index="1.52"/>
       <absorption r="0.1" g="0.001" b="0.1"/>
     </material>
     <!-- Lights -->
+    <light type="ambient" name="ambientLight">
+      <intensity value="0.2"/>
+    </light>
     <light type="point" name="pointLight">
       <intensity value="100.5"/>
       <position x="0" y="0" z="22"/>
     </light>
   </scene>
   <camera>
-    <position x="0" y="-60" z="12"/>
-    <target x="0" y="0" z="12"/>
+    <position x="0" y="-33" z="6.5"/>
+    <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
-    <width value="300"/>
-    <height value="200"/>
+    <width value="960"/>
+    <height value="540"/>
   </camera>
 </xml>
