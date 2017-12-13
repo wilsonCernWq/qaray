@@ -458,6 +458,47 @@ void LoadLight(TiXmlElement *element)
           PRINTF("   size %f\n", f);
         }
       }
+    }
+    else if (COMPARE(type, "spot")) {
+      PRINTF(" - Spot\n");
+      SpotLight *l = new SpotLight();
+      light = l;
+      for (TiXmlElement *child = element->FirstChildElement();
+           child != NULL; child = child->NextSiblingElement()) {
+        if (COMPARE(child->Value(), "intensity")) {
+          Color3f c(1, 1, 1);
+          ReadColor(child, c);
+          l->SetIntensity(c);
+          PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
+        } else if (COMPARE(child->Value(), "position")) {
+          Point3 v(0, 0, 0);
+          ReadVector(child, v);
+          l->SetPosition(v);
+          PRINTF("   position %f %f %f\n", v.x, v.y, v.z);
+        } else if (COMPARE(child->Value(), "size")) {
+          float f = 0;
+          ReadFloat(child, f);
+          l->SetSize(f);
+          PRINTF("   size %f\n", f);
+        } else if (COMPARE(child->Value(), "rotation")) {
+          Point3 v(0, 0, 0);
+          float f = 0;
+          ReadVector(child, v);
+          ReadFloat(child, f, "angle");
+          l->SetRotation(f, v);
+          PRINTF("   rotation axis %f %f %f angle %f\n", v.x, v.y, v.z, f);
+        } else if (COMPARE(child->Value(), "angle")) {
+          float f = 0;
+          ReadFloat(child, f);
+          l->SetAngle(f);
+          PRINTF("   angle %f\n", f);
+        } else if (COMPARE(child->Value(), "blend")) {
+          float f = 0;
+          ReadFloat(child, f);
+          l->SetBlend(f);
+          PRINTF("   blend %f\n", f);
+        }
+      }
     } else {
       PRINTF(" - UNKNOWN\n");
     }

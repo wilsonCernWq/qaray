@@ -44,7 +44,7 @@ class Light : public ItemBase {
   virtual void SetViewportLight(int lightID) const {}
   // Photon Extensions
   virtual bool IsPhotonSource() const { return false; }
-  virtual Color3f GetPhotonIntensity() const { return Color3f(0, 0, 0); }
+  virtual Color3f GetPhotonIntensity(const Point3&) const { return Color3f(0, 0, 0); }
   virtual DiffRay RandomPhoton() const
   {
     return DiffRay(Point3(0, 0, 0), Point3(0, 0, 1));

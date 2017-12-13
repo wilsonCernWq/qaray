@@ -112,7 +112,7 @@ class PointLight : public GenLight {
 
   // Photon Extensions
   bool IsPhotonSource() const override { return true; }
-  Color3f GetPhotonIntensity() const override { return intensity; }
+  Color3f GetPhotonIntensity(const Point3&) const override { return intensity; }
   DiffRay RandomPhoton() const override;
 
  private:
@@ -121,6 +121,54 @@ class PointLight : public GenLight {
   float size;
 };
 
+class SpotLight : public GenLight {
+ public:
+  SpotLight() : intensity(0, 0, 0), position(0, 0, 0), direction(1,0,0), size(0)
+  {
+    SetAngle(45);
+    SetBlend(1.f);
+  }
+
+  Color3f Illuminate(const Point3 &p, const Point3 &N) const override;
+
+  Point3 Direction(const Point3 &p) const override
+  {
+    return glm::normalize(p - position);
+  }
+
+  void SetViewportLight(int lightID) const override;
+
+  void SetIntensity(Color3f intens) { intensity = intens; }
+
+  void SetPosition(Point3 pos) { position = pos; }
+
+  void SetRotation(float degree, Point3 axis);
+
+  void SetSize(float s) { size = s; }
+
+  void SetAngle(float s);
+
+  void SetBlend(float s);
+
+  float GetAttenuation(const Point3& dir) const;
+
+  // Photon Extensions
+  bool IsPhotonSource() const override { return true; }
+  Color3f GetPhotonIntensity(const Point3& d) const override {
+    return intensity * GetAttenuation(d);
+  }
+  DiffRay RandomPhoton() const override;
+
+ private:
+  Color3f intensity;
+  Point3 position;
+  Point3 direction;
+  float size;
+  float blend;
+ private:
+  float inner;
+  float outer;
+};
 //------------------------------------------------------------------------------
 
 #endif

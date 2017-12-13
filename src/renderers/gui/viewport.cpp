@@ -907,4 +907,15 @@ void PointLight::SetViewportLight(int lightID) const
   glLightf(GL_LIGHT0 + lightID, GL_QUADRATIC_ATTENUATION, 1);
 #endif
 }
+void SpotLight::SetViewportLight(int lightID) const
+{
+#ifdef USE_GUI
+  SetViewportParam(lightID, Color4f(0, 0, 0, 1),
+                   Color4f(intensity, 1.f),
+                   Point4(position, 1.f));
+  glLightf(GL_LIGHT0 + lightID, GL_CONSTANT_ATTENUATION, 0);
+  glLightf(GL_LIGHT0 + lightID, GL_LINEAR_ATTENUATION, 0);
+  glLightf(GL_LIGHT0 + lightID, GL_QUADRATIC_ATTENUATION, 1);
+#endif
+}
 //------------------------------------------------------------------------------

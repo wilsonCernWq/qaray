@@ -161,7 +161,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         ray.Normalize();
         DiffHitInfo hInfo;
         hInfo.Init();
-        Color3f intensity = light->GetPhotonIntensity() * lightScale;
+        Color3f intensity = light->GetPhotonIntensity(ray.c.dir) * lightScale;
         qaBOOL finished = false; // whether the map is filled
         qaBOOL recorded = false; // whether a photon is recorded
         //! trace photon
@@ -236,7 +236,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         ray.Normalize();
         DiffHitInfo hInfo;
         hInfo.Init();
-        Color3f intensity = light->GetPhotonIntensity() * lightScale;
+        Color3f intensity = light->GetPhotonIntensity(ray.c.dir) * lightScale;
         qaBOOL finished = false; // whether the map is filled
         qaBOOL recorded = false; // whether a photon is recorded
         //! trace photon

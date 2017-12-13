@@ -442,7 +442,8 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
                                      bool loadMtl,
                                      std::ostream *outStream)
 {
-#ifdef TINY_OBJ_LOADER_H_
+#ifndef TINY_OBJ_LOADER_H_
+
   //
   // Read OBJ file using tinyobjloader
   //
@@ -676,6 +677,8 @@ inline bool TriMesh::LoadFromFileObj(const char *filename,
   }
 
 #else
+
+  TriMesh::ComputePath(filename, directory_name);
 
   FILE *fp = fopen(filename, "r");
   if (!fp) {
