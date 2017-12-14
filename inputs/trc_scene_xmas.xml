@@ -22,18 +22,18 @@
     <!-- Teapot -->
     <object name="christmas" >
       <translate x="0" y="0" z="0"/>
-      <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
-      	<scale value="0.8"/>
-      	<translate x="0" y="5" z="0"/>
+      <!-- <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot"> -->
+      <!-- 	<scale value="0.8"/> -->
+      <!-- 	<translate x="0" y="5" z="0"/> -->
+      <!-- </object> -->
+      <object type="obj" name="trc2017/house1.obj">
+      	<scale value="0.61"/>
+      	<translate x="-3.01079" y="3.92459" z="1.42112"/>
       </object>
-      <!-- <object type="obj" name="trc2017/house1.obj"> -->
-      <!-- 	<scale value="0.61"/> -->
-      <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
-      <!-- </object> -->
-      <!-- <object type="obj" name="trc2017/house2.obj"> -->
-      <!-- 	<scale value="0.61"/> -->
-      <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
-      <!-- </object> -->
+      <object type="obj" name="trc2017/house2.obj">
+      	<scale value="0.61"/>
+      	<translate x="-3.01079" y="3.92459" z="1.42112"/>
+      </object>
       <!-- <object type="obj" name="trc2017/snow.obj"> -->
       <!-- 	<scale value="0.61"/> -->
       <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
@@ -72,21 +72,141 @@
       <position x="0" y="0" z="22"/>
     </light>
     <!-- spotlights -->
-    <light type="spot" name="spotLight000">     
-      <position x="-4.7788" y="3.0159" z="4.9987"/>
-      <rotation x="0.379" y="-0.849" z="0.369" angle="100.971"/>
-      <intensity r="0.044" g="1.0" b="0.001" strength="2"/>
-      <angle value="84"/>
+    <light type="spot" name="spotSpot">
+      <position x="-4.77875906709671" y="3.0159279263877865" z="4.998721284980774"/>
+      <rotation x="0.3790000081062317" y="-0.8489999771118164" z="0.36877691745758057" angle="100.97100068900032"/>
+      <intensity r="0.044343769550323486" g="1.0" b="0.001065714517608285" strength="20.0"/>
+      <angle value="84.00000233751295"/>
       <blend value="1.0"/>
     </light>
-    
+    <light type="spot" name="spotSpot blau links Haus">
+      <position x="4.166447768173217" y="3.187010126199722" z="7.032890095825195"/>
+      <rotation x="0.5543845295906067" y="0.681318998336792" z="-0.47797727584838867" angle="47.036828549534"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" strength="50.0"/>
+      <angle value="55.99999700488252"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot blau links oben Haus">
+      <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/>
+      <rotation x="0.6550894379615784" y="0.5308577418327332" z="-0.5376321077346802" angle="38.018779524204426"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" strength="50.0"/>
+      <angle value="109.99999167738025"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot blau rechts Haus">
+      <position x="0.5024131011581421" y="4.213253939833641" z="7.0328895140838625"/>
+      <rotation x="0.44587019085884094" y="-0.8609663248062134" z="-0.24481980502605438" angle="39.16437983293398"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" strength="50.0"/>
+      <angle value="55.99999700488252"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot blau rechts oben Haus">
+      <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/>
+      <rotation x="0.7475908398628235" y="-0.4235819876194" z="-0.5115529298782349" angle="27.9639794998532"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" strength="50.0"/>
+      <angle value="109.99999167738025"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot Blue Kirche">
+      <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/>
+      <rotation x="0.7146952748298645" y="-0.081611268222332" z="0.6946583986282349" angle="170.9292132628559"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" strength="100.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot Blue Kirche.001">
+      <position x="-2.592437046804428" y="3.6743446213865276" z="7.690395674819946"/>
+      <rotation x="-0.06016916036605835" y="0.25444114208221436" z="-0.965214729309082" angle="163.55622895950225"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" strength="100.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot Blue Kirche.002">
+      <position x="-4.107878527679444" y="3.2152229810619355" z="7.690395674819946"/>
+      <rotation x="0.10918524116277695" y="0.2771482765674591" z="-0.9546033143997192" angle="158.59879569763697"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" strength="100.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot Blue Kirche.003">
+      <position x="-1.1132723737144472" y="4.122475786294937" z="7.710650162811279"/>
+      <rotation x="-0.29299503564834595" y="0.21035832166671753" z="-0.9326860904693604" angle="171.36481540736264"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" strength="100.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot grn links Haus">
+      <position x="4.206686816177368" y="3.1408323717975613" z="4.485648408050537"/>
+      <rotation x="0.42660099267959595" y="0.7908053994178772" z="-0.4389057755470276" angle="101.73531934769225"/>
+      <intensity r="0.08579762279987335" g="1.0" b="0.0" strength="5.0"/>
+      <angle value="45.999999003336896"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot rot oben Haus">
+      <position x="2.0613242578125" y="3.693907018985748" z="7.718193020935058"/>
+      <rotation x="0.5861835479736328" y="-0.0032862862572073936" z="-0.8101712465286255" angle="36.0416993066742"/>
+      <intensity r="1.0" g="0.15637631714344025" b="0.1321755051612854" strength="30.0"/>
+      <angle value="179.999991348578"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot weiß links Haus">
+      <position x="0.34121519561767544" y="4.266033476676941" z="3.771293902511596"/>
+      <rotation x="0.1320945769548416" y="-0.9911490082740784" z="-0.013217240571975708" angle="68.38429110227455"/>
+      <intensity r="1.0" g="1.0" b="1.0" strength="25.0"/>
+      <angle value="109.99999167738025"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot weiß links Kirche">
+      <position x="-0.9615788126373292" y="4.168433060731887" z="3.233890712375641"/>
+      <rotation x="0.7146952748298645" y="-0.081611268222332" z="0.6946583986282349" angle="170.9292132628559"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" strength="50.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot weiß rechts Haus">
+      <position x="4.214816651306152" y="3.116049172964096" z="3.1483114720535275"/>
+      <rotation x="0.24385011196136475" y="0.94630366563797" z="-0.21224190294742584" angle="80.32411063942799"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" strength="20.0"/>
+      <angle value="79.00000333674014"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot weiß rechts Kirche">
+      <position x="-4.777662048377991" y="3.012303677883148" z="3.233890421504974"/>
+      <rotation x="0.3006473779678345" y="-0.9078652858734131" z="0.2922183573246002" angle="97.14882682946119"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" strength="50.0"/>
+      <angle value="77.99999534035858"/>
+      <blend value="1.0"/>
+    </light>
+    <light type="spot" name="spotSpot.001">
+      <position x="-3.378953837790489" y="3.5993651808166502" z="3.39418401014328"/>
+      <rotation x="0.9879564046859741" y="0.14637184143066406" z="0.05017376318573952" angle="142.58220699963215"/>
+      <intensity r="1.0" g="1.0" b="1.0" strength="5.0"/>
+      <angle value="54.0000015026869"/>
+      <blend value="0.15000000596046448"/>
+    </light>
+    <light type="spot" name="spotSpot.002">
+      <position x="-1.1454111099624635" y="5.105449061479568" z="17.394871373291014"/>
+      <rotation x="0.0" y="1.0" z="0.0" angle="0.0"/>
+      <intensity r="1.0" g="0.9006742835044861" b="0.638299286365509" strength="1200.0"/>
+      <angle value="77.00000100435535"/>
+      <blend value="0.15000000596046448"/>
+    </light>
   </scene>
   <camera>
-    <position x="0" y="-33" z="6.5"/>
+    <position x="0" y="-20" z="6.5"/>
     <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
     <width value="960"/>
     <height value="540"/>
   </camera>
+
+  <!-- <camera> -->
+  <!--   <position x="0" y="-33" z="6.5"/> -->
+  <!--   <target x="0" y="0" z="6.5"/> -->
+  <!--   <up x="0" y="0" z="1"/> -->
+  <!--   <fov value="30"/> -->
+  <!--   <width value="960"/> -->
+  <!--   <height value="540"/> -->
+  <!-- </camera> -->
 </xml>
