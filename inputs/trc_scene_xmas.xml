@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <scene>
     <!-- Objects -->
@@ -22,22 +23,34 @@
     <object name="christmas" >
       <translate x="0" y="0" z="0"/>
       <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
-	<scale value="0.8"/>
-	<translate x="0" y="5" z="0"/>
+      	<scale value="0.8"/>
+      	<translate x="0" y="5" z="0"/>
       </object>
-      <object type="obj" name="trc2017/house1.obj">
-	<scale value="0.61"/>
-	<translate x="-3.01079" y="3.92459" z="1.42112"/>
-      </object>
-      <object type="obj" name="trc2017/house2.obj">
-	<scale value="0.61"/>
-	<translate x="-3.01079" y="3.92459" z="1.42112"/>
-      </object>
-      <object type="obj" name="trc2017/snow.obj">
-	<scale value="0.61"/>
-	<translate x="-3.01079" y="3.92459" z="1.42112"/>
-      </object>
+      <!-- <object type="obj" name="trc2017/house1.obj"> -->
+      <!-- 	<scale value="0.61"/> -->
+      <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/house2.obj"> -->
+      <!-- 	<scale value="0.61"/> -->
+      <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/snow.obj"> -->
+      <!-- 	<scale value="0.61"/> -->
+      <!-- 	<translate x="-3.01079" y="3.92459" z="1.42112"/> -->
+      <!-- </object> -->
     </object>
+    <!-- <object name="frame"> -->
+    <!--   <scale value="0.61"/> -->
+    <!--   <translate x="-3.01079" y="3.92459" z="1.42112"/>      -->
+    <!--   <object type="sphere" name="ball0" material="wall"> -->
+    <!-- 	<scale value="0.1"/> -->
+    <!-- 	<translate x="-2.89831" y="-1.48961" z="5.86492"/>           -->
+    <!--   </object> -->
+    <!-- </object> -->
+    <!-- <object type="sphere" name="ball1" material="wall"> -->
+    <!--   <scale value="0.1"/> -->
+    <!--   <translate x="-4.7788" y="3.0159" z="4.9987"/>           -->
+    <!-- </object> -->
     <!-- Materials -->
     <material type="blinn" name="wall">
       <diffuse  r="1" g="1" b="1"/>
@@ -58,12 +71,12 @@
       <intensity value="200.5"/>
       <position x="0" y="0" z="22"/>
     </light>
-    
-    <light type="spot" name="spotLight">
-      <intensity r="1.0" g="0.156" b="0.132" strength="300"/>
-      <position x="7.73706" y="0.58030" z="8.80022"/>
-      <rotation x="0.829" y="0.109" z="-0.548" angle="25"/>
-      <angle value="180"/>
+    <!-- spotlights -->
+    <light type="spot" name="spotLight000">     
+      <position x="-4.7788" y="3.0159" z="4.9987"/>
+      <rotation x="0.379" y="-0.849" z="0.369" angle="100.971"/>
+      <intensity r="0.044" g="1.0" b="0.001" strength="2"/>
+      <angle value="84"/>
       <blend value="1.0"/>
     </light>
     
