@@ -29,6 +29,7 @@
 #  endif
 # else
 #  include <GL/freeglut.h>
+#include <tiny_obj_loader.h>
 # endif
 #endif
 
@@ -186,7 +187,9 @@ void DrawNode(Node *node)
                  p.x, p.y, p.z, 1};
   glMultMatrixf(m);
   Object *obj = node->GetNodeObj();
-  if (obj) obj->ViewportDisplay(mtl);
+  if (obj) {
+    obj->ViewportDisplay(mtl);
+  }
   for (int i = 0; i < node->GetNumChild(); i++) {
     DrawNode(node->GetChild(i));
   }
@@ -638,17 +641,15 @@ void TriObj::ViewportDisplay(const Material *mtl) const
       }
     }
     for (int j = 0; j < 3; j++) {
-      if (HasTextureVertices()) {
-        auto& ft = FT(i);
-        auto& vt_id = ft.v[j];
+      if (HasTextureVertices(i)) {
+        auto& vt_id = F(i).v[j]->texcoord_index;;
         glTexCoord3fv(&VT(vt_id).x);
       }
-      if (HasNormals()) {
-        auto& fn = FN(i);
-        auto& vn_id = fn.v[j];
+      if (HasNormals(i)) {
+        auto& vn_id = F(i).v[j]->normal_index;;
         glNormal3fv(&VN(vn_id).x);
       }
-      glVertex3fv(&V(F(i).v[j]).x);
+      glVertex3fv(&V(F(i).v[j]->vertex_index).x);
     }
   }
   glEnd();

@@ -51,18 +51,19 @@ endmacro()
 #
 qw_add_library(tasking)
 qw_add_library(math)
+qw_add_library(mesh math)
 qw_add_library(fb math)
 qw_add_library(core math)
 qw_add_library(samplers core math)
 qw_add_library(scene core math)
 qw_add_library(lights scene core math)
 qw_add_library(materials scene core math)
-qw_add_library(objects scene core math)
 qw_add_library(textures scene core math)
+qw_add_library(objects scene core mesh math)
 qw_add_library(parser
-    lights materials objects textures scene samplers core math)
+    lights materials objects textures scene samplers core mesh math)
 qw_add_library(renderers
-    lights materials objects textures scene samplers core fb math)
+    lights materials objects textures scene samplers core fb mesh math)
 #
 # search for executable source files
 #
@@ -76,7 +77,6 @@ endforeach ()
 #
 add_executable(${PROJECT_ID} ${MAIN} ${CXX}
     ext/cyPhotonMap.h
-    ext/cyTriMesh.h
     ext/cyBVH.h
     )
 target_link_libraries(${PROJECT_ID} ${ALL_LIBS} ${COMMON_LIBS})

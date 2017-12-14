@@ -18,6 +18,7 @@
 #include "textures/texture.h"
 
 #include <tinyxml/tinyxml.h>
+#include <tiny_obj_loader.h>
 
 //-----------------------------------------------------------------------------
 
@@ -230,26 +231,34 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
           // generate multi-material
           if (tobj->NM() > 0) {
             if (qaray::scene.materials.Find(name) == NULL) {
-              PRINTF("\n - OBJ Multi-Material\n");
+              PRINTF("\n");
+              PrintIndent(level);
+              PRINTF(" - OBJ Multi-Material\n");
               MultiMtl *mm = new MultiMtl;
               for (unsigned int i = 0; i < tobj->NM(); i++) {
                 MtlBlinn *m = new MtlBlinn;
-                const cyTriMesh::Mtl &mtl = tobj->M(i);
-                m->SetDiffuse(Color3f(mtl.Kd[0], mtl.Kd[1], mtl.Kd[2]));
-                m->SetSpecular(Color3f(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
-                m->SetGlossiness(mtl.Ns);
-                m->SetRefractionIndex(mtl.Ni);
-                if (mtl.map_Kd.data != nullptr)
-                  m->SetDiffuseTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Kd.data).c_str())));
-                if (mtl.map_Ks.data != nullptr)
-                  m->SetDiffuseTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Ks.data).c_str())));
+                const auto &mtl = tobj->M(i);
+                m->SetDiffuse(Color3f(mtl.diffuse[0], mtl.diffuse[1], mtl.diffuse[2]));
+                m->SetSpecular(Color3f(mtl.specular[0], mtl.specular[1], mtl.specular[2]));
+                m->SetGlossiness(mtl.shininess);
+                m->SetRefractionIndex(mtl.ior);
+                if (!mtl.diffuse_texname.empty()) {
+                  auto* tex = new TextureMap(ReadTexture((tobj->GetDirectoryName() + mtl.diffuse_texname).c_str()));
+                  m->SetDiffuseTexture(tex);
+                }
+                if (!mtl.specular_texname.empty()) {
+                  auto* tex = new TextureMap(ReadTexture((tobj->GetDirectoryName() + mtl.specular_texname).c_str()));
+                  m->SetDiffuseTexture(tex);
+                }
                 if (mtl.illum > 2 && mtl.illum <= 7) {
-                  m->SetReflection(Color3f(mtl.Ks[0], mtl.Ks[1], mtl.Ks[2]));
-                  if (mtl.map_Ks.data != nullptr)
-                    m->SetReflectionTexture(new TextureMap(ReadTexture((tobj->GetDirectory() + mtl.map_Ks.data).c_str())));
-                  float gloss = acosf(powf(2, 1 / mtl.Ns));
+                  m->SetReflection(Color3f(mtl.specular[0], mtl.specular[1], mtl.specular[2]));
+                  if (!mtl.specular_texname.empty()) {
+                    auto *tex = new TextureMap(ReadTexture((tobj->GetDirectoryName() + mtl.specular_texname).c_str()));
+                    m->SetReflectionTexture(tex);
+                  }
+                  float gloss = acosf(powf(2, 1 / mtl.shininess));
                   if (mtl.illum >= 6) {
-                    m->SetRefraction(1.f - Color3f(mtl.Tf[0], mtl.Tf[1], mtl.Tf[2]));
+                    m->SetRefraction(1.f - Color3f(mtl.transmittance[0], mtl.transmittance[1], mtl.transmittance[2]));
                   }
                 }
                 mm->AppendMaterial(m);

@@ -9,9 +9,9 @@
 ///
 //------------------------------------------------------------------------------
 
-#define TINYOBJLOADER_IMPLEMENTATION
 #include "objects.h"
 #include <stack>
+#include <tiny_obj_loader.h>
 
 Sphere theSphere;
 Plane thePlane;
@@ -213,13 +213,10 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
                                int hitSide, unsigned int faceID,
                                DiffRay *diffray, DiffHitInfo *diffhit) const
 {
-  auto &fidx = F(faceID);
-  // const auto &tmp_A = V(fidx.v[0]); //!< vertex
-  // const auto &tmp_B = V(fidx.v[1]); //!< vertex
-  // const auto &tmp_C = V(fidx.v[2]); //!< vertex
-  const Point3& A = (Point3&)V(fidx.v[0]); //!< vertex
-  const Point3& B = (Point3&)V(fidx.v[1]); //!< vertex
-  const Point3& C = (Point3&)V(fidx.v[2]); //!< vertex
+  auto &face = F(faceID);
+  const Point3& A = V(face.v[0]->vertex_index); //!< vertex
+  const Point3& B = V(face.v[1]->vertex_index); //!< vertex
+  const Point3& C = V(face.v[2]->vertex_index); //!< vertex
   const Point3
       N = normalize(cross((B - A), (C - A))); //!< face normal
   //! ray - plane intersection
@@ -259,9 +256,9 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
         hInfo.mtlID = GetMaterialIndex(faceID);
         // Texture Coordinates
         // TODO: we need to remove cyCodeBase dependencies
-        if (HasTextureVertices()) {
+        if (HasTextureVertices(faceID)) {
           hInfo.hasTexture = true;
-          hInfo.uvw = GetTexCoord(faceID, bc);
+          hInfo.uvw = vec3f(GetTexCoord(faceID, bc), 0.f);
         }
         // Ray Differential
         if (diffray->hasDiffRay) {
@@ -285,11 +282,11 @@ bool TriObj::IntersectTriangle(const Ray &ray, HitInfo &hInfo,
           diffhit->y.z = t_y;
           diffhit->y.p = p_y;
           diffhit->y.N = hInfo.N;
-          if (HasTextureVertices()) {
+          if (HasTextureVertices(faceID)) {
             const Point3 bcx(ax,bx,cx);
             const Point3 bcy(ay,by,cy);
-            hInfo.duvw[0] = DiffRay::rdx * (GetTexCoord(faceID, bcx) - hInfo.uvw);
-            hInfo.duvw[1] = DiffRay::rdy * (GetTexCoord(faceID, bcy) - hInfo.uvw);
+            hInfo.duvw[0] = DiffRay::rdx * (vec3f(GetTexCoord(faceID, bcx),0.f) - hInfo.uvw);
+            hInfo.duvw[1] = DiffRay::rdy * (vec3f(GetTexCoord(faceID, bcy),0.f) - hInfo.uvw);
           }
         } else {
           diffhit->x.z = t;

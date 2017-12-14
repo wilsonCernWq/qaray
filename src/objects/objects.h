@@ -16,8 +16,8 @@
 #include "core/core.h"
 #include "samplers/sampler_selection.h"
 
-#include "ext/cyTriMesh.h"
-#include "ext/cyBVH.h"
+#include "mesh/TriMesh.h"
+#include "mesh/TriBVH.h"
 
 //------------------------------------------------------------------------------
 
@@ -49,31 +49,31 @@ extern Plane thePlane;
 
 //-------------------------------------------------------------------------------
 
-class TriObj : public Object, public cyTriMesh {
+class TriObj : public Object, public TriMesh {
  public:
-  virtual bool IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
-                            DiffRay *diffray, DiffHitInfo *diffhit) const;
+  bool IntersectRay(const Ray &ray, HitInfo &hInfo, int hitSide,
+                    DiffRay *diffray, DiffHitInfo *diffhit) const override ;
 
-  virtual Box GetBoundBox() const
+  Box GetBoundBox() const override
   {
     return Box(Point3(GetBoundMin().x, GetBoundMin().y, GetBoundMin().z),
                Point3(GetBoundMax().x, GetBoundMax().y, GetBoundMax().z));
   }
 
-  virtual void ViewportDisplay(const Material *mtl) const;
+  void ViewportDisplay(const Material *mtl) const override ;
 
   bool Load(const char *filename, bool loadMtl)
   {
     bvh.Clear();
     if (!LoadFromFileObj(filename, loadMtl)) return false;
-    if (!HasNormals()) ComputeNormals();
+    if (NVN() == 0) ComputeNormals();
     ComputeBoundingBox();
     bvh.SetMesh(this, 4);
     return true;
   }
 
  private:
-  cyBVHTriMesh bvh;
+  BVHTriMesh bvh;
 
   bool IntersectTriangle(const Ray &ray,
                          HitInfo &hInfo,
