@@ -114,7 +114,8 @@ DiffRay SpotLight::RandomPhoton() const
 }
 void SpotLight::SetRotation(float degree, Point3 axis)
 {
-  direction = glm::rotate(mat4f(1.f), degree, axis) * vec4f(0,0,-1,0);
+  direction = normalize
+      (glm::rotate(mat4f(1.f), glm::radians(degree), axis) * vec4f(0,0,-1,0));
 }
 void SpotLight::SetAngle(float s) {
   s = MIN(MAX(s/2.f, 1.f), 89.f) / 180.f * PI;
