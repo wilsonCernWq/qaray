@@ -137,7 +137,7 @@ float SpotLight::GetAttenuation(const Point3& dir) const
     if (r > outer) {
       return 0;
     } else {
-      return r < inner ? 1.f : (outer - r) / (outer - inner);
+      return r < inner ? 1.f : POW((outer - r) / (outer - inner), 2.f);
     }
 
   }

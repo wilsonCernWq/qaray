@@ -229,7 +229,7 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
           qaray::scene.objList.Append(tobj, name);// add to the list
           obj = tobj;
           // generate multi-material
-          if (tobj->NM() > 0) {
+          if (mtlName == NULL && tobj->NM() > 0) {
             if (qaray::scene.materials.Find(name) == NULL) {
               PRINTF("\n");
               PrintIndent(level);
@@ -477,9 +477,9 @@ void LoadLight(TiXmlElement *element)
         if (COMPARE(child->Value(), "intensity")) {
           Color3f c(1, 1, 1);
           ReadColor(child, c);
-          float f = 0;
-          ReadFloat(child, f, "strength");
-          l->SetIntensity(c * f);
+//          float f = 0;
+//          ReadFloat(child, f, "strength");
+          l->SetIntensity(c);
           PRINTF("   intensity %f %f %f\n", c.r, c.g, c.b);
         } else if (COMPARE(child->Value(), "position")) {
           Point3 v(0, 0, 0);

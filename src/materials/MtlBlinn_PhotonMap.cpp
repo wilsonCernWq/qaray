@@ -265,6 +265,9 @@ const
   Color3f color = hInfo.c.hasTexture ?
                   emission.Sample(hInfo.c.uvw, hInfo.c.duvw) :
                   emission.GetColor();
+  if (emission.GetColor().r > 0) {
+    color.r += emission.GetColor().r;
+  }
   // Surface Normal In World Coordinate
   // Ray Incoming Direction
   // Surface Position in World Coordinate
