@@ -404,16 +404,16 @@ void Renderer::ThreadRender()
     });
     image->IncrementNumRenderPixel(static_cast<int>(numPixels));
     
-    if (k % 256 == mpiRank) 
+    if (k % 1000 == mpiRank) 
     {
       size_t completed = image->GetNumRenderedPixels();
       float percentage = 100.f * (float)completed / (pixelW * pixelH);
-      std::cout << "rank " << mpiRank 
-		<< " competed " 
-		<< std::fixed
+      std::cout << std::fixed
+		<< "rank " << mpiRank 
+		<< " competed " 		
 		<< percentage * mpiSize
 		<< " % "
-		<< std::endl;      
+		<< std::endl;            
     }
 
   });
