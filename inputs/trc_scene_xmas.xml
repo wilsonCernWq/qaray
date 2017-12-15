@@ -20,38 +20,41 @@
       </object>
     </object>
     <!-- Teapot -->
-    <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
-      <rotate angle="-30" z="1"/>
-      <scale value="0.8"/>
-      <translate x="0" y="5" z="0"/>
-    </object>
-    <object name="christmasbox" >
+    <!-- <object type="obj" name="trc2017/TeapotSolid.obj" material="mtlTeapot"> -->
+    <!--   <rotate angle="-30" z="1"/> -->
+    <!--   <scale value="0.8"/> -->
+    <!--   <translate x="0" y="5" z="0"/> -->
+    <!-- </object> -->
+    <object name="XMasBox" >
       <scale value="0.61"/>
       <rotate angle="180" z="1"/>
       <translate x="-3.01079" y="3.92459" z="1.42112"/>
-      <object type="obj" name="trc2017/box.obj" material="bluebox">
+      <object type="obj" name="trc2017/Box.obj" material="box">
       </object>
-      <object type="obj" name="trc2017/houses.obj">
+      <object type="obj" name="trc2017/BoxBugFix.obj" material="box">
       </object>
-      <object type="obj" name="trc2017/LightedGlass.obj" material="lightwindow">
-      </object>
-      <object type="obj" name="trc2017/DarkGlass.obj" material="darkwindow">
-      </object>
-      <object type="obj" name="trc2017/StreetLights.obj" material="streetlights">
-      </object>
-      <object type="obj" name="trc2017/Stars.obj" material="starlights">
-      </object>
+      <!-- <object type="obj" name="trc2017/Houses.obj"> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/LightedGlass.obj" material="lightedglass"> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/DarkGlass.obj" material="darkglass"> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/StreetLights.obj" material="streetlights"> -->
+      <!-- </object> -->
+      <!-- <object type="obj" name="trc2017/Stars.obj" material="stars"> -->
+      <!-- </object> -->
     </object>
-    <object type="obj" name="trc2017/snow.obj" material="streetlights">
-      <scale value="0.61"/>
-      <translate x="-3.01079" y="3.92459" z="1.42112"/>
-    </object>
+    <!-- <object type="obj" name="trc2017/Snow.obj" material="snow"> -->
+    <!--   <scale value="0.61"/> -->
+    <!--   <translate x="-3.01079" y="3.92459" z="1.42112"/> -->
+    <!-- </object> -->
     <!-- Materials -->
-    <material type="blinn" name="snowlights">
-      <diffuse r="0.1" g="0.1" b="0.1"/>
+    <material type="blinn" name="snow">
+      <emission value="0.1"/>
+      <diffuse r="0.5" g="0.5" b="0.5"/>
       <specular value="0.1"/>
     </material>
-    <material type="blinn" name="starlights">
+    <material type="blinn" name="stars">
       <emission value="60"/>
       <specular value="0"/>
     </material>
@@ -59,17 +62,17 @@
       <emission value="15"/>
       <specular value="0"/>
     </material>
-    <material type="blinn" name="lightwindow">
+    <material type="blinn" name="lightedglass">
       <emission value="15" r="0.545" g="0.326" b="0.141"/>
       <specular value="0"/>
       <reflection value="1.0"/>
     </material>
-    <material type="blinn" name="darkwindow">
+    <material type="blinn" name="darkglass">
       <diffuse value="5" r="0.545" g="0.326" b="0.141"/>
       <specular value="20"/>
       <reflection value="1.0"/>
     </material>
-    <material type="blinn" name="bluebox">
+    <material type="blinn" name="box">
       <diffuse  r="0.026" g="0.046" b="1.0" value="1"/>
       <specular r="0.026" g="0.046" b="1.0"/>
       <refraction value="1" r="0.026" g="0.046" b="1.0" index="1.52"/>
