@@ -6,18 +6,43 @@
     <object name="box">
       <translate x="0" y="0" z="12"/>
       <object type="plane" name="WallBottom" material="wall">
-    	<scale value="32"/>
+    	<scale value="10000"/>
     	<translate z="-12"/>
       </object>
       <object type="plane" name="WallTop" material="wall">
-    	<scale value="32"/>
-    	<rotate angle="180" x="1"/>
-    	<translate z="12"/>
+      	<scale value="10000"/>
+      	<rotate angle="180" x="1"/>
+      	<translate z="12"/>
       </object>
       <object type="plane" name="WallBack" material="wall">
-    	<scale value="32"/>
-    	<rotate angle="90" x="1"/>
-    	<translate y="20"/>
+      	<scale value="32"/>
+      	<rotate angle="90" x="1"/>
+      	<translate y="30"/>
+      </object>
+      <object type="plane" name="WallBack" material="wallDark">
+      	<scale value="32"/>
+      	<rotate angle="90" x="1"/>
+      	<translate y="-30"/>
+      </object>
+      <object type="plane" name="WallLeft" material="wall">
+      	<scale value="10000"/>
+      	<rotate angle="90" y="1"/>
+      	<translate x="-21"/>
+      </object>
+      <object type="plane" name="WallRight" material="wall">
+      	<scale value="10000"/>
+      	<rotate angle="-90" y="1"/>
+      	<translate x="21"/>
+      </object>
+      <object type="plane" name="WallLeft" material="wallRed">
+      	<scale value="20"/>
+      	<rotate angle="90" y="1"/>
+      	<translate x="-20"/>
+      </object>
+      <object type="plane" name="WallRight" material="wallBlue">
+      	<scale value="20"/>
+      	<rotate angle="-90" y="1"/>
+      	<translate x="20"/>
       </object>
     </object>
 
@@ -51,133 +76,78 @@
     <object name="XMasBoxSnow" >
       <scale value="0.61"/>
       <translate x="-3.01079" y="3.92459" z="1.42112"/>
-      <object type="obj" name="trc2017/Snow.obj" material="stars"/>
+      <object type="obj" name="trc2017/Snow.obj" material="snow"/>
     </object>
 
     <!-- Spheres -->
-
     <object name="ball.000">
       <scale value="3"/>
       <translate x="8.328149795532227" y="-3.298569917678833" z="3.0"/>
       <object type="sphere" name="Sphere.000"  material="spheres"/>
       <object type="obj" name="trc2017/ICO.obj"  material="ico-red"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-emit">
-	<scale value="0.1"/>
-      </object>
     </object>
 
     <object name="ball.001">
       <scale value="3"/>
-      <translate x="-7.197254180908203" y="-4.478445053100586" z="3.0"/>      
+      <translate x="-7.197254180908203" y="-4.478445053100586" z="3.0"/>
       <object type="sphere" name="Sphere.001" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>      
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-emit">
-	<scale value="0.1"/>
-      </object>
+      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
     </object>
 
     <object name="ball.002">
       <scale value="3"/>
-      <translate x="-11.33419418334961" y="6.649848937988281" z="3.0"/>      
+      <translate x="-11.33419418334961" y="6.649848937988281" z="3.0"/>
       <object type="sphere" name="Sphere.002" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-red"/>      
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-emit">
-	<scale value="0.1"/>
-      </object>      
+      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
     </object>
 
     <object name="ball.003">
       <scale value="3"/>
       <translate x="-5.73148250579834" y="15.717945098876953" z="3.0"/>
       <object type="sphere" name="Sphere.003" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-green"/>      
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-emit">
-	<scale value="0.1"/>
-      </object>      
+      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
     </object>
 
     <object name="ball.004">
       <scale value="3"/>
-      <translate x="-11.758140563964844" y="15.22116470336914" z="3.0"/>   
+      <translate x="-11.758140563964844" y="16.22116470336914" z="3.0"/>
       <object type="sphere" name="Sphere.004" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-green"/>      
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
+      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
     </object>
 
     <object name="ball.005">
       <scale value="3"/>
-      <translate x="12.813332557678223" y="4.180728912353516" z="2.999999761581421"/>
+      <translate x="7.813332557678223" y="18.180728912353516" z="2.999999761581421"/>
       <object type="sphere" name="Sphere.005" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-blue"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
+      <object type="obj" name="trc2017/ICO.obj" material="ico-green"/>
     </object>
 
     <object name="ball.006">
       <scale value="3"/>
-      <translate x="-12.34676742553711" y="-0.18698883056640625" z="3.0"/>
+      <translate x="0.34676742553711" y="19.18698883056640625" z="3.0"/>
       <object type="sphere" name="Sphere.006" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-green"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
+      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>
     </object>
 
     <object name="ball.007">
       <scale value="3"/>
-      <translate x="1.7642347812652588" y="-6.969832897186279" z="3.0000014305114746"/>
+      <translate x="10.7642347812652588" y="10.969832897186279" z="3.0000014305114746"/>
       <object type="sphere" name="Sphere.007" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
-    </object>
-
-    <object name="ball.008">
-      <scale value="3"/>
-      <translate x="-5.73148250579834" y="15.717945098876953" z="3.0"/>
-      <object type="sphere" name="Sphere.008" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
-    </object>
-
-    <object name="ball.009">
-      <scale value="3"/>
-      <translate x="16.432722091674805" y="7.618886470794678" z="3.000000476837158"/>
-      <object type="sphere" name="Sphere.009" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-blue"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>            
-    </object>
-
-    <object name="ball.010">   
-      <scale value="3"/>
-      <translate x="11.566854476928711" y="13.635135650634766" z="3.000000476837158"/>
-      <object type="sphere" name="Sphere.010" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>      
-      <object type="obj" name="trc2017/ICO.obj" material="ico-emit">
-	<scale value="0.1"/>
-      </object>                  
+      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>
     </object>
     
     <!-- Materials -->
     <material type="blinn" name="snow">
-      <emission value="0.2"/>
+      <emission value="0.5"/>
       <diffuse r="0.5" g="0.5" b="0.5"/>
       <specular value="0.1"/>
     </material>
     <material type="blinn" name="stars">
-      <emission value="60"/>
+      <emission value="1000"/>
       <specular value="0"/>
     </material>
     <material type="blinn" name="streetlights">
-      <emission value="15"/>
+      <emission value="20"/>
       <specular value="0"/>
     </material>
     <material type="blinn" name="lightedglass">
@@ -186,20 +156,22 @@
       <reflection value="1.0"/>
     </material>
     <material type="blinn" name="darkglass">
+      <emission value="5" r="0.545" g="0.326" b="0.141"/>
       <diffuse value="5" r="0.545" g="0.326" b="0.141"/>
       <specular value="20"/>
       <reflection value="1.0"/>
     </material>
     <material type="blinn" name="box">
-      <diffuse  r="0.026" g="0.046" b="1.0" value="1"/>
-      <specular r="0.026" g="0.046" b="1.0"/>
-      <refraction value="1" r="0.026" g="0.046" b="1.0" index="1.52"/>
+      <diffuse  r="0.026" g="0.046" b="1.0" value="0.3"/>
+      <specular r="0.026" g="0.046" b="1.0" value="0.5"/>
+      <glossiness value="80"/>
+      <reflection r="0.026" g="0.046" b="1.0" value="0.1"/>
     </material>
 
     <material type="blinn" name="teapot">
       <diffuse  value="0"/>
-      <specular value="1.0"/>
-      <glossiness value="80"/>
+      <specular value="0"/>
+      <glossiness value="10"/>
       <refraction value="1.0" index="1.52"/>
     </material>
 
@@ -225,34 +197,41 @@
       <absorption r="0.2" g="0.2" b="0.0001"/>
     </material>
 
-    <material type="blinn" name="ico-emit">
-      <emission value="100" r="1.0" g="0.3" b="0.3"/>
-      <diffuse  value="0"/>
-      <specular  value="0"/>
-    </material>
     <material type="blinn" name="spheres">
       <diffuse  value="0"/>
-      <specular value="1.0"/>
-      <glossiness value="80"/>
+      <specular value="0"/>
+      <glossiness value="10"/>
+      <reflection value="0.2"/>
       <refraction value="1.0" index="1.52"/>
-      <absorption r="0.1" g="0.001" b="0.1"/>
     </material>
+
     <material type="blinn" name="wall">
-      <diffuse  r="1" g="1" b="1"/>
+      <diffuse  r="1" g="0.9" b="0.5"/>
+      <specular value="0"/>
+    </material>
+    <material type="blinn" name="wallDark">
+      <diffuse  r="0.5" g="0.45" b="0.25"/>
+      <specular value="0"/>
+    </material>
+    <material type="blinn" name="wallRed">
+      <diffuse  r="1.0" g="0.1" b="0.1"/>
+      <specular value="0"/>
+    </material>
+    <material type="blinn" name="wallBlue">
+      <diffuse  r="0.1" g="0.1" b="1.0"/>
       <specular value="0"/>
     </material>
 
     <!-- mainlights -->
     <light type="point" name="pointLight">
-      <intensity value="400"/>
-      <position x="0" y="0" z="16"/>
+      <intensity value="3000"/>
+      <position x="-10" y="0" z="22"/>
     </light>
-    <light type="spot" name="spotSpot">
-      <position x="0" y="0" z="16"/>
-      <intensity r="1" g="0.901" b="0.638" value="12000.0"/>
-      <angle value="77"/>
-      <blend value="0.150"/>
-    </light>    
+    <light type="point" name="pointLight">
+      <intensity value="3000"/>
+      <position x="10" y="0" z="22"/>
+    </light>
+
     <!-- pointlights -->
     <light type="point" name="point Spot Blue Kirche">
       <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/>
@@ -266,144 +245,145 @@
       <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/>
       <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/>
     </light>
+
     <!-- spotlights -->
+
+    <light type="spot" name="spotSpot">
+      <position x="0" y="0" z="22"/>
+      <intensity r="1" g="0.901" b="0.638" value="12000.0"/>
+      <angle value="77"/>
+      <blend value="0.150"/>
+    </light>    
+
+    <light type="spot" name="spotSpot.002">
+      <position x="-1.1454111099624635" y="5.105449061479568" z="20.394871373291014"/>
+      <intensity r="1.0" g="0.9006742835044861" b="0.638299286365509" value="18000.0"/>
+      <angle value="77.00000100435535"/>
+      <blend value="0.15000000596046448"/>
+    </light>
+
+
     <light type="spot" name="spotSpot">
       <position x="-4.778760085144043" y="3.0159275627994537" z="4.998722157592773"/>
       <rotation x="0.37941429018974304" y="-0.8485565185546875" z="0.3687770366668701" angle="100.97065234935265"/>
-      <intensity r="0.044343769550323486" g="1.0" b="0.001065714517608285" value="20.0"/>
+      <intensity r="0.044343769550323486" g="1.0" b="0.001065714517608285" value="30.0"/>
       <angle value="84.00000233751295"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot blau links Haus">
       <position x="4.166447768173217" y="3.187010126199722" z="7.032890095825195"/>
       <rotation x="0.5543844103813171" y="0.6813189387321472" z="-0.4779772162437439" angle="47.036828549534"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="50.0"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="75.0"/>
       <angle value="55.99999700488252"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot blau links oben Haus">
       <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/>
       <rotation x="0.6550894379615784" y="0.5308576822280884" z="-0.5376320481300354" angle="38.018779524204426"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="50.0"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="75.0"/>
       <angle value="109.99999167738025"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot blau rechts Haus">
       <position x="0.5024131011581421" y="4.213253939833641" z="7.0328895140838625"/>
       <rotation x="0.44587016105651855" y="-0.8609663248062134" z="-0.24481983482837677" angle="39.16437983293398"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="50.0"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="75.0"/>
       <angle value="55.99999700488252"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot blau rechts oben Haus">
       <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/>
       <rotation x="0.7475908398628235" y="-0.4235819876194" z="-0.5115529298782349" angle="27.9639794998532"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="50.0"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="75.0"/>
       <angle value="109.99999167738025"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot Blue Kirche">
       <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/>
       <rotation x="0.7146953344345093" y="-0.08161120861768723" z="0.6946583390235901" angle="170.92919960247758"/>
-      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="100.0"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="150.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot Blue Kirche.001">
       <position x="-2.592437046804428" y="3.6743446213865276" z="7.690395674819946"/>
       <rotation x="-0.06016910821199417" y="0.25444114208221436" z="-0.9652146697044373" angle="163.55620163874556"/>
-      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="100.0"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="150.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot Blue Kirche.002">
       <position x="-4.107878527679444" y="3.2152229810619355" z="7.690395674819946"/>
       <rotation x="0.10918539017438889" y="0.2771482765674591" z="-0.9546033143997192" angle="158.59879569763697"/>
-      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="100.0"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="150.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot Blue Kirche.003">
       <position x="-1.1132723737144472" y="4.122475786294937" z="7.710650162811279"/>
       <rotation x="-0.292994886636734" y="0.21035835146903992" z="-0.9326860904693604" angle="171.36478808660598"/>
-      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="100.0"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="150.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot grün links Haus">
       <position x="4.206686816177368" y="3.1408323717975613" z="4.485648408050537"/>
       <rotation x="0.42660099267959595" y="0.7908053994178772" z="-0.4389057755470276" angle="101.73531934769225"/>
-      <intensity r="0.08579762279987335" g="1.0" b="0.0" value="5.0"/>
+      <intensity r="0.08579762279987335" g="1.0" b="0.0" value="7.5"/>
       <angle value="45.999999003336896"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot rot oben Haus">
       <position x="2.0613242578125" y="3.693907018985748" z="7.718193020935058"/>
       <rotation x="0.5861837267875671" y="-0.003286228282377124" z="-0.8101716041564941" angle="36.0416754010121"/>
-      <intensity r="1.0" g="0.15637631714344025" b="0.1321755051612854" value="2.0"/>
+      <intensity r="1.0" g="0.15637631714344025" b="0.1321755051612854" value="3.0"/>
       <angle value="179.999991348578"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot weiß links Haus">
       <position x="0.34121519561767544" y="4.266033476676941" z="3.771293902511596"/>
       <rotation x="0.1320945918560028" y="-0.9911490678787231" z="-0.013217248022556305" angle="68.3842774418962"/>
-      <intensity r="1.0" g="1.0" b="1.0" value="25.0"/>
+      <intensity r="1.0" g="1.0" b="1.0" value="37.5"/>
       <angle value="109.99999167738025"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot weiß links Kirche">
       <position x="-0.9615788126373292" y="4.168433060731887" z="3.233890712375641"/>
       <rotation x="0.7146953344345093" y="-0.08161120861768723" z="0.6946583390235901" angle="170.92919960247758"/>
-      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="50.0"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="75.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot weiß rechts Haus">
       <position x="4.214816651306152" y="3.116049172964096" z="3.1483114720535275"/>
       <rotation x="0.24385009706020355" y="0.94630366563797" z="-0.21224188804626465" angle="80.32411063942799"/>
-      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="20.0"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="30.0"/>
       <angle value="79.00000333674014"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot weiß rechts Kirche">
       <position x="-4.777662048377991" y="3.012303677883148" z="3.233890421504974"/>
       <rotation x="0.3006477355957031" y="-0.9078652262687683" z="0.29221871495246887" angle="97.14883365965035"/>
-      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="50.0"/>
+      <intensity r="0.9779558777809143" g="0.9834401607513428" b="1.0" value="75.0"/>
       <angle value="77.99999534035858"/>
       <blend value="1.0"/>
     </light>
     <light type="spot" name="spotSpot.001">
       <position x="-3.378953837790489" y="3.5993651808166502" z="3.39418401014328"/>
       <rotation x="0.9879564046859741" y="0.14637179672718048" z="0.05017378181219101" angle="142.58219333925382"/>
-      <intensity r="1.0" g="1.0" b="1.0" value="5.0"/>
+      <intensity r="1.0" g="1.0" b="1.0" value="7.5"/>
       <angle value="54.0000015026869"/>
-      <blend value="0.15000000596046448"/>
-    </light>
-    <light type="spot" name="spotSpot.002">
-      <position x="-1.1454111099624635" y="5.105449061479568" z="17.394871373291014"/>
-      <rotation x="0.0" y="1.0" z="0.0" angle="0.0"/>
-      <intensity r="1.0" g="0.9006742835044861" b="0.638299286365509" value="1200.0"/>
-      <angle value="77.00000100435535"/>
       <blend value="0.15000000596046448"/>
     </light>
   </scene>
 
-  <!-- <camera> -->
-  <!--   <position x="0" y="-10" z="4.5"/> -->
-  <!--   <target x="0" y="0" z="4.5"/> -->
-  <!--   <up x="0" y="0" z="1"/> -->
-  <!--   <fov value="30"/> -->
-  <!--   <width value="960"/> -->
-  <!--   <height value="540"/> -->
-  <!-- </camera> -->
-
   <camera>
-    <position x="-3" y="-22" z="15.5"/>
+    <position x="0" y="-15" z="8.5"/>
     <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
-    <width value="960"/>
-    <height value="540"/>
+    <width value="3200"/>
+    <height value="2400"/>
   </camera>
   
 </xml>

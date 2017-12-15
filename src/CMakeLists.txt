@@ -91,7 +91,7 @@ set_target_properties(${PROJECT_ID}
 #
 # add other executables
 #
-if(USE_GUI)
+if(ENABLE_GUI)
   add_executable(photon_vis exe/PhotonMapViz.cpp)
   target_link_libraries(photon_vis ${COMMON_LIBS})
   set_target_properties(photon_vis
@@ -102,4 +102,4 @@ if(USE_GUI)
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
       CXX_STANDARD 11)
-endif(USE_GUI)
+endif(ENABLE_GUI)

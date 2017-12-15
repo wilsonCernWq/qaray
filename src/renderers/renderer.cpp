@@ -403,6 +403,15 @@ void Renderer::ThreadRender()
       if (!tasking::has_stop_signal()) { PixelRender(i, j, k); }
     });
     image->IncrementNumRenderPixel(static_cast<int>(numPixels));
+    
+    size_t completed = image->GetNumRenderedPixels();
+    std::cout << "rank " << mpiRank 
+	      << " competed " << completed << " pixels "
+	      << " percentage " 
+	      << 100.f * (float)completed / (pixelW * pixelH) * mpiSize
+	      << " % " 
+	      << std::endl;
+
   });
   //-------------------------------------------------------------------------//
   // Stop timing

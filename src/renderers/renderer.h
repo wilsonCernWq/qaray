@@ -51,10 +51,10 @@ struct RendererParam {
   qaBOOL usePhotonMap = false;
   size_t photonMapSize = size_t(10000);
   size_t photonMapBounce = 5;
-  qaFLOAT photonMapRadius = 1.f;
+  qaFLOAT photonMapRadius = 0.2f;
   size_t causticsMapSize = size_t(1000);
   size_t causticsMapBounce = 5;
-  qaFLOAT causticsMapRadius = 1.f;
+  qaFLOAT causticsMapRadius = 0.2f;
   void SetPhotonMappingFlag(bool flag) { usePhotonMap = flag; }
   void SetPhotonMapBounce(size_t b) { photonMapBounce = b; }
   void SetPhotonMapSize(size_t sz) { photonMapSize = sz; }
@@ -90,7 +90,7 @@ class Renderer {
   Point3 screenX, screenY, screenZ;
   Point3 screenU, screenV, screenA;
   //! multi-threading information
-  const size_t tileSize = 32; // this value should be platform dependent
+  const size_t tileSize = 4; // this value should be platform dependent
   size_t tileDimX = 0;
   size_t tileDimY = 0;
   size_t tileCount = 0;

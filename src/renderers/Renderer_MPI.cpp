@@ -131,11 +131,11 @@ void Renderer_MPI::Render() {
   tasking::signal_stop();
   //-------------------------------------------------------------------------//
   // debug
-  //renderImage->ComputeZBufferImage();
-  //renderImage->ComputeSampleCountImage();
-  //renderImage->SaveZImage((mpiPrefix+"depthBuffer.png").c_str());
-  //renderImage->SaveImage ((mpiPrefix+"colorBuffer.png").c_str());
-  //renderImage->SaveSampleCountImage((mpiPrefix+"sampleBuffer.png").c_str());
+  image->ComputeZBufferImage();
+  image->ComputeSampleCountImage();
+  image->SaveZImage((mpiPrefix+"depthBuffer.png").c_str());
+  image->SaveImage ((mpiPrefix+"colorBuffer.png").c_str());
+  image->SaveSampleCountImage((mpiPrefix+"sampleBuffer.png").c_str());
   //-------------------------------------------------------------------------//
   // now we gather images
   //-------------------------------------------------------------------------//
