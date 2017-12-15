@@ -54,5 +54,4 @@ float BVHTriMesh::GetElementCenter(unsigned int i, int dim) const
        mesh->V(f.v[1]->vertex_index)[dim] +
        mesh->V(f.v[2]->vertex_index)[dim]) / 3.0f;
 }
-
 }

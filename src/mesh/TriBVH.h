@@ -34,6 +34,7 @@
 
 namespace qaray {
 
+//! TODO: The BVH has a bug somewhere. Need to look at it when there is time
 //! Bounding Volume Hierarchy for triangular meshes (TriMesh)
 
 class BVHTriMesh : public cyBVH {

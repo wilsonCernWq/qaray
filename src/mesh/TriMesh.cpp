@@ -104,6 +104,7 @@ bool TriMesh::LoadFromFileObj(const char *filename,
       index_offset += fv;
     }
   }
+
   std::sort(faces.begin(), faces.end(), [](const TriFace& a, const TriFace& b) {
     if (a.mtl >= 0 && b.mtl >= 0) {
       return a.mtl < b.mtl;
