@@ -130,7 +130,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
     std::chrono::time_point<std::chrono::system_clock> t1, t2;
     //! find out all point lights
     std::vector<Light *> photonLights;
-    for (auto &light : scene->lights) {
+    for (auto light : scene->lights) {
       if (light->IsPhotonSource()) { photonLights.push_back(light); }
     }
     const qaFLOAT lightScale = 1.f / static_cast<qaFLOAT>(photonLights.size());
@@ -152,8 +152,7 @@ void Renderer::ComputeScene(FrameBuffer &fb, Scene &sc)
         else {
           qaFLOAT r;
           rng->local().Get1f(r);
-          size_t id = MIN(static_cast<size_t>(CEIL(r * photonLights.size())),
-                          photonLights.size() - 1);
+          size_t id = MIN(FLOOR(r * photonLights.size()), photonLights.size() - 1);
           light = photonLights[id];
         }
         //! generate one photons

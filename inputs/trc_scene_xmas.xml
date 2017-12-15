@@ -19,20 +19,15 @@
       	<rotate angle="90" x="1"/>
       	<translate y="30"/>
       </object>
-      <object type="plane" name="WallBack" material="wallDark">
-      	<scale value="32"/>
-      	<rotate angle="90" x="1"/>
-      	<translate y="-30"/>
-      </object>
       <object type="plane" name="WallLeft" material="wall">
-      	<scale value="10000"/>
+      	<scale value="32"/>
       	<rotate angle="90" y="1"/>
-      	<translate x="-21"/>
+      	<translate x="-20.01"/>
       </object>
       <object type="plane" name="WallRight" material="wall">
-      	<scale value="10000"/>
+      	<scale value="32"/>
       	<rotate angle="-90" y="1"/>
-      	<translate x="21"/>
+      	<translate x="20.01"/>
       </object>
       <object type="plane" name="WallLeft" material="wallRed">
       	<scale value="20"/>
@@ -143,7 +138,7 @@
       <specular value="0.1"/>
     </material>
     <material type="blinn" name="stars">
-      <emission value="1000"/>
+      <emission value="100"/>
       <specular value="0"/>
     </material>
     <material type="blinn" name="streetlights">
@@ -224,27 +219,32 @@
 
     <!-- mainlights -->
     <light type="point" name="pointLight">
-      <intensity value="3000"/>
-      <position x="-10" y="0" z="22"/>
-    </light>
-    <light type="point" name="pointLight">
-      <intensity value="3000"/>
-      <position x="10" y="0" z="22"/>
+      <intensity value="100" r="0.2" g="0.2" b="1"/>
+      <position x="0" y="0" z="22"/>
     </light>
 
+    <!-- <light type="point" name="pointLightB"> -->
+    <!--   <intensity value="500" r="0.01" g="0.01" b="1" /> -->
+    <!--   <position x="-1" y="10" z="5"/> -->
+    <!-- </light> -->
+    <!-- <light type="point" name="pointLightR"> -->
+    <!--   <intensity value="500" r="0.01" g="0.01" b="1" /> -->
+    <!--   <position x="1" y="10" z="5"/> -->
+    <!-- </light> -->
+
     <!-- pointlights -->
-    <light type="point" name="point Spot Blue Kirche">
-      <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/>
-      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="3.0"/>
-    </light>
-    <light type="point" name="point Spot blau links oben Haus">
-      <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/>
-    </light>
-    <light type="point" name="point Spot blau rechts oben Haus">
-      <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/>
-      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/>
-    </light>
+    <!-- <light type="point" name="point Spot Blue Kirche"> -->
+    <!--   <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/> -->
+    <!--   <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="3.0"/> -->
+    <!-- </light> -->
+    <!-- <light type="point" name="point Spot blau links oben Haus"> -->
+    <!--   <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/> -->
+    <!--   <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/> -->
+    <!-- </light> -->
+    <!-- <light type="point" name="point Spot blau rechts oben Haus"> -->
+    <!--   <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/> -->
+    <!--   <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/> -->
+    <!-- </light> -->
 
     <!-- spotlights -->
 
@@ -261,7 +261,6 @@
       <angle value="77.00000100435535"/>
       <blend value="0.15000000596046448"/>
     </light>
-
 
     <light type="spot" name="spotSpot">
       <position x="-4.778760085144043" y="3.0159275627994537" z="4.998722157592773"/>
@@ -378,12 +377,14 @@
   </scene>
 
   <camera>
-    <position x="0" y="-15" z="8.5"/>
+    <position x="0" y="-35" z="14.5"/>
     <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
-    <width value="3200"/>
-    <height value="2400"/>
+    <!-- <width value="1200"/> -->
+    <!-- <height value="900"/> -->
+    <width value="800"/>
+    <height value="600"/>
   </camera>
   
 </xml>

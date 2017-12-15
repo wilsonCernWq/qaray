@@ -50,11 +50,11 @@ struct RendererParam {
   size_t sppMin = 4;
   qaBOOL usePhotonMap = false;
   size_t photonMapSize = size_t(10000);
-  size_t photonMapBounce = 5;
+  size_t photonMapBounce = 20;
   qaFLOAT photonMapRadius = 0.2f;
   size_t causticsMapSize = size_t(1000);
-  size_t causticsMapBounce = 5;
-  qaFLOAT causticsMapRadius = 0.2f;
+  size_t causticsMapBounce = 20;
+  qaFLOAT causticsMapRadius = 1.0f;
   void SetPhotonMappingFlag(bool flag) { usePhotonMap = flag; }
   void SetPhotonMapBounce(size_t b) { photonMapBounce = b; }
   void SetPhotonMapSize(size_t sz) { photonMapSize = sz; }

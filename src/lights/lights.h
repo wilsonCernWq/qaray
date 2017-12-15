@@ -153,7 +153,7 @@ class SpotLight : public GenLight {
   float GetAttenuation(const Point3& dir) const;
 
   // Photon Extensions
-  bool IsPhotonSource() const override { return true; }
+  bool IsPhotonSource() const override { return false; }
   Color3f GetPhotonIntensity(const Point3& d) const override {
     return intensity * GetAttenuation(d);
   }

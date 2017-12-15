@@ -30,11 +30,11 @@
       </object>
     </object>
     <!-- teapot -->
-    <object type="obj" name="trc2017/teapot-solid.obj" material="mtl2">
+    <object type="obj" name="trc2017/TeapotSolid.obj" material="mtl2">
       <scale value="0.8"/>
       <rotate angle="-30" z="1"/>
       <translate x="0" y="5" z="0"/>
-      <object type="obj" name="trc2017/teapot-high.obj" material="mtl1">
+      <object type="obj" name="trc2017/Teapot.obj" material="mtl1">
         <scale value="0.5"/>
         <translate x="0" y="0" z="1.01"/>
       </object>
