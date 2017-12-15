@@ -410,7 +410,9 @@ void Renderer::ThreadRender()
       float percentage = 100.f * (float)completed / (pixelW * pixelH);
       std::cout << "rank " << mpiRank 
 		<< " competed " << completed << " pixels "
-		<< " percentage " << percentage * mpiSize
+		<< " percentage " 
+		<< std::fixed
+		<< percentage * mpiSize
 		<< " % "
 		<< std::endl;      
     }
