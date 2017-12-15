@@ -376,15 +376,22 @@
     </light>
   </scene>
 
+  <!-- <camera> -->
+  <!--   <position x="0" y="-35" z="14.5"/> -->
+  <!--   <target x="0" y="0" z="6.5"/> -->
+  <!--   <up x="0" y="0" z="1"/> -->
+  <!--   <fov value="30"/> -->
+  <!--   <width value="1200"/> -->
+  <!--   <height value="900"/> -->
+  <!-- </camera> -->
+
   <camera>
-    <position x="0" y="-35" z="14.5"/>
+    <position x="0" y="-20" z="8.5"/>
     <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
-    <!-- <width value="1200"/> -->
-    <!-- <height value="900"/> -->
-    <width value="800"/>
-    <height value="600"/>
+    <width value="1200"/>
+    <height value="900"/>
   </camera>
   
 </xml>
