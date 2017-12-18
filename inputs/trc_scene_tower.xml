@@ -19,14 +19,22 @@
       </object>
     </object>
     <!-- Teapot -->
-    <object type="obj" name="trc2017/teapot-solid.obj" material="mtlTeapot">
+    <object type="obj" name="trc2017/TeapotSolid.obj" material="mtlTeapot">
       <scale value="0.8"/>
       <translate x="0" y="5" z="0"/>
     </object>
-    <object type="obj" name="trc2017/tower.obj" material="mtlTeapot">
-      <scale value="2.895"/>
-      <translate x="-0.11672" y="4.02632" z="-1.76096"/>
+    <object type="obj" name="trc2017/tower.obj" material="mtlTower">
+      <rotate angle="90" x="1"/>
+      <scale value="2.5"/>
+      <translate x="-0.11672" y="-4.02632" z="1.76096"/>
     </object>
+    <object type="obj" name="trc2017/church1.obj" material="mtlTower">
+      <rotate angle="90" x="1"/>
+      <rotate angle="120" z="1"/>
+      <scale value="2"/>
+      <translate x="-0.5" y="5.02632" z="1.76096"/>
+    </object>
+
     <!-- Materials -->
     <material type="blinn" name="wall">
       <diffuse  r="1" g="1" b="1"/>
@@ -38,6 +46,13 @@
       <glossiness value="80"/>
       <refraction value="1.0" index="1.52"/>
       <absorption r="0.1" g="0.001" b="0.1"/>
+    </material>
+    <material type="blinn" name="mtlTower">
+      <diffuse  value="0"/>
+      <specular vakye="1.0"/>
+      <glossiness value="80"/>
+      <refraction value="1.0" index="1.52"/>
+      <absorption r="0.01" g="0.02" b="2"/>
     </material>
     <!-- Lights -->
     <light type="ambient" name="ambientLight">
