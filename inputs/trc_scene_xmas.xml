@@ -68,68 +68,68 @@
       <object type="obj" name="trc2017/Stars.obj" material="stars">
       </object>
     </object>
-    <object name="XMasBoxSnow" >
-      <scale value="0.61"/>
-      <translate x="-3.01079" y="3.92459" z="1.42112"/>
-      <object type="obj" name="trc2017/Snow.obj" material="snow"/>
-    </object>
+    <!-- <object name="XMasBoxSnow" > -->
+    <!--   <scale value="0.61"/> -->
+    <!--   <translate x="-3.01079" y="3.92459" z="1.42112"/> -->
+    <!--   <object type="obj" name="trc2017/Snow.obj" material="snow"/> -->
+    <!-- </object> -->
 
     <!-- Spheres -->
-    <object name="ball.000">
-      <scale value="3"/>
-      <translate x="8.328149795532227" y="-3.298569917678833" z="3.0"/>
-      <object type="sphere" name="Sphere.000"  material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-red"/>
-    </object>
+    <!-- <object name="ball.000"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="8.328149795532227" y="-3.298569917678833" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.000"  material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj"  material="ico-red"/> -->
+    <!-- </object> -->
 
-    <object name="ball.001">
-      <scale value="3"/>
-      <translate x="-7.197254180908203" y="-4.478445053100586" z="3.0"/>
-      <object type="sphere" name="Sphere.001" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
-    </object>
+    <!-- <object name="ball.001"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="-7.197254180908203" y="-4.478445053100586" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.001" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/> -->
+    <!-- </object> -->
 
-    <object name="ball.002">
-      <scale value="3"/>
-      <translate x="-11.33419418334961" y="6.649848937988281" z="3.0"/>
-      <object type="sphere" name="Sphere.002" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
-    </object>
+    <!-- <object name="ball.002"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="-11.33419418334961" y="6.649848937988281" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.002" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/> -->
+    <!-- </object> -->
 
-    <object name="ball.003">
-      <scale value="3"/>
-      <translate x="-5.73148250579834" y="15.717945098876953" z="3.0"/>
-      <object type="sphere" name="Sphere.003" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
-    </object>
+    <!-- <object name="ball.003"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="-5.73148250579834" y="15.717945098876953" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.003" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/> -->
+    <!-- </object> -->
 
-    <object name="ball.004">
-      <scale value="3"/>
-      <translate x="-11.758140563964844" y="16.22116470336914" z="3.0"/>
-      <object type="sphere" name="Sphere.004" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/>
-    </object>
+    <!-- <object name="ball.004"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="-11.758140563964844" y="16.22116470336914" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.004" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj"  material="ico-blue"/> -->
+    <!-- </object> -->
 
-    <object name="ball.005">
-      <scale value="3"/>
-      <translate x="7.813332557678223" y="18.180728912353516" z="2.999999761581421"/>
-      <object type="sphere" name="Sphere.005" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-green"/>
-    </object>
+    <!-- <object name="ball.005"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="7.813332557678223" y="18.180728912353516" z="2.999999761581421"/> -->
+    <!--   <object type="sphere" name="Sphere.005" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj" material="ico-green"/> -->
+    <!-- </object> -->
 
-    <object name="ball.006">
-      <scale value="3"/>
-      <translate x="0.34676742553711" y="19.18698883056640625" z="3.0"/>
-      <object type="sphere" name="Sphere.006" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>
-    </object>
+    <!-- <object name="ball.006"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="0.34676742553711" y="19.18698883056640625" z="3.0"/> -->
+    <!--   <object type="sphere" name="Sphere.006" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj" material="ico-red"/> -->
+    <!-- </object> -->
 
-    <object name="ball.007">
-      <scale value="3"/>
-      <translate x="10.7642347812652588" y="10.969832897186279" z="3.0000014305114746"/>
-      <object type="sphere" name="Sphere.007" material="spheres"/>
-      <object type="obj" name="trc2017/ICO.obj" material="ico-red"/>
-    </object>
+    <!-- <object name="ball.007"> -->
+    <!--   <scale value="3"/> -->
+    <!--   <translate x="10.7642347812652588" y="10.969832897186279" z="3.0000014305114746"/> -->
+    <!--   <object type="sphere" name="Sphere.007" material="spheres"/> -->
+    <!--   <object type="obj" name="trc2017/ICO.obj" material="ico-red"/> -->
+    <!-- </object> -->
     
     <!-- Materials -->
     <material type="blinn" name="snow">
@@ -223,37 +223,37 @@
       <position x="0" y="0" z="22"/>
     </light>
 
-    <!-- <light type="point" name="pointLightB"> -->
-    <!--   <intensity value="500" r="0.01" g="0.01" b="1" /> -->
-    <!--   <position x="-1" y="10" z="5"/> -->
-    <!-- </light> -->
-    <!-- <light type="point" name="pointLightR"> -->
-    <!--   <intensity value="500" r="0.01" g="0.01" b="1" /> -->
-    <!--   <position x="1" y="10" z="5"/> -->
-    <!-- </light> -->
+    <light type="point" name="pointLightB">
+      <intensity value="500" r="0.01" g="0.01" b="1" />
+      <position x="-1" y="10" z="5"/>
+    </light>
+    <light type="point" name="pointLightR">
+      <intensity value="500" r="0.01" g="0.01" b="1" />
+      <position x="1" y="10" z="5"/>
+    </light>
 
-    <!-- pointlights -->
-    <!-- <light type="point" name="point Spot Blue Kirche"> -->
-    <!--   <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/> -->
-    <!--   <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="3.0"/> -->
-    <!-- </light> -->
-    <!-- <light type="point" name="point Spot blau links oben Haus"> -->
-    <!--   <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/> -->
-    <!--   <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/> -->
-    <!-- </light> -->
-    <!-- <light type="point" name="point Spot blau rechts oben Haus"> -->
-    <!--   <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/> -->
-    <!--   <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/> -->
-    <!-- </light> -->
+    pointlights
+    <light type="point" name="point Spot Blue Kirche">
+      <position x="-0.9615789580726624" y="4.168433133449554" z="7.143550095672607"/>
+      <intensity r="0.006047435104846954" g="0.5062061548233032" b="1.0" value="3.0"/>
+    </light>
+    <light type="point" name="point Spot blau links oben Haus">
+      <position x="3.625982727966308" y="3.338386783685684" z="7.660184683914185"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/>
+    </light>
+    <light type="point" name="point Spot blau rechts oben Haus">
+      <position x="0.8998136949157711" y="4.101947661724091" z="7.660184102172852"/>
+      <intensity r="0.02335185743868351" g="0.9850839376449585" b="1.0" value="1."/>
+    </light>
 
-    <!-- spotlights -->
+    spotlights
 
     <light type="spot" name="spotSpot">
       <position x="0" y="0" z="22"/>
       <intensity r="1" g="0.901" b="0.638" value="12000.0"/>
       <angle value="77"/>
       <blend value="0.150"/>
-    </light>    
+    </light>
 
     <light type="spot" name="spotSpot.002">
       <position x="-1.1454111099624635" y="5.105449061479568" z="20.394871373291014"/>
@@ -376,22 +376,22 @@
     </light>
   </scene>
 
-  <!-- <camera> -->
-  <!--   <position x="0" y="-35" z="14.5"/> -->
-  <!--   <target x="0" y="0" z="6.5"/> -->
-  <!--   <up x="0" y="0" z="1"/> -->
-  <!--   <fov value="30"/> -->
-  <!--   <width value="1200"/> -->
-  <!--   <height value="900"/> -->
-  <!-- </camera> -->
-
   <camera>
-    <position x="0" y="-20" z="8.5"/>
+    <position x="0" y="-35" z="14.5"/>
     <target x="0" y="0" z="6.5"/>
     <up x="0" y="0" z="1"/>
     <fov value="30"/>
     <width value="1200"/>
     <height value="900"/>
   </camera>
+
+  <!-- <camera> -->
+  <!--   <position x="0" y="-20" z="8.5"/> -->
+  <!--   <target x="0" y="0" z="6.5"/> -->
+  <!--   <up x="0" y="0" z="1"/> -->
+  <!--   <fov value="30"/> -->
+  <!--   <width value="1200"/> -->
+  <!--   <height value="900"/> -->
+  <!-- </camera> -->
   
 </xml>
