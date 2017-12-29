@@ -97,14 +97,13 @@ bool TriMesh::LoadFromFileObj(const char *filename,
                          shape.mesh.indices[index_offset + 0],
                          shape.mesh.indices[index_offset + 1],
                          shape.mesh.indices[index_offset + 2],
-                         mtl_id);
+                         mtl_id, faces.size());
       if (mtl_id >= 0) {
         ++mcfc[mtl_id];
       }
       index_offset += fv;
     }
   }
-
   std::sort(faces.begin(), faces.end(), [](const TriFace& a, const TriFace& b) {
     if (a.mtl >= 0 && b.mtl >= 0) {
       return a.mtl < b.mtl;
@@ -134,7 +133,7 @@ void TriMesh::ComputeBoundingBox() {
 }
 void TriMesh::ComputeNormals(bool clockwise) {
   attrib.normals.clear();
-  attrib.normals.resize(NV());
+  attrib.normals.resize(3 * NV());
   for (unsigned int i = 0; i < NF(); i++) {
     // initialize all normals to zero
     VN(i) = vec3f(0, 0, 0);

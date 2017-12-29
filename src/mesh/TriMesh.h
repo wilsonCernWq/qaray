@@ -33,25 +33,27 @@
 #include <tiny_obj_loader.h>
 #include <utility>
 #include <cassert>
+#include <array>
 
 namespace qaray {
 class TriMesh {
  public:
   struct TriFace {
-    tinyobj::shape_t* shape;
+    tinyobj::shape_t* shape = nullptr;
     tinyobj::index_t* v[3];
+    size_t idx;
     int mtl;
     TriFace(tinyobj::shape_t& s,
             tinyobj::index_t& vt0,
             tinyobj::index_t& vt1,
             tinyobj::index_t& vt2,
-            int m)
+            int m, size_t id)
         :
-        shape(&s), mtl(m), v{&vt0, &vt1, &vt2}
+        shape(&s), mtl(m), v{&vt0, &vt1, &vt2}, idx(id)
     {}
     TriFace(const TriFace& t)
         :
-        shape(t.shape), mtl(t.mtl), v{t.v[0], t.v[1], t.v[2]}
+        shape(t.shape), mtl(t.mtl), v{t.v[0], t.v[1], t.v[2]}, idx(t.idx)
     {}
     TriFace& operator = (const TriFace& t) {
       if (&t == this) { return *this; }
@@ -60,6 +62,7 @@ class TriMesh {
       v[0] = t.v[0];
       v[1] = t.v[1];
       v[2] = t.v[2];
+      idx = t.idx;
     };
   };
  private:

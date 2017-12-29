@@ -1,6 +1,6 @@
 <xml>
   <scene>
-    <object type="obj" name="cornell_box.obj">
+    <object type="obj" name="examples/cornell_box.obj">
       <translate x="-278" y="-274.4" z="-279.1"/>
       <scale value="0.05"/>
       <rotate angle="90" x="1"/>
